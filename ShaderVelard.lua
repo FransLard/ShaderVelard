@@ -4007,7 +4007,7 @@ __modules["UI"] = function()
 
 	local window = make("Frame", {
 		Name = "Window",
-		Size = isMobile and UDim2.fromScale(0.94, 0.9) or UDim2.fromOffset(780, 580),
+		Size = isMobile and UDim2.fromScale(0.82, 0.72) or UDim2.fromOffset(780, 580),
 		Position = UDim2.fromScale(0.5, 0.5),
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		BackgroundColor3 = theme.Bg,
