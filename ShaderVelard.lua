@@ -25,7 +25,7 @@ __modules["Config"] = function()
 	local Config = {}
 
 	Config.Name = "ShaderVelard"
-	Config.Version = "Joevan Parity 2.1.0"
+	Config.Version = "VelardShader 2.2.0"
 	Config.Tagline = "Native Roblox Studio shader & lighting suite"
 
 	Config.Theme = {
@@ -320,7 +320,7 @@ __modules["Config"] = function()
 
 	Config.Presets = {
 		{
-			Name = "RTX WetLook (Wet Floor)",
+			Name = "Velard Wet Floor RTX",
 			Key = "WetRTX",
 			Desc = "Glossy wet floor + character reflection",
 			AccentColor = Color3.fromRGB(95, 165, 215),
@@ -385,7 +385,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Realistic Glow",
+			Name = "Luminous Realism",
 			Key = "RealisticGlow",
 			Desc = "Natural blue sky with realistic lighting",
 			AccentColor = Color3.fromRGB(180, 220, 255),
@@ -463,7 +463,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Realistic HD",
+			Name = "Crisp Realism HD",
 			Key = "RealisticHD",
 			Desc = "High-definition realistic look, natural colors",
 			AccentColor = Color3.fromRGB(0, 255, 170),
@@ -535,7 +535,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Natural Realistic",
+			Name = "Pure Natural Light",
 			Key = "NaturalRealistic",
 			Desc = "Template natural realistic parameter preset",
 			AccentColor = Color3.fromRGB(85, 255, 127),
@@ -605,7 +605,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Ultra Marble",
+			Name = "Marble Luxe",
 			Key = "Marble",
 			Desc = "Elegant polished marble floor",
 			AccentColor = Color3.fromRGB(235, 220, 180),
@@ -670,7 +670,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "RTX Chrome",
+			Name = "Chrome Mirror",
 			Key = "Chrome",
 			Desc = "Metallic chrome mirror floor",
 			AccentColor = Color3.fromRGB(205, 205, 215),
@@ -735,7 +735,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Cyberpunk Neon",
+			Name = "Night City Neon",
 			Key = "Neon",
 			Desc = "Neon reflective glass floor",
 			AccentColor = Color3.fromRGB(225, 90, 255),
@@ -801,7 +801,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Aesthetic Glow",
+			Name = "Soft Aesthetic Glow",
 			Key = "Aesthetic",
 			Desc = "Pastel pink twilight lighting",
 			AccentColor = Color3.fromRGB(255, 200, 220),
@@ -849,7 +849,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Cinematic Warm",
+			Name = "Warm Cinematic",
 			Key = "Cinematic",
 			Desc = "Warm film look with deep contrast",
 			AccentColor = Color3.fromRGB(255, 120, 20),
@@ -902,7 +902,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Horror Fog",
+			Name = "Fog Horror",
 			Key = "Horror",
 			Desc = "Cold, desaturated, heavy fog",
 			AccentColor = Color3.fromRGB(255, 60, 90),
@@ -965,7 +965,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Anime Vibrant",
+			Name = "Vivid Anime",
 			Key = "Anime",
 			Desc = "Bright, saturated, vibrant colors",
 			AccentColor = Color3.fromRGB(255, 80, 160),
@@ -1013,7 +1013,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Realistic Day",
+			Name = "Clear Day Realism",
 			Key = "Realistic",
 			Desc = "Natural colors, balanced lighting",
 			AccentColor = Color3.fromRGB(0, 255, 170),
@@ -1081,7 +1081,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Sunset Gold",
+			Name = "Golden Sunset",
 			Key = "Sunset",
 			Desc = "Golden hour warmth, long shadows",
 			AccentColor = Color3.fromRGB(255, 170, 0),
@@ -1132,7 +1132,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Dreamy Ethereal",
+			Name = "Ethereal Dream",
 			Key = "Dreamy",
 			Desc = "Soft glow, ethereal atmosphere",
 			AccentColor = Color3.fromRGB(60, 140, 255),
@@ -1178,7 +1178,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Vintage Sepia",
+			Name = "Sepia Memories",
 			Key = "Vintage",
 			Desc = "Sepia tones, nostalgic feel",
 			AccentColor = Color3.fromRGB(255, 120, 20),
@@ -1229,7 +1229,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "RedNight (Red Night)",
+			Name = "Crimson Night",
 			Key = "RedNight",
 			Desc = "Dark night sky with an orange/red tint",
 			AccentColor = Color3.fromRGB(240, 127, 14),
@@ -1280,7 +1280,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Blue* (Futuristic Blue)",
+			Name = "Futuristic Blue",
 			Key = "BlueFuturistic",
 			Desc = "Bright blue sci-fi themed sky",
 			AccentColor = Color3.fromRGB(180, 220, 255),
@@ -1325,7 +1325,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Galaxy (Purple Nebula)",
+			Name = "Purple Nebula Galaxy",
 			Key = "GalaxyNebula",
 			Desc = "Starry deep space with purple/blue nebula",
 			AccentColor = Color3.fromRGB(150, 100, 200),
@@ -1371,7 +1371,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Vaporwave",
+			Name = "Retro Vaporwave",
 			Key = "Vaporwave",
 			Desc = "Retro-futuristic neon pink aesthetic",
 			AccentColor = Color3.fromRGB(200, 100, 220),
@@ -1386,7 +1386,7 @@ __modules["Config"] = function()
 				Rt = "rbxassetid://8631735555",
 				Up = "rbxassetid://8631782345",
 			},
-			SkyName = "Vaporwave",
+			SkyName = "Retro Vaporwave",
 			Look = {
 				Lighting = {
 					ClockTime = 19,
@@ -1415,7 +1415,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Pinkful Morning",
+			Name = "Pink Morning",
 			Key = "PinkfulMorning",
 			Desc = "Bright pastel pink-orange sky",
 			AccentColor = Color3.fromRGB(255, 200, 230),
@@ -1460,7 +1460,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "White to Pink",
+			Name = "Blush Gradient",
 			Key = "WhiteToPink",
 			Desc = "Fading from pure white to soft pink",
 			AccentColor = Color3.fromRGB(255, 210, 220),
@@ -1503,7 +1503,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Oblivion Skybox",
+			Name = "Oblivion Sky",
 			Key = "OblivionSky",
 			Desc = "Gloomy greenish-yellow sky",
 			AccentColor = Color3.fromRGB(255, 200, 100),
@@ -1548,7 +1548,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Winter Wonderland",
+			Name = "Frozen Wonderland",
 			Key = "Winter",
 			Desc = "Snowy terrain with winter effects",
 			AccentColor = Color3.fromRGB(200, 240, 255),
@@ -1603,7 +1603,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Photoreal Cinema 8K",
+			Name = "Velard Cinema 8K",
 			Key = "PhotorealCinema8K",
 			Desc = "Ultra HD cinematic photorealism with volumetric atmosphere, solar raymarching & natural lighting",
 			AccentColor = Color3.fromRGB(0, 220, 255),
@@ -1683,7 +1683,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Experimental Daylight",
+			Name = "Daylight Experiment",
 			Key = "ExperimentalDaylight",
 			Desc = "Natural physical daylight with photorealistic sun glare, crisp horizon & true sky bounce",
 			AccentColor = Color3.fromRGB(255, 200, 60),
@@ -1761,7 +1761,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Overcast Wet Asphalt (PBR)",
+			Name = "Rainy Asphalt PBR",
 			Key = "OvercastWetAsphalt",
 			Desc = "Photorealistic wet ground reflections with soft overcast lighting, diffused shadows & cool atmospheric haze",
 			AccentColor = Color3.fromRGB(120, 170, 220),
@@ -1835,7 +1835,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Golden Hour Photorealism",
+			Name = "Golden Dusk Realism",
 			Key = "GoldenHourPhotoreal",
 			Desc = "Warm cinematic sunset warmth, rich golden ambient bounce & soft optical bokeh without overexposure",
 			AccentColor = Color3.fromRGB(255, 150, 50),
@@ -1909,7 +1909,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Cyberpunk Raytraced Neon",
+			Name = "Neon City Raytrace",
 			Key = "CyberpunkRaytracedNeon",
 			Desc = "Photorealistic night illumination with deep shadows, crisp neon specular bloom & chromatic night ambiance",
 			AccentColor = Color3.fromRGB(0, 235, 255),
@@ -1991,28 +1991,8 @@ __modules["Config"] = function()
 		}
 	}
 
-	-- Joevan's five premium-tier looks (the last five entries in its preset
-	-- table). They stay listed in the Presets tab but require Premium. The
-	-- Premium tab unlocks the tier locally, without PandaAuth or a key.
-	Config.PremiumPresets = {
-		["Photoreal Cinema 8K"] = true,
-		["Experimental Daylight"] = true,
-		["Overcast Wet Asphalt (PBR)"] = true,
-		["Golden Hour Photorealism"] = true,
-		["Cyberpunk Raytraced Neon"] = true,
-	}
-
-	Config.PremiumFeatures = {
-		"5 premium photoreal presets",
-		"RTX / Banano wrap-all-objects & terrain",
-		"Advanced lighting: Ambient, OutdoorAmbient, Diffuse/Specular, Shadows",
-		"Skybox scanner, generator and by-ID apply",
-		"SSR Detail / Opacity / Thickness tab",
-	}
-
 	-- Effect-only looks kept for backwards compatibility with old share codes and
-	-- API calls. They are not part of Joevan's preset list, so the Presets tab
-	-- shows only Config.Presets above (exactly the 28 Joevan presets).
+	-- API calls. The Presets tab shows only Config.Presets above.
 	Config.ExtraPresets = {
 		{
 			Name = "Dynamic DOF",
@@ -2198,18 +2178,46 @@ __modules["Config"] = function()
 		}
 	}
 
-	-- Joevan-compatible display names / keys. Older builds used the left-hand
-	-- names; keep them working so saved share codes and API calls do not break.
+	-- Display names / keys kept for backwards compatibility. Older builds and
+	-- saved share codes used the left-hand names, so they keep working.
 	Config.PresetAliases = {
-		["Wet RTX"] = "RTX WetLook (Wet Floor)",
-		["Realistic"] = "Realistic Day",
-		["Galaxy Nebula"] = "Galaxy (Purple Nebula)",
-		["Golden Hour HD"] = "Golden Hour Photorealism",
+		["RTX WetLook (Wet Floor)"] = "Velard Wet Floor RTX",
+		["Realistic Glow"] = "Luminous Realism",
+		["Realistic HD"] = "Crisp Realism HD",
+		["Natural Realistic"] = "Pure Natural Light",
+		["Ultra Marble"] = "Marble Luxe",
+		["RTX Chrome"] = "Chrome Mirror",
+		["Cyberpunk Neon"] = "Night City Neon",
+		["Aesthetic Glow"] = "Soft Aesthetic Glow",
+		["Cinematic Warm"] = "Warm Cinematic",
+		["Horror Fog"] = "Fog Horror",
+		["Anime Vibrant"] = "Vivid Anime",
+		["Realistic Day"] = "Clear Day Realism",
+		["Sunset Gold"] = "Golden Sunset",
+		["Dreamy Ethereal"] = "Ethereal Dream",
+		["Vintage Sepia"] = "Sepia Memories",
+		["RedNight (Red Night)"] = "Crimson Night",
+		["Blue* (Futuristic Blue)"] = "Futuristic Blue",
+		["Galaxy (Purple Nebula)"] = "Purple Nebula Galaxy",
+		["Vaporwave"] = "Retro Vaporwave",
+		["Pinkful Morning"] = "Pink Morning",
+		["White to Pink"] = "Blush Gradient",
+		["Oblivion Skybox"] = "Oblivion Sky",
+		["Winter Wonderland"] = "Frozen Wonderland",
+		["Wet RTX"] = "Velard Wet Floor RTX",
+		["Realistic"] = "Clear Day Realism",
+		["Galaxy Nebula"] = "Purple Nebula Galaxy",
+		["Golden Hour HD"] = "Golden Dusk Realism",
+		["Golden Hour Photorealism"] = "Golden Dusk Realism",
 		["Lens Flare Sun"] = "Lens Flare",
-		["Red Night"] = "RedNight (Red Night)",
-		["Blue Futuristic"] = "Blue* (Futuristic Blue)",
-		["Oblivion"] = "Oblivion Skybox",
-		["Overcast Wet Asphalt"] = "Overcast Wet Asphalt (PBR)",
+		["Red Night"] = "Crimson Night",
+		["Blue Futuristic"] = "Futuristic Blue",
+		["Oblivion"] = "Oblivion Sky",
+		["Overcast Wet Asphalt"] = "Rainy Asphalt PBR",
+		["Overcast Wet Asphalt (PBR)"] = "Rainy Asphalt PBR",
+		["Photoreal Cinema 8K"] = "Velard Cinema 8K",
+		["Experimental Daylight"] = "Daylight Experiment",
+		["Cyberpunk Raytraced Neon"] = "Neon City Raytrace",
 		["Light Glossy Plastic"] = "Light Glossy Plastic [Medium]",
 		["Light Glossy Metal"] = "Light Glossy Metal [Medium]",
 		["Light Glossy Combo"] = "Combo Glossy [Heavy]",
@@ -2521,7 +2529,6 @@ __modules["Effects"] = function()
 	local state = {
 		base = copy(initialBase),
 		presetName = "None",
-		premium = false,
 		skyName = "Default",
 		skyIndex = 1,
 		customSky = {
@@ -2668,42 +2675,10 @@ __modules["Effects"] = function()
 		},
 		skyTextString = "ShaderVelard",
 		liteMode = false,
-		premiumRemember = false,
 	}
 
 	local initialSliders = copy(state.sliders)
 	local initialDropdowns = copy(state.dropdowns)
-
-	-- Premium is still 100% local, but the player can opt in to remember it for
-	-- this game session. The flag lives only in _G/shared (executor memory), never
-	-- on disk and never on a remote.
-	Effects._persistPremium = function()
-		local payload = {
-			premium = state.premium == true and state.premiumRemember == true,
-			remember = state.premiumRemember == true,
-		}
-		pcall(function()
-			_G.__ShaderVelardPremiumSession = payload
-		end)
-		pcall(function()
-			shared.__ShaderVelardPremiumSession = payload
-		end)
-	end
-	do
-		local remembered = nil
-		pcall(function()
-			remembered = _G.__ShaderVelardPremiumSession
-		end)
-		if type(remembered) ~= "table" then
-			pcall(function()
-				remembered = shared.__ShaderVelardPremiumSession
-			end)
-		end
-		if type(remembered) == "table" and remembered.remember == true then
-			state.premiumRemember = true
-			state.premium = remembered.premium == true
-		end
-	end
 
 	-- Session locks. A locked toggle is forced on and can never be turned off
 	-- again until the player rejoins (the state lives only in this client script).
@@ -2760,56 +2735,6 @@ __modules["Effects"] = function()
 			persisted[name] = true
 		end)
 		return true
-	end
-
-	-- Local premium tier. Joevan gates five "premium" looks behind PandaAuth;
-	-- this remake keeps the same tier split but unlocks locally without a key.
-	-- Premium is opt-in so the locked state matches the original UI.
-	function Effects.setPremium(value)
-		state.premium = value == true
-		Effects._persistPremium()
-		if Effects.onChanged then
-			pcall(Effects.onChanged)
-		end
-		if Effects.onStatus then
-			pcall(Effects.onStatus, state.premium and "Premium tier enabled" or "Premium tier disabled")
-		end
-		return state.premium
-	end
-
-	function Effects.setPremiumRemember(value)
-		state.premiumRemember = value == true
-		Effects._persistPremium()
-		if Effects.onStatus then
-			pcall(Effects.onStatus, state.premiumRemember
-				and "Premium will be remembered until you leave this game"
-				or "Premium session memory cleared")
-		end
-		return state.premiumRemember
-	end
-
-	function Effects.isPremiumRemembered()
-		return state.premiumRemember == true
-	end
-
-	function Effects.isPremium()
-		return state.premium == true
-	end
-
-	function Effects.isPremiumPreset(name)
-		local list = Config.PremiumPresets
-		if type(list) == "table" then
-			if list[name] then
-				return true
-			end
-			for _, entry in ipairs(list) do
-				if entry == name then
-					return true
-				end
-			end
-		end
-		local preset = Config.findPreset and Config.findPreset(name)
-		return preset ~= nil and preset.Premium == true
 	end
 
 	local function setStatus(message)
@@ -3488,7 +3413,7 @@ __modules["Effects"] = function()
 		end
 
 		local material, reflectance, origin, radius = glossyPass()
-		-- "Wrap All Objects" mirrors Joevan's RTX/Banano option: when enabled the
+		-- "Wrap All Objects" reflects the RTX/Banano option: when enabled the
 		-- reflection pass ignores the radius and wraps the entire workspace.
 		if state.toggles.rtx and state.toggles.rtxWrapObjects then
 			radius = nil
@@ -4036,7 +3961,7 @@ __modules["Effects"] = function()
 
 	function Effects.recompute()
 		local look = copy(state.base)
-		-- Standalone GlobalShadows override (Joevan exposes it as a toggle).
+		-- Standalone GlobalShadows override exposed as a toggle.
 		if state.dropdowns.globalShadows == "Off" then
 			look.Lighting.GlobalShadows = false
 		elseif state.dropdowns.globalShadows == "On" then
@@ -4257,7 +4182,6 @@ __modules["Effects"] = function()
 	local freecamCFrame = nil
 	local freecamConnections = nil
 	local freecamKeys = {}
-	local freecamRightDown = false
 	local antiAfkConnection = nil
 	local antiAfkTimer = 0
 
@@ -4570,7 +4494,6 @@ __modules["Effects"] = function()
 	local function stopFreecam()
 		disconnectFreecamInput()
 		freecamKeys = {}
-		freecamRightDown = false
 		local camera = Workspace.CurrentCamera
 		if freecamSaved then
 			if camera then
@@ -4604,14 +4527,12 @@ __modules["Effects"] = function()
 		end)
 
 		freecamConnections = {
-			UserInputService.InputBegan:Connect(function(input, processed)
+			UserInputService.InputBegan:Connect(function(input)
 				if input.UserInputType == Enum.UserInputType.Keyboard then
 					local action = FREECAM_KEYMAP[input.KeyCode]
 					if action then
 						freecamKeys[action] = true
 					end
-				elseif input.UserInputType == Enum.UserInputType.MouseButton2 then
-					freecamRightDown = true
 				end
 			end),
 			UserInputService.InputEnded:Connect(function(input)
@@ -4620,12 +4541,10 @@ __modules["Effects"] = function()
 					if action then
 						freecamKeys[action] = false
 					end
-				elseif input.UserInputType == Enum.UserInputType.MouseButton2 then
-					freecamRightDown = false
 				end
 			end),
 			UserInputService.InputChanged:Connect(function(input)
-				if not freecamRightDown or not freecamCFrame then
+				if not freecamCFrame then
 					return
 				end
 				if input.UserInputType == Enum.UserInputType.MouseMovement then
@@ -4681,7 +4600,7 @@ __modules["Effects"] = function()
 			stopFreecam()
 		end
 		notifyChanged()
-		setStatus(value and "Freecam enabled (WASD / QE / Shift, hold right mouse to look)" or "Freecam disabled")
+		setStatus(value and "Freecam enabled (WASD / QE / Shift, move the mouse to look)" or "Freecam disabled")
 		return value
 	end
 
@@ -5841,7 +5760,7 @@ __modules["Effects"] = function()
 	end
 
 	-- ===== Preset share codes =====
-	-- Joevan exposes a one-line base64 share code. We encode a compact snapshot of
+	-- The share code is a one-line base64 snapshot of
 	-- the whole visual state (base look, toggles, sliders, dropdowns and sky) so a
 	-- code can be pasted into another session without losing precision.
 	Effects._share = (function()
@@ -6087,8 +6006,6 @@ __modules["Effects"] = function()
 			customSky = state.customSky,
 			skyTextString = state.skyTextString,
 			presetName = state.presetName,
-			premium = state.premium == true,
-			premiumRemember = state.premiumRemember == true,
 			liteMode = state.liteMode == true,
 		}
 		local ok, encoded = pcall(function()
@@ -6184,13 +6101,6 @@ __modules["Effects"] = function()
 			if type(snapshot.skyIndex) == "number" then
 				state.skyIndex = math.clamp(math.floor(snapshot.skyIndex), 1, math.max(#Config.Skyboxes, 1))
 			end
-			if type(snapshot.premium) == "boolean" then
-				state.premium = snapshot.premium
-			end
-			if type(snapshot.premiumRemember) == "boolean" then
-				state.premiumRemember = snapshot.premiumRemember
-			end
-			Effects._persistPremium()
 			if type(snapshot.liteMode) == "boolean" then
 				state.liteMode = snapshot.liteMode
 				glossyCandidates = nil
@@ -6222,7 +6132,7 @@ __modules["Effects"] = function()
 		return true
 	end
 
-	-- ===== Saved custom presets (Joevan-style preset file) =====
+	-- ===== Saved custom presets =====
 	-- Wrapped in an IIFE so this feature gets its own local-variable budget.
 	Effects._presetStore = (function()
 	local PRESET_FILE = "ShaderVelard_Presets.txt"
@@ -6410,13 +6320,6 @@ __modules["Effects"] = function()
 		if not preset then
 			return
 		end
-		if (preset.Premium or Effects.isPremiumPreset(preset.Name)) and not state.premium then
-			if Effects.onNotify then
-				pcall(Effects.onNotify, "YOU ARE NOT PREMIUM", "Activate Premium in the Premium tab to use " .. tostring(preset.Name) .. ".", 6)
-			end
-			setStatus("Premium preset locked")
-			return false, "not_premium"
-		end
 
 		local look = copy(Config.NeutralLook)
 		merge(look, preset.Look)
@@ -6508,7 +6411,7 @@ __modules["Effects"] = function()
 		elseif preset.Sky then
 			Effects.applySky(preset.Sky)
 		else
-			-- Every Joevan preset carries a skybox. Reset the sky for effect-only
+			-- Every built-in preset carries a skybox. Reset the sky for effect-only
 			-- looks so a previous preset cannot bleed through.
 			Effects.applySky("Default")
 		end
@@ -7358,30 +7261,6 @@ __modules["UI"] = function()
 	}, header)
 	addCorner(minimizeButton, 8)
 
-	local premiumBadge = make("TextButton", {
-		Name = "PremiumBadge",
-		Text = "FREE",
-		Font = fonts.Bold,
-		TextSize = 10,
-		TextColor3 = theme.Muted,
-		BackgroundColor3 = theme.Card,
-		AutoButtonColor = false,
-		Size = UDim2.fromOffset(72, 26),
-		Position = UDim2.new(1, isMobile and -116 or -110, 0, HEADER_BTN_Y),
-		BorderSizePixel = 0,
-		ZIndex = 4,
-		ClipsDescendants = true,
-		Visible = not isMobile,
-	}, header)
-	addCorner(premiumBadge, 8)
-	addStroke(premiumBadge, theme.Stroke, 1, 0.2)
-	premiumBadge.Activated:Connect(function()
-		setWindowVisible(true)
-		if selectTab then
-			selectTab("premium")
-		end
-	end)
-
 	local sidebar
 	local tabList
 	local tabListHorizontal = false
@@ -7525,15 +7404,13 @@ __modules["UI"] = function()
 		guiOpacity = 1,
 		uiScale = 1,
 		hud = false,
-		cursorUnlocked = false,
 		keybinds = {
 			toggleUI = Enum.KeyCode.V,
 			resetEffects = Enum.KeyCode.Nine,
 			toggleHUD = Enum.KeyCode.H,
-			freecam = Enum.KeyCode.F,
+			freecam = Enum.KeyCode.Eight,
 			nextPreset = Enum.KeyCode.P,
 			nextSkybox = Enum.KeyCode.K,
-			unlockCursor = Enum.KeyCode.RightAlt,
 		},
 	}
 	local keybindButtons = {}
@@ -7600,33 +7477,25 @@ __modules["UI"] = function()
 		end
 	end
 
-	-- Some games force a locked/centered mouse. This toggle releases it locally
-	-- (client-side only) and restores the previous behaviour when turned off.
-	local savedCursorState = nil
-	local function setCursorUnlocked(value)
-		value = value == true
-		if value and not interfaceState.cursorUnlocked then
-			local ok, behavior = pcall(function()
-				return UserInputService.MouseBehavior
-			end)
-			local okIcon, icon = pcall(function()
-				return UserInputService.MouseIconEnabled
-			end)
-			savedCursorState = {
-				behavior = ok and behavior or nil,
-				icon = okIcon and icon or nil,
-			}
+	-- Keep gameplay camera mouse-look working: the cursor is released only while
+	-- the menu is open. When the menu closes the mouse is locked back to the game
+	-- so the camera turns with mouse movement instead of requiring right-click.
+	local originalMouseState = {
+		behavior = UserInputService.MouseBehavior,
+		icon = UserInputService.MouseIconEnabled,
+	}
+
+	local function applyMouseBehavior(menuOpen)
+		if isMobile then
+			return
 		end
+		local unlocked = menuOpen == true
 		pcall(function()
-			UserInputService.MouseBehavior = value and Enum.MouseBehavior.Default or (savedCursorState and savedCursorState.behavior)
+			UserInputService.MouseBehavior = unlocked and Enum.MouseBehavior.Default or Enum.MouseBehavior.LockCenter
 		end)
 		pcall(function()
-			UserInputService.MouseIconEnabled = value and true or (savedCursorState and savedCursorState.icon)
+			UserInputService.MouseIconEnabled = unlocked
 		end)
-		interfaceState.cursorUnlocked = value
-		if not value then
-			savedCursorState = nil
-		end
 	end
 
 	local function addSection(parent, text)
@@ -8752,10 +8621,9 @@ __modules["UI"] = function()
 		return row
 	end
 
-	-- ===== Joevan-parity tab tree =====
-	-- 12 tabs in the same order as Joevan V15:
-	-- Home, Graphics, Shaders, Presets, Skybox, Settings, SSR, Premium,
-	-- Advance, Korless, Debug, Chat.
+	-- ===== Tab tree =====
+	-- 9 tabs: Home, Graphics, Shaders, Presets, Skybox, Settings, SSR,
+	-- Advance, Character.
 
 	local LightingService = game:GetService("Lighting")
 
@@ -8766,31 +8634,15 @@ __modules["UI"] = function()
 	local skyTab = createTab("sky", "Skybox", 5)
 	local settingsTab = createTab("settings", "Settings", 6)
 	local ssrTab = createTab("ssr", "SSR", 7)
-	local premiumTab = createTab("premium", "Premium", 8)
-	local advanceTab = createTab("advance", "Advance", 9)
-	local korlessTab = createTab("korless", "Korless", 10)
-	local debugTab = createTab("debug", "Debug", 11)
-	local chatTab = createTab("chat", "Chat", 12)
-
-	local function presetIsPremium(name)
-		return Effects.isPremiumPreset and Effects.isPremiumPreset(name) or false
-	end
+	local advanceTab = createTab("advance", "Advance", 8)
+	local characterTab = createTab("character", "Character", 9)
 
 	local function applyPresetWithGate(name)
-		if presetIsPremium(name) and not Effects.isPremium() then
-			showNotification(
-				"YOU ARE NOT PREMIUM",
-				"Activate the local Premium tier in the Premium tab to use this preset.",
-				6
-			)
-			return false
-		end
 		Effects.applyPreset(name)
 		return true
 	end
 
-	-- Hotkey helpers. Locked premium presets are skipped so cycling never shows a
-	-- premium gate pop-up unexpectedly.
+	-- Hotkey helpers for cycling presets and skyboxes.
 	local function cyclePreset(step)
 		local names = Effects.getPresetNames()
 		if #names == 0 then
@@ -8806,13 +8658,10 @@ __modules["UI"] = function()
 		for offset = 1, #names do
 			local index = ((currentIndex - 1 + step * offset) % #names) + 1
 			local name = names[index]
-			if not presetIsPremium(name) or Effects.isPremium() then
-				Effects.applyPreset(name)
-				showNotification("Preset Hotkey", name, 4)
-				return
-			end
+			Effects.applyPreset(name)
+			showNotification("Preset Hotkey", name, 4)
+			return
 		end
-		showNotification("Preset Hotkey", "No unlocked preset available to cycle to.", 4)
 	end
 
 	local function cycleSky(step)
@@ -8847,7 +8696,7 @@ __modules["UI"] = function()
 	-- ============================================================
 	local homeHero = make("Frame", {
 		Name = "HomeHero",
-		Size = UDim2.new(1, 0, 0, 128),
+		Size = UDim2.new(1, 0, 0, 152),
 		BackgroundColor3 = theme.Card,
 		BorderSizePixel = 0,
 		LayoutOrder = #homeTab:GetChildren(),
@@ -8856,7 +8705,7 @@ __modules["UI"] = function()
 	addStroke(homeHero, theme.Stroke, 1, 0.2)
 
 	make("TextLabel", {
-		Text = "SHADERVELARD",
+		Text = "VELARDSHADER",
 		Font = fonts.Bold,
 		TextSize = 26,
 		TextColor3 = theme.Text,
@@ -8866,7 +8715,7 @@ __modules["UI"] = function()
 		Size = UDim2.new(1, -36, 0, 30),
 	}, homeHero)
 	make("TextLabel", {
-		Text = "Joevan V15 style shader suite  /  " .. Config.Version,
+		Text = "All-in-one shader, lighting and character suite  /  " .. Config.Version,
 		Font = fonts.Medium,
 		TextSize = 10,
 		TextColor3 = theme.SubText,
@@ -8876,7 +8725,7 @@ __modules["UI"] = function()
 		Size = UDim2.new(1, -38, 0, 16),
 	}, homeHero)
 	local homeStatusLabel = make("TextLabel", {
-		Text = "Tier: FREE  |  Presets: 28  |  Skyboxes: " .. tostring(#Config.Skyboxes),
+		Text = "Presets: " .. tostring(#Config.Presets) .. "  |  Skyboxes: " .. tostring(#Config.Skyboxes) .. "  |  Free to use",
 		Font = fonts.Mono,
 		TextSize = 10,
 		TextColor3 = theme.Accent,
@@ -8886,41 +8735,39 @@ __modules["UI"] = function()
 		Size = UDim2.new(1, -38, 0, 16),
 	}, homeHero)
 	make("TextLabel", {
-		Text = "Client-side only  -  no key system, no remote loader, no telemetry.",
+		Text = "VelardShader is a client-side visual suite for Roblox. Tune cinematic lighting, surface and screen shaders, skyboxes, weather, SSR and character effects, then save or share your own look. Everything runs locally: no key system, no remote loader and no telemetry.",
 		Font = fonts.Regular,
 		TextSize = 10,
 		TextColor3 = theme.Muted,
 		TextXAlignment = Enum.TextXAlignment.Left,
+		TextWrapped = true,
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(19, 92),
-		Size = UDim2.new(1, -38, 0, 16),
+		Size = UDim2.new(1, -38, 0, 48),
 	}, homeHero)
 
 	addSection(homeTab, "Quick Actions")
-	addButton(homeTab, "Apply Signature Look - RTX WetLook", true, function()
-		applyPresetWithGate("RTX WetLook (Wet Floor)")
-	end)
-	addButton(homeTab, "Open Presets (28)", false, function()
-		selectTab("presets")
-	end)
-	addButton(homeTab, "Open Premium Tier", false, function()
-		selectTab("premium")
-	end)
 	addButton(homeTab, "Reset All Effects", false, function()
 		Effects.resetAll()
 		showNotification("Reset", "All effects restored.", 4)
 	end)
+	addButton(homeTab, "Open Presets (" .. tostring(#Config.Presets) .. ")", false, function()
+		selectTab("presets")
+	end)
+
+	addSection(homeTab, "About VelardShader")
+	infoLabel(homeTab, "VelardShader combines professional lighting controls, post-processing, reflective surface shaders, sky and weather tools, SSR, preset sharing and a character effects suite in one clean menu. Changes stay on your client and restore cleanly with Reset All Effects.", 50)
 
 	addSection(homeTab, "Hotkeys")
 	infoLabel(homeTab, isMobile
 		and "Tap the floating V button to open or close the menu."
-		or "V = menu   |   9 = reset   |   H = HUD   |   F = freecam   |   P = next preset   |   K = next skybox", 26)
+		or "V = menu   |   9 = reset   |   H = HUD   |   8 = freecam   |   P = next preset   |   K = next skybox", 26)
 
 	-- ============================================================
-	-- GRAPHICS (full Joevan lighting model)
+	-- GRAPHICS
 	-- ============================================================
 	addSection(graphicsTab, "Lighting")
-	infoLabel(graphicsTab, "Every core Lighting property Joevan exposes: ambient colours, brightness, clock time, exposure, environment diffuse/specular and shadow softness.", 40)
+	infoLabel(graphicsTab, "Every core Lighting property: ambient colours, brightness, clock time, exposure, environment diffuse/specular and shadow softness.", 40)
 	addSlider(graphicsTab, "brightness", "Brightness", 0, 5, 0.05)
 	addSlider(graphicsTab, "clockTime", "Clock Time", 0, 24, 0.1)
 	addSlider(graphicsTab, "exposure", "Exposure Compensation", -2, 2, 0.05)
@@ -8987,7 +8834,7 @@ __modules["UI"] = function()
 	addSlider(shadersTab, "rtxLevel", "RTX Level", 1, 6, 0.1)
 	addSlider(shadersTab, "rtxRadius", "RTX Radius", 5, 300, 5)
 	addSlider(shadersTab, "rtxOffset", "RTX Offset", -10, 10, 0.5)
-	infoLabel(shadersTab, "Wrap All Objects and Wrap Terrain live in the Advance tab, like Joevan's RTX/Banano options.", 26)
+	infoLabel(shadersTab, "Wrap All Objects and Wrap Terrain live in the Advance tab under the RTX/Banano options.", 26)
 
 	addSection(shadersTab, "Color & Film FX")
 	addToggle(shadersTab, "nightVision", "Night Vision", "Green tint with scanlines.")
@@ -9053,7 +8900,7 @@ __modules["UI"] = function()
 		}, card)
 		local badge = make("TextLabel", {
 			Name = "Tier",
-			Text = presetIsPremium(preset.Name) and "PREMIUM" or "",
+			Text = "",
 			Font = fonts.Bold,
 			TextSize = 8,
 			TextColor3 = theme.Muted,
@@ -9061,6 +8908,7 @@ __modules["UI"] = function()
 			BackgroundTransparency = 1,
 			Position = UDim2.new(1, -78, 0, 9),
 			Size = UDim2.fromOffset(64, 12),
+			Visible = false,
 		}, card)
 		make("TextLabel", {
 			Text = preset.Desc,
@@ -9096,14 +8944,14 @@ __modules["UI"] = function()
 		return card
 	end
 
-	addSection(presetsTab, "Joevan 28 Presets")
-	infoLabel(presetsTab, "All 28 Joevan presets with identical lighting, postFX, material, reflectance and skybox data. Five premium looks unlock from the Premium tab.", 40)
+	addSection(presetsTab, "VelardShader Presets")
+	infoLabel(presetsTab, "All " .. tostring(#Config.Presets) .. " built-in presets are free to use. Each one restores matching lighting, post FX, materials, reflectance and a skybox.", 40)
 	for _, preset in ipairs(Config.Presets) do
 		addPresetCard(presetsTab, preset)
 	end
 
 	addSection(presetsTab, "Share Code")
-	infoLabel(presetsTab, "SV1 codes only. They store lighting, atmosphere, post FX, toggles, sliders, SSR/RTX/Banano wrapping, sky text, skybox and local premium state. Joevan's base64 codes use a different format and cannot be imported here.", 44)
+	infoLabel(presetsTab, "SV1 codes only. They store lighting, atmosphere, post FX, toggles, sliders, SSR/RTX/Banano wrapping, sky text and skybox. Other shader tools use different formats and cannot be imported here.", 44)
 	local _, shareCodeBox = addTextBox(presetsTab, "Preset Code", "Paste a share code here...", "", function() end)
 	addButton(presetsTab, "Copy Current Preset Code", true, function()
 		local code = Effects.exportPresetCode()
@@ -9337,7 +9185,7 @@ __modules["UI"] = function()
 
 	addSection(settingsTab, "Info")
 	infoLabel(settingsTab, "ShaderVelard " .. Config.Version
-		.. "\n12-tab Joevan-parity layout.\n"
+		.. "\n9-tab ShaderVelard layout.\n"
 		.. (isMobile and "Toggle UI: tap the V icon" or "Toggle UI: V"), 52)
 
 	addSection(settingsTab, "Interface")
@@ -9378,13 +9226,8 @@ __modules["UI"] = function()
 	end)
 
 	addSection(settingsTab, "Tools")
-	addToggle(settingsTab, "freecam", "Freecam", "Detached camera: WASD move, Q/E down/up, Shift boost, hold right mouse to look.")
+	addToggle(settingsTab, "freecam", "Freecam", "Detached camera: WASD move, Q/E down/up, Shift boost, move the mouse to look.")
 	addToggle(settingsTab, "antiAFK", "Anti-AFK", "Sends a harmless local input every 60 seconds to avoid idle kicks.")
-	addLocalToggle(settingsTab, "Unlock Cursor", "Release a game-locked mouse and restore it when turned off.", function()
-		return interfaceState.cursorUnlocked
-	end, function(value)
-		setCursorUnlocked(value)
-	end)
 
 	addSection(settingsTab, "HUD & Hotkeys")
 	addLocalToggle(settingsTab, "Show FPS HUD", "Show a small FPS and ping overlay.", function()
@@ -9419,14 +9262,13 @@ __modules["UI"] = function()
 		addKeybind(settingsTab, "freecam", "Toggle Freecam")
 		addKeybind(settingsTab, "nextPreset", "Next Preset")
 		addKeybind(settingsTab, "nextSkybox", "Next Skybox")
-		addKeybind(settingsTab, "unlockCursor", "Unlock Cursor")
 	end
 
 	-- ============================================================
-	-- SSR (dedicated tab, like Joevan)
+	-- SSR (dedicated tab)
 	-- ============================================================
 	addSection(ssrTab, "Screen Space Reflections")
-	infoLabel(ssrTab, "Dedicated SSR tab with the same Detail / Opacity / Thickness controls as Joevan. These sliders drive part reflectance and Terrain water reflections.", 40)
+	infoLabel(ssrTab, "Dedicated SSR tab with Detail / Opacity / Thickness controls. These sliders drive part reflectance and Terrain water reflections.", 40)
 	addToggle(ssrTab, "ssr", "Enable SSR", "High reflectance parts and reflective water.")
 	addSlider(ssrTab, "ssrDetail", "SSR Detail", 0, 1, 0.01)
 	addSlider(ssrTab, "ssrOpacity", "SSR Opacity", 0, 1, 0.01)
@@ -9445,189 +9287,6 @@ __modules["UI"] = function()
 		Effects.setToggle("rtx", false)
 		Effects.setToggle("banano", false)
 	end)
-
-	-- ============================================================
-	-- PREMIUM
-	-- ============================================================
-	local premiumStatusLabel
-	local premiumCardRows = {}
-	local premiumRememberToggle = nil
-
-	local function refreshPremiumUI()
-		local premium = Effects.isPremium()
-		if premiumRememberToggle then
-			premiumRememberToggle.setValue(Effects.isPremiumRemembered and Effects.isPremiumRemembered() or false)
-		end
-		if premiumStatusLabel then
-			premiumStatusLabel.Text = premium
-				and "TIER: PREMIUM  -  unlocked locally (no key needed)"
-				or "TIER: FREE  -  premium presets are locked"
-			premiumStatusLabel.TextColor3 = premium and theme.Accent or theme.Warning
-		end
-		if homeStatusLabel then
-			homeStatusLabel.Text = string.format(
-				"Tier: %s  |  Presets: %d  |  Skyboxes: %d",
-				premium and "PREMIUM" or "FREE",
-				#Config.Presets,
-				#Config.Skyboxes
-			)
-		end
-		premiumBadge.Text = premium and "PREMIUM" or "FREE"
-		premiumBadge.TextColor3 = premium and theme.Accent or theme.Muted
-		for _, entry in ipairs(premiumCardRows) do
-			entry.button.Text = premium and "APPLY" or "UNLOCK"
-			entry.button.TextColor3 = premium and theme.Accent or theme.Warning
-			entry.stroke.Color = premium and theme.Accent or theme.Stroke
-			entry.stroke.Transparency = premium and 0.1 or 0.3
-		end
-	end
-
-	local premiumHero = make("Frame", {
-		Name = "PremiumHero",
-		Size = UDim2.new(1, 0, 0, 96),
-		BackgroundColor3 = theme.Card,
-		BorderSizePixel = 0,
-		LayoutOrder = #premiumTab:GetChildren(),
-	}, premiumTab)
-	addCorner(premiumHero, 12)
-	addStroke(premiumHero, theme.Stroke, 1, 0.15)
-	make("TextLabel", {
-		Text = "PREMIUM TIER",
-		Font = fonts.Bold,
-		TextSize = 20,
-		TextColor3 = theme.Text,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(18, 12),
-		Size = UDim2.new(1, -36, 0, 24),
-	}, premiumHero)
-	premiumStatusLabel = make("TextLabel", {
-		Text = "TIER: FREE",
-		Font = fonts.Mono,
-		TextSize = 10,
-		TextColor3 = theme.Warning,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(19, 40),
-		Size = UDim2.new(1, -38, 0, 16),
-	}, premiumHero)
-	make("TextLabel", {
-		Text = "Joevan gates five photoreal presets behind PandaAuth. This remake keeps the same split and unlocks it locally: no key, no HWID, no remote request.",
-		Font = fonts.Regular,
-		TextSize = 9,
-		TextColor3 = theme.SubText,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		TextWrapped = true,
-		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(19, 60),
-		Size = UDim2.new(1, -38, 0, 26),
-	}, premiumHero)
-
-	addSection(premiumTab, "Status")
-	addButton(premiumTab, "Activate Premium (local)", true, function()
-		Effects.setPremium(true)
-		refreshPremiumUI()
-		refresh()
-		showNotification("Premium Activated", "All 5 premium presets are unlocked for this session.", 6)
-	end)
-	addButton(premiumTab, "Deactivate Premium", false, function()
-		Effects.setPremium(false)
-		refreshPremiumUI()
-		refresh()
-		showNotification("Premium Disabled", "Premium presets are locked again.", 5)
-	end)
-	premiumRememberToggle = addLocalToggle(premiumTab, "Remember Premium (this session)", "Keeps the local premium tier while this game session lasts. Nothing is written to disk or sent online.", function()
-		return Effects.isPremiumRemembered and Effects.isPremiumRemembered() or false
-	end, function(value)
-		Effects.setPremiumRemember(value)
-		refreshPremiumUI()
-	end)
-
-	addSection(premiumTab, "Premium Features")
-	for _, feature in ipairs(Config.PremiumFeatures or {}) do
-		local row = make("Frame", {
-			Size = UDim2.new(1, 0, 0, 26),
-			BackgroundColor3 = theme.Card,
-			BorderSizePixel = 0,
-			LayoutOrder = #premiumTab:GetChildren(),
-		}, premiumTab)
-		addCorner(row, 6)
-		make("TextLabel", {
-			Text = "+  " .. feature,
-			Font = fonts.Regular,
-			TextSize = 10,
-			TextColor3 = theme.Text,
-			TextXAlignment = Enum.TextXAlignment.Left,
-			BackgroundTransparency = 1,
-			Position = UDim2.fromOffset(10, 0),
-			Size = UDim2.new(1, -20, 1, 0),
-		}, row)
-	end
-
-	addSection(premiumTab, "Premium Presets")
-	local premiumPresetOrder = {
-		"Photoreal Cinema 8K",
-		"Experimental Daylight",
-		"Overcast Wet Asphalt (PBR)",
-		"Golden Hour Photorealism",
-		"Cyberpunk Raytraced Neon",
-	}
-	for _, name in ipairs(premiumPresetOrder) do
-		local preset = Config.findPreset(name)
-		if preset then
-			local row = make("Frame", {
-				Name = "PremiumPreset_" .. preset.Key,
-				Size = UDim2.new(1, 0, 0, 52),
-				BackgroundColor3 = theme.Card,
-				BorderSizePixel = 0,
-				LayoutOrder = #premiumTab:GetChildren(),
-			}, premiumTab)
-			addCorner(row, 10)
-			local stroke = addStroke(row, theme.Stroke, 1, 0.3)
-			make("TextLabel", {
-				Text = preset.Name,
-				Font = fonts.Bold,
-				TextSize = 12,
-				TextColor3 = theme.Text,
-				TextXAlignment = Enum.TextXAlignment.Left,
-				BackgroundTransparency = 1,
-				Position = UDim2.fromOffset(12, 7),
-				Size = UDim2.new(1, -100, 0, 16),
-			}, row)
-			make("TextLabel", {
-				Text = preset.Desc,
-				Font = fonts.Regular,
-				TextSize = 9,
-				TextColor3 = theme.SubText,
-				TextXAlignment = Enum.TextXAlignment.Left,
-				TextWrapped = true,
-				BackgroundTransparency = 1,
-				Position = UDim2.fromOffset(12, 24),
-				Size = UDim2.new(1, -100, 0, 24),
-			}, row)
-			local applyButton = make("TextButton", {
-				Text = "UNLOCK",
-				Font = fonts.Bold,
-				TextSize = 9,
-				TextColor3 = theme.Warning,
-				BackgroundColor3 = theme.BgSoft,
-				AutoButtonColor = false,
-				Position = UDim2.new(1, -84, 0, 12),
-				Size = UDim2.fromOffset(72, 28),
-			}, row)
-			addCorner(applyButton, 7)
-			applyButton.Activated:Connect(function()
-				if Effects.isPremium() then
-					Effects.applyPreset(preset.Name)
-					showNotification("Premium Preset", preset.Name .. " applied.", 5)
-				else
-					showNotification("YOU ARE NOT PREMIUM", "Activate Premium first (local, no key).", 5)
-				end
-			end)
-			premiumCardRows[#premiumCardRows + 1] = { button = applyButton, stroke = stroke }
-		end
-	end
-	refreshPremiumUI()
 
 	-- ============================================================
 	-- ADVANCE
@@ -9701,11 +9360,11 @@ __modules["UI"] = function()
 	addSlider(advanceTab, "discoSpeed", "Disco Speed", 0.2, 3, 0.05)
 
 	-- ============================================================
-	-- KORLESS (character suite)
+	-- CHARACTER (character suite)
 	-- ============================================================
-	addSection(korlessTab, "Korblox & Headless")
-	addToggle(korlessTab, "korblox", "Korblox Right Leg", "Client-side Korblox Deathspeaker leg on your character.")
-	addToggle(korlessTab, "headless", "Headless", "Hides your head mesh. Locked on once enabled.", {
+	addSection(characterTab, "Korblox & Headless")
+	addToggle(characterTab, "korblox", "Korblox Right Leg", "Client-side Korblox Deathspeaker leg on your character.")
+	addToggle(characterTab, "headless", "Headless", "Hides your head mesh. Locked on once enabled.", {
 		confirm = {
 			title = "Enable Headless?",
 			subtitle = "Permanent for this game session",
@@ -9717,21 +9376,21 @@ __modules["UI"] = function()
 		successMessage = "Headless is now permanently enabled. Rejoin the game to disable it.",
 	})
 
-	addSection(korlessTab, "Angel Aura")
-	addToggle(korlessTab, "angelAura", "Angel Aura", "Glowing particle aura around your character.")
-	addDropdown(korlessTab, "auraColor", "Aura Color", { "Gold", "White", "Cyan", "Pink", "Purple", "Red", "Green", "Blue", "Rainbow" }, Effects.state.dropdowns.auraColor, function(value)
+	addSection(characterTab, "Angel Aura")
+	addToggle(characterTab, "angelAura", "Angel Aura", "Glowing particle aura around your character.")
+	addDropdown(characterTab, "auraColor", "Aura Color", { "Gold", "White", "Cyan", "Pink", "Purple", "Red", "Green", "Blue", "Rainbow" }, Effects.state.dropdowns.auraColor, function(value)
 		Effects.setDropdown("auraColor", value)
 	end)
-	addSlider(korlessTab, "auraSize", "Aura Size", 0.5, 10, 0.1)
-	addSlider(korlessTab, "auraSpeed", "Aura Speed", 0.2, 3, 0.05)
+	addSlider(characterTab, "auraSize", "Aura Size", 0.5, 10, 0.1)
+	addSlider(characterTab, "auraSpeed", "Aura Speed", 0.2, 3, 0.05)
 
-	addSection(korlessTab, "Motion Trail")
-	addToggle(korlessTab, "motionTrail", "Motion Trail", "Light ribbon following your character.")
-	addDropdown(korlessTab, "trailColor", "Trail Color", { "Cyan", "White", "Gold", "Pink", "Purple", "Red", "Green", "Blue", "Rainbow" }, Effects.state.dropdowns.trailColor, function(value)
+	addSection(characterTab, "Motion Trail")
+	addToggle(characterTab, "motionTrail", "Motion Trail", "Light ribbon following your character.")
+	addDropdown(characterTab, "trailColor", "Trail Color", { "Cyan", "White", "Gold", "Pink", "Purple", "Red", "Green", "Blue", "Rainbow" }, Effects.state.dropdowns.trailColor, function(value)
 		Effects.setDropdown("trailColor", value)
 	end)
-	addSlider(korlessTab, "trailLifetime", "Trail Lifetime", 0.1, 3, 0.05, "s")
-	addSection(korlessTab, "Accessories Changer")
+	addSlider(characterTab, "trailLifetime", "Trail Lifetime", 0.1, 3, 0.05, "s")
+	addSection(characterTab, "Accessories Changer")
 	local function accessoryOptions()
 		local names = { "All Accessories" }
 		for _, name in ipairs(Effects.getAccessoryNames()) do
@@ -9739,34 +9398,34 @@ __modules["UI"] = function()
 		end
 		return names
 	end
-	addDropdown(korlessTab, "accessory", "Accessory", accessoryOptions, Effects.state.dropdowns.accessory, function(value)
+	addDropdown(characterTab, "accessory", "Accessory", accessoryOptions, Effects.state.dropdowns.accessory, function(value)
 		Effects.setDropdown("accessory", value)
 	end)
-	addToggle(korlessTab, "accessoryHidden", "Hide Selected Accessory", "Hides the chosen accessory (or all accessories) only on your client.")
-	addButton(korlessTab, "Refresh Accessory List", false, function()
+	addToggle(characterTab, "accessoryHidden", "Hide Selected Accessory", "Hides the chosen accessory (or all accessories) only on your client.")
+	addButton(characterTab, "Refresh Accessory List", false, function()
 		local count = #Effects.getAccessoryNames()
 		Effects.refreshAccessories()
 		showNotification("Accessories", tostring(count) .. " accessories detected. Reopen the dropdown to refresh names.", 5)
 	end)
 
-	addSection(korlessTab, "Unusual Effect")
-	addToggle(korlessTab, "unusual", "Unusual Effect", "Particle aura and colored light attached to your character.")
-	addDropdown(korlessTab, "unusualStyle", "Unusual Style", { "Sparkle", "Flame", "Orb", "Storm" }, Effects.state.dropdowns.unusualStyle, function(value)
+	addSection(characterTab, "Unusual Effect")
+	addToggle(characterTab, "unusual", "Unusual Effect", "Particle aura and colored light attached to your character.")
+	addDropdown(characterTab, "unusualStyle", "Unusual Style", { "Sparkle", "Flame", "Orb", "Storm" }, Effects.state.dropdowns.unusualStyle, function(value)
 		Effects.setDropdown("unusualStyle", value)
 	end)
-	addSlider(korlessTab, "unusualSize", "Unusual Size", 1, 8, 0.1)
+	addSlider(characterTab, "unusualSize", "Unusual Size", 1, 8, 0.1)
 
-	addSection(korlessTab, "Avatar / Spoof Appearance")
-	addToggle(korlessTab, "spoof", "Spoof Appearance", "Recolors your own character locally. Nothing is replicated.")
-	addDropdown(korlessTab, "spoofStyle", "Spoof Style", { "Neon", "Shadow", "Gold", "Ice", "Rose", "Random" }, Effects.state.dropdowns.spoofStyle, function(value)
+	addSection(characterTab, "Avatar / Spoof Appearance")
+	addToggle(characterTab, "spoof", "Spoof Appearance", "Recolors your own character locally. Nothing is replicated.")
+	addDropdown(characterTab, "spoofStyle", "Spoof Style", { "Neon", "Shadow", "Gold", "Ice", "Rose", "Random" }, Effects.state.dropdowns.spoofStyle, function(value)
 		Effects.setDropdown("spoofStyle", value)
 	end)
 
-	addSection(korlessTab, "Emote (local)")
-	addDropdown(korlessTab, "emote", "Emote", Effects.getEmoteNames(), Effects.state.dropdowns.emote, function(value)
+	addSection(characterTab, "Emote (local)")
+	addDropdown(characterTab, "emote", "Emote", Effects.getEmoteNames(), Effects.state.dropdowns.emote, function(value)
 		Effects.state.dropdowns.emote = value
 	end)
-	addButton(korlessTab, "Play Emote on My Character", true, function()
+	addButton(characterTab, "Play Emote on My Character", true, function()
 		local ok, reason = Effects.playEmote(Effects.state.dropdowns.emote or "Wave")
 		if ok then
 			showNotification("Emote", "Playing locally on your character.", 4)
@@ -9774,200 +9433,7 @@ __modules["UI"] = function()
 			showNotification("Emote Failed", tostring(reason or "Unknown error"), 5)
 		end
 	end)
-	infoLabel(korlessTab, "Emote Sync is local-only: a client script cannot legally replicate an emote to other players' Humanoids without a server remote. Accessories, Unusual, Spoof and Emote never send network requests.", 44)
-
-	-- ============================================================
-	-- DEBUG
-	-- ============================================================
-	addSection(debugTab, "Runtime")
-	local debugInfoLabel = make("TextLabel", {
-		Text = "Collecting state...",
-		Font = fonts.Mono,
-		TextSize = 10,
-		TextColor3 = theme.SubText,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		TextYAlignment = Enum.TextYAlignment.Top,
-		TextWrapped = true,
-		BackgroundColor3 = theme.Card,
-		BorderSizePixel = 0,
-		Size = UDim2.new(1, 0, 0, 210),
-		LayoutOrder = #debugTab:GetChildren(),
-	}, debugTab)
-	addCorner(debugInfoLabel, 10)
-	local debugPadding = Instance.new("UIPadding")
-	debugPadding.PaddingLeft = UDim.new(0, 12)
-	debugPadding.PaddingRight = UDim.new(0, 12)
-	debugPadding.PaddingTop = UDim.new(0, 10)
-	debugPadding.Parent = debugInfoLabel
-
-	local runtimeStats = {
-		fps = 0,
-		ping = 0,
-		position = "--",
-		speed = 0,
-	}
-	local lastDebugText = ""
-
-	local function countActiveToggles()
-		local total = 0
-		for _, value in pairs(Effects.state.toggles) do
-			if value == true then
-				total = total + 1
-			end
-		end
-		return total
-	end
-
-	local function refreshDebugInfo()
-		local active = countActiveToggles()
-		lastDebugText = string.format(
-			"Version     : %s\nPresets     : %d (premium %d)\nSkyboxes    : %d\nCurrent look: %s\nCurrent sky : %s\nTier        : %s\nPremium memo: %s\nActive FX   : %d\nLite mode   : %s\nFPS / Ping  : %d / %dms\nPosition    : %s\nSpeed       : %.1f\n",
-			tostring(Config.Version),
-			#Config.Presets,
-			#premiumPresetOrder,
-			#Config.Skyboxes,
-			tostring(Effects.state.presetName),
-			tostring(Effects.state.skyName),
-			Effects.isPremium() and "PREMIUM" or "FREE",
-			Effects.isPremiumRemembered and Effects.isPremiumRemembered() and "ON" or "OFF",
-			active,
-			Effects.state.liteMode and "ON" or "OFF",
-			runtimeStats.fps,
-			runtimeStats.ping,
-			runtimeStats.position,
-			runtimeStats.speed
-		)
-		debugInfoLabel.Text = lastDebugText
-	end
-	addButton(debugTab, "Refresh Debug Info", true, function()
-		refreshDebugInfo()
-		showNotification("Debug", "State snapshot refreshed.", 4)
-	end)
-	addButton(debugTab, "Print State to Console", false, function()
-		refreshDebugInfo()
-		print("[ShaderVelard][debug] " .. string.gsub(debugInfoLabel.Text, "\n", " | "))
-		showNotification("Debug", "State printed to the executor console.", 4)
-	end)
-	addButton(debugTab, "Copy State to Clipboard", false, function()
-		refreshDebugInfo()
-		local copied = Effects.copyToClipboard(lastDebugText)
-		showNotification(
-			"Debug",
-			copied and "State snapshot copied to clipboard." or "Clipboard unavailable. Use Print State instead.",
-			5
-		)
-	end)
-	addButton(debugTab, "Reset All Effects", false, function()
-		Effects.resetAll()
-		refreshDebugInfo()
-	end)
-	addButton(debugTab, "Toggle FPS HUD", false, function()
-		interfaceState.hud = not interfaceState.hud
-		updateHUD()
-	end)
-	refreshDebugInfo()
-
-	-- ============================================================
-	-- CHAT (local companion; no remote/global chat)
-	-- ============================================================
-	addSection(chatTab, "Local Companion")
-	infoLabel(chatTab, "Offline keyword tips. Joevan's Global Chat and AI Companion use a remote backend; this tab stays fully local and never sends your input anywhere.", 40)
-
-	local chatLog = make("ScrollingFrame", {
-		Name = "ChatLog",
-		Size = UDim2.new(1, 0, 0, 220),
-		BackgroundColor3 = theme.Card,
-		BorderSizePixel = 0,
-		ScrollBarThickness = 4,
-		ScrollBarImageColor3 = theme.Muted,
-		CanvasSize = UDim2.new(),
-		AutomaticCanvasSize = Enum.AutomaticSize.Y,
-		ScrollingDirection = Enum.ScrollingDirection.Y,
-		LayoutOrder = #chatTab:GetChildren(),
-	}, chatTab)
-	addCorner(chatLog, 10)
-	local chatPadding = Instance.new("UIPadding")
-	chatPadding.PaddingLeft = UDim.new(0, 10)
-	chatPadding.PaddingRight = UDim.new(0, 10)
-	chatPadding.PaddingTop = UDim.new(0, 8)
-	chatPadding.PaddingBottom = UDim.new(0, 8)
-	chatPadding.Parent = chatLog
-	local chatLayout = Instance.new("UIListLayout")
-	chatLayout.Padding = UDim.new(0, 4)
-	chatLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	chatLayout.Parent = chatLog
-
-	local chatCount = 0
-	local function addChatLine(text, isUser)
-		chatCount = chatCount + 1
-		local label = make("TextLabel", {
-			Text = (isUser and "You: " or "SV: ") .. text,
-			Font = fonts.Regular,
-			TextSize = 10,
-			TextColor3 = isUser and theme.Text or theme.Accent,
-			TextXAlignment = Enum.TextXAlignment.Left,
-			TextWrapped = true,
-			BackgroundTransparency = 1,
-			Size = UDim2.new(1, 0, 0, 0),
-			AutomaticSize = Enum.AutomaticSize.Y,
-			LayoutOrder = chatCount,
-		}, chatLog)
-		label.Size = UDim2.new(1, 0, 0, 18)
-		task.defer(function()
-			if chatLog and chatLog.Parent then
-				chatLog.CanvasPosition = Vector2.new(0, math.max(chatLog.AbsoluteCanvasSize.Y - chatLog.AbsoluteSize.Y, 0))
-			end
-		end)
-	end
-
-	local function companionReply(message)
-		local text = string.lower(tostring(message or ""))
-		if text:find("light") or text:find("ambient") then
-			return "Graphics tab has Brightness, ClockTime, Exposure, Ambient RGB, OutdoorAmbient RGB, Diffuse/Specular and Shadow Softness - the same core Lighting properties Joevan exposes."
-		elseif text:find("preset") then
-			return "There are 28 Joevan presets in the Presets tab. The last five are premium and unlock from the Premium tab; custom presets save to ShaderVelard_Presets.txt."
-		elseif text:find("ssr") or text:find("reflect") then
-			return "Open the SSR tab for Detail, Opacity and Thickness. RTX remains under Shaders, and wrap-all-objects/wrap-terrain are in Advance."
-		elseif text:find("sky") then
-			return "Skybox tab: choose a built-in sky, paste six faces, scan the current sky, roll a random one, or apply a uniform ID to all six faces."
-		elseif text:find("premium") or text:find("key") then
-			return "Premium is local in this build. Activate it in the Premium tab - no key, no HWID and no request is sent."
-		elseif text:find("reset") or text:find("clear") then
-			return "Press 9, use Home > Reset All Effects, or Debug > Reset All Effects to restore Lighting, post FX and world effects."
-		elseif text:find("kor") or text:find("head") then
-			return "Korless tab has Korblox and Headless (session lock), Angel Aura and Motion Trail."
-		elseif text:find("weather") or text:find("rain") then
-			return "Weather lives in Advance: rain, clouds, lightning palette, wind, wind VFX, snow, sparkles, rainbow and police flash."
-		elseif text:find("fps") or text:find("hud") then
-			return "Enable the FPS HUD in Settings or Debug. It shows FPS and ping, and desktop hotkeys can toggle it."
-		end
-		return "Try asking about lighting, presets, premium, SSR, skybox, weather, Korless or reset."
-	end
-
-	addChatLine("Hi. I am the local ShaderVelard companion. Ask about lighting, presets, SSR, skybox or premium.", false)
-	local _, chatInput = addTextBox(chatTab, "Message", "Ask the local companion...", "", function() end)
-	addButton(chatTab, "Send", true, function()
-		local message = tostring(chatInput.Text or ""):gsub("^%s+", ""):gsub("%s+$", "")
-		if message == "" then
-			return
-		end
-		addChatLine(message, true)
-		chatInput.Text = ""
-		task.delay(0.25, function()
-			addChatLine(companionReply(message), false)
-		end)
-	end)
-	addButton(chatTab, "Quick Tips", false, function()
-		addChatLine("Tip: apply RTX WetLook from Home, then tune SSR Thickness in the SSR tab.", false)
-	end)
-	addButton(chatTab, "Clear Chat", false, function()
-		for _, child in ipairs(chatLog:GetChildren()) do
-			if child:IsA("TextLabel") then
-				child:Destroy()
-			end
-		end
-		chatCount = 0
-	end)
+	infoLabel(characterTab, "Emote Sync is local-only: a client script cannot legally replicate an emote to other players' Humanoids without a server remote. Accessories, Unusual, Spoof and Emote never send network requests.", 44)
 
 	-- ============================================================
 	-- Initial tab + refresh hooks
@@ -9977,11 +9443,6 @@ __modules["UI"] = function()
 	tabs.home.button.TextColor3 = theme.Accent
 	tabs.home.button.BackgroundColor3 = theme.Card
 	activeTab = "home"
-
-	local function refreshAdvanceTabs()
-		refreshPremiumUI()
-		refreshDebugInfo()
-	end
 
 	floating = make("TextButton", {
 		Name = "FloatingButton",
@@ -10244,9 +9705,6 @@ __modules["UI"] = function()
 			cyclePreset(1)
 		elseif input.KeyCode == interfaceState.keybinds.nextSkybox then
 			cycleSky(1)
-		elseif input.KeyCode == interfaceState.keybinds.unlockCursor then
-			setCursorUnlocked(not interfaceState.cursorUnlocked)
-			showNotification("Cursor", interfaceState.cursorUnlocked and "Cursor unlocked" or "Cursor restored", 4)
 		elseif input.KeyCode == Enum.KeyCode.Escape then
 			closePopup()
 		end
@@ -10294,16 +9752,7 @@ __modules["UI"] = function()
 			entry.stroke.Transparency = active and 0 or 0.3
 			entry.accent.BackgroundColor3 = active and highlight or entry.accentColor or theme.Stroke
 			entry.card.BackgroundColor3 = theme.Card
-			if entry.badge then
-				if presetIsPremium(entry.name) then
-					entry.badge.Text = Effects.isPremium() and "PREMIUM" or "LOCKED"
-					entry.badge.TextColor3 = Effects.isPremium() and theme.Accent or theme.Warning
-				else
-					entry.badge.Text = ""
-				end
-			end
 		end
-		refreshAdvanceTabs()
 	end
 
 	local refreshPending = false
@@ -10323,8 +9772,16 @@ __modules["UI"] = function()
 	-- Re-read the real Effects state whenever the window is reopened, so the
 	-- toggles cannot stay visually off while the effect is actually running.
 	window:GetPropertyChangedSignal("Visible"):Connect(function()
-		if window.Visible and not UI._destroyed then
-			refresh()
+		if window.Visible then
+			-- Menu is open: release the cursor so the UI can be clicked.
+			applyMouseBehavior(true)
+			if not UI._destroyed then
+				refresh()
+			end
+		else
+			-- Back to gameplay: lock the mouse so the camera follows mouse
+			-- movement without needing a right-click.
+			applyMouseBehavior(false)
 		end
 	end)
 
@@ -10372,7 +9829,8 @@ __modules["UI"] = function()
 		Effects.onNotify = nil
 		Effects.onSkyChanged = nil
 		pcall(function()
-			setCursorUnlocked(false)
+			UserInputService.MouseBehavior = originalMouseState.behavior
+			UserInputService.MouseIconEnabled = originalMouseState.icon
 		end)
 		if hudConnection then
 			hudConnection:Disconnect()
@@ -10388,6 +9846,7 @@ __modules["UI"] = function()
 	applyIconStyle()
 	applyGuiStyle()
 	setWindowVisible(true)
+	applyMouseBehavior(true)
 	statusLabel.Text = "Ready - client-side only, no key required"
 	refresh()
 	if isMobile then
@@ -10507,14 +9966,6 @@ local __bootOk, __bootResult = pcall(function()
 		return Effects.setLiteMode(value)
 	end
 
-	function API.SetPremium(value)
-		return Effects.setPremium(value == true)
-	end
-
-	function API.SetPremiumRemember(value)
-		return Effects.setPremiumRemember(value == true)
-	end
-
 	function API.SetFreecam(value)
 		return Effects.setFreecam(value == true)
 	end
@@ -10537,10 +9988,6 @@ local __bootOk, __bootResult = pcall(function()
 
 	function API.GetEmoteNames()
 		return Effects.getEmoteNames()
-	end
-
-	function API.IsPremium()
-		return Effects.isPremium()
 	end
 
 	function API.Destroy()
