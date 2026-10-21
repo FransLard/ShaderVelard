@@ -6136,9 +6136,35 @@ __modules["UI"] = function()
 			end
 		end
 
-		overlay.Activated:Connect(close)
-		cancel.Activated:Connect(close)
-		agree.Activated:Connect(function()
+		-- GuiObject.Activated can be swallowed by the Active confirm overlay,
+		-- especially on touch, so bind the buttons to raw press/release input.
+		local function bindPress(button, callback)
+			local armed = false
+			button.InputBegan:Connect(function(input)
+				if input.UserInputType == Enum.UserInputType.MouseButton1
+					or input.UserInputType == Enum.UserInputType.Touch then
+					armed = true
+				end
+			end)
+			button.InputEnded:Connect(function(input)
+				if not armed then
+					return
+				end
+				if input.UserInputType == Enum.UserInputType.MouseButton1
+					or input.UserInputType == Enum.UserInputType.Touch then
+					armed = false
+					callback()
+				end
+			end)
+		end
+
+		local confirmed = false
+		bindPress(cancel, close)
+		bindPress(agree, function()
+			if confirmed then
+				return
+			end
+			confirmed = true
 			close()
 			if type(onConfirm) == "function" then
 				task.defer(onConfirm)
