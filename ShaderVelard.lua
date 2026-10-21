@@ -3171,7 +3171,6 @@ __modules["Effects"] = function()
 	local skyTimer = 0
 	local clock = 0
 	local cosmeticTimer = 0
-	local korbloxTransparencyOriginal = {}
 	local neonHighlights = {}
 	local neonConnection = nil
 	local windVFXPart = nil
@@ -4922,64 +4921,43 @@ __modules["Effects"] = function()
 	end
 
 	-- ===== Character cosmetics (Korblox right leg / Headless) =====
+	-- Ported from the standalone KenuyLarp korblox/headless script. The old
+	-- implementation welded a hand-scaled SpecialMesh part over the leg, which
+	-- frequently left the real leg visible (or a grey block) after the many
+	-- feature additions. This version uses the same method as the original:
+	-- a CharacterMesh with BodyPart = RightLeg, which Roblox fits automatically
+	-- to R6 avatars, plus the headless SpecialMesh swap.
 	local KORBLOX_MESH_ID = 101851696
 	local KORBLOX_TEXTURE_ID = 101851254
+	local KORBLOX_MESH_ASSET = "rbxassetid://" .. KORBLOX_MESH_ID
+	local KORBLOX_TEXTURE_ASSET = "rbxassetid://" .. KORBLOX_TEXTURE_ID
 	local HEADLESS_HEAD_MESH = "rbxassetid://15093053680"
-	local headlessOriginal = {}
-	-- Every Korblox leg we create is tracked separately from the rig scan below.
-	-- If a game rebuilds the rig between apply and clear, collectCosmeticRigs()
-	-- no longer returns the old rig, its leg stayed welded forever and -- worse --
-	-- the head/parts we hid were never restored. These registries make cleanup
-	-- independent from whatever rigs currently exist.
-	local korbloxCreatedParts = {}
+
+	-- head -> { transparency, meshId, decals }. Kept outside the rig so cleanup
+	-- still works when the game rebuilds or replaces the avatar.
+	local cosmetics = {
+		heads = {},
+	}
+
 	local function collectCosmeticRigs()
 		local rigs = {}
 		local seen = setmetatable({}, { __mode = "k" })
 
 		local function add(model)
 			if model and typeof(model) == "Instance" and model:IsA("Model") and not seen[model] then
-				seen[model] = true
-				table.insert(rigs, model)
-			end
-		end
-
-		local function isLocalRig(model)
-			if not model:IsA("Model") or not model:FindFirstChild("Head") then
-				return false
-			end
-			if model == player.Character or model.Name == player.Name then
-				return true
-			end
-			local humanoid = model:FindFirstChildOfClass("Humanoid")
-			if humanoid then
-				local ok, displayName = pcall(function()
-					return humanoid.DisplayName
-				end)
-				if ok and type(displayName) == "string" and displayName ~= ""
-					and displayName == player.DisplayName then
-					return true
+				if model:FindFirstChild("Head")
+					or model:FindFirstChild("Right Leg")
+					or model:FindFirstChild("RightLeg")
+					or model:FindFirstChild("RightUpperLeg") then
+					seen[model] = true
+					table.insert(rigs, model)
 				end
 			end
-			local playerRef = model:FindFirstChild("Player")
-			if playerRef and playerRef:IsA("ObjectValue") and playerRef.Value == player then
-				return true
-			end
-			if getAttr(model, "Player") == player.Name or getAttr(model, "PlayerName") == player.Name then
-				return true
-			end
-			if getAttr(model, "UserId") == player.UserId then
-				return true
-			end
-			return false
 		end
 
-		-- Always include the real character. The old version required a standard
-		-- "Right Leg"/"RightUpperLeg" part name; custom rigs failed that check and
-		-- then Headless/Korblox silently did nothing at all.
-		local currentCharacter = player.Character
-		if currentCharacter then
-			add(currentCharacter)
-		end
+		-- The real character plus the usual client-side visual rigs used by games
+		-- that render avatars from a cache or a PlayerGui clone.
+		add(player.Character)
 
 		local rigsFolder = Workspace:FindFirstChild("Rigs")
 		if rigsFolder and rigsFolder:FindFirstChild(player.Name) then
@@ -4995,36 +4973,14 @@ __modules["Effects"] = function()
 			end
 		end
 
-		-- Many games render a client-side clone of the avatar and keep the real
-		-- character invisible. Find those clones by name/display name/attribute.
-		for _, container in ipairs({ Workspace, playerGui, Workspace.CurrentCamera }) do
-			if container then
-				local ok, children = pcall(function()
-					return container:GetChildren()
-				end)
-				if ok then
-					for _, child in ipairs(children) do
-						if child:IsA("Model") and isLocalRig(child) then
-							add(child)
-						end
-						local okGrand, grandchildren = pcall(function()
-							return child:GetChildren()
-						end)
-						if okGrand then
-							for _, grandchild in ipairs(grandchildren) do
-								if grandchild:IsA("Model") and isLocalRig(grandchild) then
-									add(grandchild)
-								end
-							end
-						end
-					end
-				end
+		for _, child in ipairs(Workspace:GetChildren()) do
+			if child:IsA("Model") and (child.Name == player.Name or child.Name == player.DisplayName) then
+				add(child)
 			end
 		end
 
 		for _, object in ipairs(playerGui:GetDescendants()) do
-			if object:IsA("Model") and object:FindFirstChild("Head")
-				and (object.Name == "VisualRigClassic" or object:FindFirstChildOfClass("Humanoid")) then
+			if object:IsA("Model") and (object.Name == "VisualRigClassic" or object:FindFirstChildOfClass("Humanoid")) then
 				add(object)
 			end
 		end
@@ -5033,17 +4989,18 @@ __modules["Effects"] = function()
 	end
 
 	local function logCosmeticRigs(tag)
-		local rigs = collectCosmeticRigs()
 		local names = {}
-		for _, rig in ipairs(rigs) do
+		for _, rig in ipairs(collectCosmeticRigs()) do
 			local ok, fullName = pcall(function()
 				return rig:GetFullName()
 			end)
 			table.insert(names, ok and fullName or rig.Name)
 		end
-		print("[ShaderVelard] " .. tag .. " rigs (" .. #rigs .. "): " .. table.concat(names, ", "))
+		print("[ShaderVelard] " .. tag .. " rigs (" .. #names .. "): " .. table.concat(names, ", "))
 	end
 
+	-- The base leg colour still tints the CharacterMesh texture. Copy the left
+	-- leg's colour/material so the Korblox leg blends with the avatar.
 	local function matchRightLegStyle(rig)
 		local rightLeg = rig:FindFirstChild("Right Leg") or rig:FindFirstChild("RightLeg")
 		local leftLeg = rig:FindFirstChild("Left Leg") or rig:FindFirstChild("LeftLeg")
@@ -5054,238 +5011,62 @@ __modules["Effects"] = function()
 		end
 	end
 
-	local function rigUsesR15(rig)
-		local humanoid = rig:FindFirstChildOfClass("Humanoid")
-		if humanoid then
-			return humanoid.RigType == Enum.HumanoidRigType.R15
-		end
-		return rig:FindFirstChild("RightUpperLeg") ~= nil
-	end
-
-	-- The Korblox "SM RL" mesh (rbxassetid://101851696) was authored for a
-	-- CharacterMesh, where Roblox automatically fits and centres it on the R6 leg.
-	-- A SpecialMesh does NOT do that fitting: its raw size is only about
-	-- 0.31 x 0.86 x 0.39 studs. The old code set Scale = (1, len/2, 1) and painted
-	-- the part grey (64,64,64), so the real leg was hidden and all you saw was a
-	-- grey block (or a tiny mesh buried inside it). These bounds let us scale and
-	-- centre the mesh by hand so it covers the whole leg.
-	-- Kept on the module table instead of new locals: the Effects module is
-	-- already at the 200-local limit, so adding a single `local` breaks load.
-	Effects._korblox = {
-		BoundsMin = Vector3.new(-0.17588, 0.30112, -0.22527),
-		BoundsMax = Vector3.new(0.13835, 1.16332, 0.16528),
-	}
-
-	function Effects._korblox.buildMesh(targetSize)
-		local raw = Effects._korblox.BoundsMax - Effects._korblox.BoundsMin
-		local center = (Effects._korblox.BoundsMin + Effects._korblox.BoundsMax) * 0.5
-		local scale = Vector3.new(
-			targetSize.X / math.max(raw.X, 1e-3),
-			targetSize.Y / math.max(raw.Y, 1e-3),
-			targetSize.Z / math.max(raw.Z, 1e-3)
-		)
-
-		local mesh = Instance.new("SpecialMesh")
-		mesh.Name = "KorbloxMesh"
-		mesh.MeshType = Enum.MeshType.FileMesh
-		mesh.MeshId = "rbxassetid://" .. KORBLOX_MESH_ID
-		mesh.TextureId = "rbxassetid://" .. KORBLOX_TEXTURE_ID
-		-- White vertex colour keeps the Korblox texture untinted.
-		mesh.VertexColor = Vector3.new(1, 1, 1)
-		mesh.Scale = scale
-		-- Offset is in studs and is applied after Scale, so it must use the scaled
-		-- bounds centre to put the mesh exactly on the part's centre.
-		mesh.Offset = Vector3.new(
-			-center.X * scale.X,
-			-center.Y * scale.Y,
-			-center.Z * scale.Z
-		)
-		return mesh
-	end
-
-	function Effects._korblox.createPart(rig, size)
-		local leg = Instance.new("Part")
-		leg.Name = "ShaderVelard_KorbloxLeg"
-		leg.Size = size
-		leg.Anchored = false
-		leg.CanCollide = false
-		leg.CanQuery = false
-		leg.CanTouch = false
-		leg.CastShadow = false
-		leg.Massless = true
-		leg.Transparency = 0
-		-- A white part colour leaves the texture as-is. The previous grey tint
-		-- multiplied the Korblox texture and made the whole leg look plain grey.
-		leg.Color = Color3.new(1, 1, 1)
-		leg.Material = Enum.Material.SmoothPlastic
-		leg.TopSurface = Enum.SurfaceType.Smooth
-		leg.BottomSurface = Enum.SurfaceType.Smooth
-		Effects._korblox.buildMesh(size).Parent = leg
-		korbloxCreatedParts[leg] = true
-		leg.Parent = rig
-		return leg
-	end
-
-	function Effects._korblox.hidePart(part)
-		if not part or not part:IsA("BasePart") then
-			return
-		end
-		local original = korbloxTransparencyOriginal[part]
-		if original == nil then
-			original = tonumber(getAttr(part, "ShaderVelardKorbloxTransparency"))
-			if original == nil then
-				original = part.Transparency
-			end
-			korbloxTransparencyOriginal[part] = original
-		end
-		setAttr(part, "ShaderVelardKorbloxTransparency", original)
-		part.Transparency = 1
-	end
-
-	-- Returns the existing Korblox leg when it is still healthy, otherwise removes
-	-- a broken one (some games strip unknown children from character parts, which
-	-- left a grey block behind).
-	function Effects._korblox.getHealthy(rig)
-		local existing = rig:FindFirstChild("ShaderVelard_KorbloxLeg")
-		if not existing then
-			return nil
-		end
-		if existing:IsA("BasePart") and existing:FindFirstChildOfClass("SpecialMesh") then
-			return existing
-		end
-		korbloxCreatedParts[existing] = nil
-		existing:Destroy()
-		return nil
-	end
-
-	local function applyKorbloxR15(rig)
-		local upperLeg = rig:FindFirstChild("RightUpperLeg")
-		if not upperLeg or not upperLeg:IsA("BasePart") then
-			return false
-		end
-		local lowerLeg = rig:FindFirstChild("RightLowerLeg")
-		local foot = rig:FindFirstChild("RightFoot")
-
-		-- R15 legs are MeshParts, so the R6 CharacterMesh cannot be used.
-		-- Hide the real right leg and weld a Korblox mesh in its place.
-		for _, part in ipairs({ upperLeg, lowerLeg, foot }) do
-			Effects._korblox.hidePart(part)
-		end
-
-		local existing = Effects._korblox.getHealthy(rig)
-		if existing then
-			return true
-		end
-
-		local upperLen = upperLeg.Size.Y
-		local lowerLen = lowerLeg and lowerLeg.Size.Y or upperLen
-		local footLen = foot and foot.Size.Y or math.max(upperLen * 0.5, 0.2)
-		local totalLen = upperLen + lowerLen + footLen
-		local offsetY = -(lowerLen + footLen) / 2
-
-		local legPart = Effects._korblox.createPart(rig, Vector3.new(upperLeg.Size.X, totalLen, upperLeg.Size.Z))
-		legPart.CFrame = upperLeg.CFrame * CFrame.new(0, offsetY, 0)
-
-		local weld = Instance.new("Weld")
-		weld.Name = "KorbloxWeld"
-		weld.Part0 = upperLeg
-		weld.Part1 = legPart
-		weld.C0 = CFrame.new(0, offsetY, 0)
-		weld.Parent = legPart
-
-		print(string.format("[ShaderVelard] Korblox R15 leg applied (%.2f studs)", totalLen))
-		return true
-	end
-
-	local function applyKorbloxWeldPart(rig, legPart)
-		if not legPart or not legPart:IsA("BasePart") then
-			return false
-		end
-
-		Effects._korblox.hidePart(legPart)
-
-		local existing = Effects._korblox.getHealthy(rig)
-		if existing then
-			return true
-		end
-
-		local length = math.max(legPart.Size.Y, 0.2)
-		local leg = Effects._korblox.createPart(rig, Vector3.new(legPart.Size.X, length, legPart.Size.Z))
-		leg.CFrame = legPart.CFrame
-
-		local weld = Instance.new("Weld")
-		weld.Name = "KorbloxWeld"
-		weld.Part0 = legPart
-		weld.Part1 = leg
-		weld.Parent = leg
-		print("[ShaderVelard] Korblox welded leg applied")
-		return true
-	end
-
-	local function applyKorbloxLeg(rig)
-		if rigUsesR15(rig) and applyKorbloxR15(rig) then
-			return true
-		end
-
-		-- R6 rigs migrated to MeshParts cannot use CharacterMesh, so weld the
-		-- Korblox mesh directly instead of silently doing nothing. This is also
-		-- the fallback for rigs whose Humanoid claims R15 but uses R6-style parts.
-		local meshLeg = rig:FindFirstChild("Right Leg") or rig:FindFirstChild("RightLeg")
-		if meshLeg and meshLeg:IsA("MeshPart") then
-			return applyKorbloxWeldPart(rig, meshLeg)
-		end
-
-		local meshId = "rbxassetid://" .. KORBLOX_MESH_ID
-		local textureId = "rbxassetid://" .. KORBLOX_TEXTURE_ID
-
-		matchRightLegStyle(rig)
+	-- Removes only Korblox CharacterMeshes (plus legs welded by old builds).
+	-- Other game meshes are left alone.
+	local function clearKorbloxRig(rig)
 		for _, child in ipairs(rig:GetChildren()) do
 			if child:IsA("CharacterMesh") and child.BodyPart == Enum.BodyPart.RightLeg then
-				local childMesh = tostring(child.MeshId)
-				if childMesh == meshId or tonumber(childMesh) == KORBLOX_MESH_ID then
+				local meshId = tostring(child.MeshId)
+				if meshId == KORBLOX_MESH_ASSET
+					or tonumber(meshId) == KORBLOX_MESH_ID
+					or string.find(child.Name:lower(), "korblox", 1, true) then
+					child:Destroy()
+				end
+			elseif child.Name == "ShaderVelard_KorbloxLeg" or child.Name == "ShaderVelard_KorbloxRightLeg" then
+				child:Destroy()
+			end
+		end
+		-- Restore R15 leg parts hidden by the old welded-leg implementation.
+		for _, name in ipairs({ "RightUpperLeg", "RightLowerLeg", "RightFoot" }) do
+			local part = rig:FindFirstChild(name)
+			if part and part:IsA("BasePart") then
+				local stored = getAttr(part, "ShaderVelardKorbloxTransparency")
+				if stored ~= nil then
+					part.Transparency = tonumber(stored) or 0
+					setAttr(part, "ShaderVelardKorbloxTransparency", nil)
+				end
+			end
+		end
+	end
+
+	-- R6 only: Roblox fits a CharacterMesh onto the "Right Leg" automatically,
+	-- which is exactly how the original script did it and why it looked right.
+	local function applyKorbloxRig(rig)
+		local rightLeg = rig:FindFirstChild("Right Leg") or rig:FindFirstChild("RightLeg")
+		if not rightLeg or not rightLeg:IsA("BasePart") then
+			return false
+		end
+
+		matchRightLegStyle(rig)
+
+		for _, child in ipairs(rig:GetChildren()) do
+			if child:IsA("CharacterMesh") and child.BodyPart == Enum.BodyPart.RightLeg then
+				local meshId = tostring(child.MeshId)
+				if meshId == KORBLOX_MESH_ASSET
+					or tonumber(meshId) == KORBLOX_MESH_ID
+					or string.find(child.Name:lower(), "korblox", 1, true) then
 					return true
 				end
 			end
 		end
+
 		local mesh = Instance.new("CharacterMesh")
-		mesh.Name = "ShaderVelard_KorbloxRightLeg"
+		mesh.Name = "Korblox Deathspeaker Right Leg"
 		mesh.BodyPart = Enum.BodyPart.RightLeg
-		mesh.MeshId = meshId
-		mesh.OverlayTextureId = textureId
+		mesh.MeshId = KORBLOX_MESH_ASSET
+		mesh.OverlayTextureId = KORBLOX_TEXTURE_ASSET
 		mesh.Parent = rig
 		return true
-	end
-
-	local function clearKorbloxLeg(rig)
-		local welded = rig:FindFirstChild("ShaderVelard_KorbloxLeg")
-		if welded then
-			welded:Destroy()
-		end
-		for _, name in ipairs({ "RightUpperLeg", "RightLowerLeg", "RightFoot", "Right Leg" }) do
-			local part = rig:FindFirstChild(name)
-			if part and part:IsA("BasePart") then
-				local original = korbloxTransparencyOriginal[part]
-				if original == nil then
-					original = tonumber(getAttr(part, "ShaderVelardKorbloxTransparency"))
-				end
-				if original ~= nil then
-					part.Transparency = original
-					setAttr(part, "ShaderVelardKorbloxTransparency", nil)
-					korbloxTransparencyOriginal[part] = nil
-				end
-			end
-		end
-
-		for _, child in ipairs(rig:GetChildren()) do
-			if child:IsA("CharacterMesh") and child.BodyPart == Enum.BodyPart.RightLeg then
-				local childMesh = tostring(child.MeshId)
-				if childMesh == ("rbxassetid://" .. KORBLOX_MESH_ID)
-					or tonumber(childMesh) == KORBLOX_MESH_ID
-					or string.find(child.Name:lower(), "korblox", 1, true) then
-					child:Destroy()
-				end
-			end
-		end
 	end
 
 	local function restoreHeadlessHead(head, data)
@@ -5312,25 +5093,20 @@ __modules["Effects"] = function()
 		end)
 	end
 
-	local function applyHeadlessHead(rig)
+	local function applyHeadlessRig(rig)
 		local head = rig:FindFirstChild("Head")
 		if not head or not head:IsA("BasePart") then
 			return false
 		end
 
-		-- Remember the original look in a module-level cache, not attributes.
-		-- Some games replace or scrub character attributes, which left the head
-		-- permanently invisible after toggling off.
-		if not headlessOriginal[head] then
+		if not cosmetics.heads[head] then
 			local specialMesh = nil
 			if not head:IsA("MeshPart") then
 				specialMesh = head:FindFirstChildOfClass("SpecialMesh")
 			end
 			local data = {
-				-- A head that is already fully transparent is usually hidden by the
-				-- game itself (or by a stale copy of this script). Storing 1 would
-				-- make "Headless off" restore an invisible head, so treat it as
-				-- visible and let the game re-hide it if it really wants to.
+				-- A head that is already transparent was hidden by the game or by a
+				-- previous run; restoring 1 would leave it invisible after toggling off.
 				transparency = head.Transparency >= 0.99 and 0 or head.Transparency,
 				meshId = nil,
 				decals = {},
@@ -5346,17 +5122,13 @@ __modules["Effects"] = function()
 					data.decals[child] = child.Transparency
 				end
 			end
-			headlessOriginal[head] = data
+			cosmetics.heads[head] = data
 		end
 
-		local data = headlessOriginal[head]
+		local data = cosmetics.heads[head]
 		setAttr(head, "ShaderVelardHeadless", true)
 		setAttr(head, "ShaderVelardHeadTransparency", data.transparency)
-		if head:IsA("MeshPart") then
-			setAttr(head, "ShaderVelardHeadMeshId", nil)
-		elseif head:FindFirstChildOfClass("SpecialMesh") then
-			setAttr(head, "ShaderVelardHeadMeshId", data.meshId or "")
-		end
+		setAttr(head, "ShaderVelardHeadMeshId", data.meshId)
 
 		head.Transparency = 1
 		if not head:IsA("MeshPart") then
@@ -5365,38 +5137,31 @@ __modules["Effects"] = function()
 				specialMesh.MeshId = HEADLESS_HEAD_MESH
 			end
 		end
-
 		for _, child in ipairs(head:GetChildren()) do
 			if child:IsA("Decal") then
-				local original = data.decals[child]
-				if original == nil then
-					original = getAttr(child, "ShaderVelardHeadlessDecal")
-					if original == nil then
-						original = child.Transparency
-					end
-					data.decals[child] = original
+				if data.decals[child] == nil then
+					data.decals[child] = child.Transparency
 				end
-				setAttr(child, "ShaderVelardHeadlessDecal", original)
+				setAttr(child, "ShaderVelardHeadlessDecal", data.decals[child])
 				child.Transparency = 1
 			end
 		end
 		return true
 	end
 
-	local function clearHeadlessHead(rig)
+	local function clearHeadlessRig(rig)
 		local head = rig:FindFirstChild("Head")
 		if not head or not head:IsA("BasePart") then
-			return
+			return false
 		end
 
-		local data = headlessOriginal[head]
+		local data = cosmetics.heads[head]
 		if not data then
-			-- Recover from a previous execution of the bundle: the cache may be
-			-- gone, but attributes written onto the head survive in the DataModel.
-			local stored = getAttr(head, "ShaderVelardHeadTransparency")
+			-- Recover from an earlier execution: attributes survive reloads.
+			local stored = tonumber(getAttr(head, "ShaderVelardHeadTransparency"))
 			if getAttr(head, "ShaderVelardHeadless") ~= nil and stored ~= nil then
 				data = {
-					transparency = tonumber(stored) or 0,
+					transparency = stored,
 					meshId = getAttr(head, "ShaderVelardHeadMeshId"),
 					decals = {},
 				}
@@ -5412,34 +5177,37 @@ __modules["Effects"] = function()
 		end
 
 		if data then
-			headlessOriginal[head] = nil
+			cosmetics.heads[head] = nil
 			restoreHeadlessHead(head, data)
 			return true
 		end
 
-		-- Fallback when the cache was lost (e.g. head was replaced mid-effect):
-		-- only undo values that clearly match the headless look.
+		-- Last-resort restore for heads hidden by an old build.
+		local changed = false
 		if head.Transparency >= 0.99 then
 			head.Transparency = 0
+			changed = true
 		end
 		if not head:IsA("MeshPart") then
 			local specialMesh = head:FindFirstChildOfClass("SpecialMesh")
 			if specialMesh and specialMesh.MeshId == HEADLESS_HEAD_MESH then
 				specialMesh.MeshId = ""
+				changed = true
 			end
 		end
 		for _, child in ipairs(head:GetChildren()) do
 			if child:IsA("Decal") and child.Transparency >= 0.99 then
 				child.Transparency = 0
+				changed = true
 			end
 		end
-		return true
+		return changed
 	end
 
 	local function applyKorblox()
 		local applied = 0
 		for _, rig in ipairs(collectCosmeticRigs()) do
-			local ok, result = pcall(applyKorbloxLeg, rig)
+			local ok, result = pcall(applyKorbloxRig, rig)
 			if ok and result then
 				applied = applied + 1
 			end
@@ -5449,30 +5217,12 @@ __modules["Effects"] = function()
 
 	local function clearKorblox()
 		for _, rig in ipairs(collectCosmeticRigs()) do
-			pcall(clearKorbloxLeg, rig)
-		end
-		-- Restore parts from rigs that are no longer in the collection (respawn or
-		-- game-rebuilt avatar) and remove any leg we welded in an older rig.
-		for part, transparency in pairs(korbloxTransparencyOriginal) do
-			korbloxTransparencyOriginal[part] = nil
-			if part.Parent then
-				pcall(function()
-					part.Transparency = transparency
-				end)
-			end
-		end
-		for part in pairs(korbloxCreatedParts) do
-			korbloxCreatedParts[part] = nil
-			if part.Parent then
-				pcall(function()
-					part:Destroy()
-				end)
-			end
+			pcall(clearKorbloxRig, rig)
 		end
 	end
 
 	local function notifyKorbloxUnsupported()
-		local message = "Korblox hanya berfungsi di rig R6/R15."
+		local message = "Korblox butuh rig R6 (bagian 'Right Leg'). Avatar R15 belum didukung."
 		if Effects.onNotify then
 			pcall(Effects.onNotify, "ShaderVelard", message, 4)
 		end
@@ -5482,7 +5232,7 @@ __modules["Effects"] = function()
 	local function applyHeadless()
 		local applied = 0
 		for _, rig in ipairs(collectCosmeticRigs()) do
-			local ok, result = pcall(applyHeadlessHead, rig)
+			local ok, result = pcall(applyHeadlessRig, rig)
 			if ok and result then
 				applied = applied + 1
 			end
@@ -5493,18 +5243,16 @@ __modules["Effects"] = function()
 	local function clearHeadless()
 		local restored = 0
 		for _, rig in ipairs(collectCosmeticRigs()) do
-			local ok, result = pcall(clearHeadlessHead, rig)
+			local ok, result = pcall(clearHeadlessRig, rig)
 			if ok and result then
 				restored = restored + 1
 			end
 		end
-		-- Sweep every head we ever hid, even when its rig is no longer returned by
-		-- collectCosmeticRigs() (respawn, rebuilt avatar, script re-execution).
-		-- Without this the module cache was dropped while the head stayed invisible,
-		-- which is exactly the "Headless off but still headless" bug.
-		for head, data in pairs(headlessOriginal) do
-			headlessOriginal[head] = nil
+		-- Sweep heads that belonged to a rig which has since been replaced.
+		for head, data in pairs(cosmetics.heads) do
+			cosmetics.heads[head] = nil
 			restoreHeadlessHead(head, data)
+			restored = restored + 1
 		end
 		return restored
 	end
@@ -5524,15 +5272,9 @@ __modules["Effects"] = function()
 	end
 
 	local function resetCosmeticCache()
-		korbloxTransparencyOriginal = {}
-		korbloxCreatedParts = {}
-		headlessOriginal = {}
+		cosmetics.heads = {}
 	end
 
-	-- A previous execution of the bundle may have left the head/legs hidden but
-	-- never restored (executor isolated `shared`, script killed mid-effect, ...).
-	-- Attributes survive executions, so use them first; then fall back to the
-	-- unmistakable "transparent head + transparent decals" signature.
 	local function looksLikeStaleHeadless(head)
 		if head.Transparency < 0.99 then
 			return false
@@ -5550,7 +5292,7 @@ __modules["Effects"] = function()
 			local head = rig:FindFirstChild("Head")
 			if head and head:IsA("BasePart") then
 				if getAttr(head, "ShaderVelardHeadless") ~= nil or looksLikeStaleHeadless(head) then
-					pcall(clearHeadlessHead, rig)
+					pcall(clearHeadlessRig, rig)
 				end
 			end
 			local staleLeg = rig:FindFirstChild("ShaderVelard_KorbloxLeg")
@@ -5562,7 +5304,6 @@ __modules["Effects"] = function()
 						part.Transparency = tonumber(stored) or 0
 						setAttr(part, "ShaderVelardKorbloxTransparency", nil)
 					elseif staleLeg and part.Transparency >= 0.99 then
-						-- Old build hid the leg but never tagged it.
 						part.Transparency = 0
 					end
 				end
