@@ -5062,6 +5062,102 @@ __modules["Effects"] = function()
 		return rig:FindFirstChild("RightUpperLeg") ~= nil
 	end
 
+	-- The Korblox "SM RL" mesh (rbxassetid://101851696) was authored for a
+	-- CharacterMesh, where Roblox automatically fits and centres it on the R6 leg.
+	-- A SpecialMesh does NOT do that fitting: its raw size is only about
+	-- 0.31 x 0.86 x 0.39 studs. The old code set Scale = (1, len/2, 1) and painted
+	-- the part grey (64,64,64), so the real leg was hidden and all you saw was a
+	-- grey block (or a tiny mesh buried inside it). These bounds let us scale and
+	-- centre the mesh by hand so it covers the whole leg.
+	-- Kept on the module table instead of new locals: the Effects module is
+	-- already at the 200-local limit, so adding a single `local` breaks load.
+	Effects._korblox = {
+		BoundsMin = Vector3.new(-0.17588, 0.30112, -0.22527),
+		BoundsMax = Vector3.new(0.13835, 1.16332, 0.16528),
+	}
+
+	function Effects._korblox.buildMesh(targetSize)
+		local raw = Effects._korblox.BoundsMax - Effects._korblox.BoundsMin
+		local center = (Effects._korblox.BoundsMin + Effects._korblox.BoundsMax) * 0.5
+		local scale = Vector3.new(
+			targetSize.X / math.max(raw.X, 1e-3),
+			targetSize.Y / math.max(raw.Y, 1e-3),
+			targetSize.Z / math.max(raw.Z, 1e-3)
+		)
+
+		local mesh = Instance.new("SpecialMesh")
+		mesh.Name = "KorbloxMesh"
+		mesh.MeshType = Enum.MeshType.FileMesh
+		mesh.MeshId = "rbxassetid://" .. KORBLOX_MESH_ID
+		mesh.TextureId = "rbxassetid://" .. KORBLOX_TEXTURE_ID
+		-- White vertex colour keeps the Korblox texture untinted.
+		mesh.VertexColor = Vector3.new(1, 1, 1)
+		mesh.Scale = scale
+		-- Offset is in studs and is applied after Scale, so it must use the scaled
+		-- bounds centre to put the mesh exactly on the part's centre.
+		mesh.Offset = Vector3.new(
+			-center.X * scale.X,
+			-center.Y * scale.Y,
+			-center.Z * scale.Z
+		)
+		return mesh
+	end
+
+	function Effects._korblox.createPart(rig, size)
+		local leg = Instance.new("Part")
+		leg.Name = "ShaderVelard_KorbloxLeg"
+		leg.Size = size
+		leg.Anchored = false
+		leg.CanCollide = false
+		leg.CanQuery = false
+		leg.CanTouch = false
+		leg.CastShadow = false
+		leg.Massless = true
+		leg.Transparency = 0
+		-- A white part colour leaves the texture as-is. The previous grey tint
+		-- multiplied the Korblox texture and made the whole leg look plain grey.
+		leg.Color = Color3.new(1, 1, 1)
+		leg.Material = Enum.Material.SmoothPlastic
+		leg.TopSurface = Enum.SurfaceType.Smooth
+		leg.BottomSurface = Enum.SurfaceType.Smooth
+		Effects._korblox.buildMesh(size).Parent = leg
+		korbloxCreatedParts[leg] = true
+		leg.Parent = rig
+		return leg
+	end
+
+	function Effects._korblox.hidePart(part)
+		if not part or not part:IsA("BasePart") then
+			return
+		end
+		local original = korbloxTransparencyOriginal[part]
+		if original == nil then
+			original = tonumber(getAttr(part, "ShaderVelardKorbloxTransparency"))
+			if original == nil then
+				original = part.Transparency
+			end
+			korbloxTransparencyOriginal[part] = original
+		end
+		setAttr(part, "ShaderVelardKorbloxTransparency", original)
+		part.Transparency = 1
+	end
+
+	-- Returns the existing Korblox leg when it is still healthy, otherwise removes
+	-- a broken one (some games strip unknown children from character parts, which
+	-- left a grey block behind).
+	function Effects._korblox.getHealthy(rig)
+		local existing = rig:FindFirstChild("ShaderVelard_KorbloxLeg")
+		if not existing then
+			return nil
+		end
+		if existing:IsA("BasePart") and existing:FindFirstChildOfClass("SpecialMesh") then
+			return existing
+		end
+		korbloxCreatedParts[existing] = nil
+		existing:Destroy()
+		return nil
+	end
+
 	local function applyKorbloxR15(rig)
 		local upperLeg = rig:FindFirstChild("RightUpperLeg")
 		if not upperLeg or not upperLeg:IsA("BasePart") then
@@ -5073,21 +5169,11 @@ __modules["Effects"] = function()
 		-- R15 legs are MeshParts, so the R6 CharacterMesh cannot be used.
 		-- Hide the real right leg and weld a Korblox mesh in its place.
 		for _, part in ipairs({ upperLeg, lowerLeg, foot }) do
-			if part and part:IsA("BasePart") then
-				local original = korbloxTransparencyOriginal[part]
-				if original == nil then
-					original = tonumber(getAttr(part, "ShaderVelardKorbloxTransparency"))
-					if original == nil then
-						original = part.Transparency
-					end
-					korbloxTransparencyOriginal[part] = original
-				end
-				setAttr(part, "ShaderVelardKorbloxTransparency", original)
-				part.Transparency = 1
-			end
+			Effects._korblox.hidePart(part)
 		end
 
-		if rig:FindFirstChild("ShaderVelard_KorbloxLeg") then
+		local existing = Effects._korblox.getHealthy(rig)
+		if existing then
 			return true
 		end
 
@@ -5097,27 +5183,8 @@ __modules["Effects"] = function()
 		local totalLen = upperLen + lowerLen + footLen
 		local offsetY = -(lowerLen + footLen) / 2
 
-		local legPart = Instance.new("Part")
-		legPart.Name = "ShaderVelard_KorbloxLeg"
-		legPart.Size = Vector3.new(upperLeg.Size.X, totalLen, upperLeg.Size.Z)
+		local legPart = Effects._korblox.createPart(rig, Vector3.new(upperLeg.Size.X, totalLen, upperLeg.Size.Z))
 		legPart.CFrame = upperLeg.CFrame * CFrame.new(0, offsetY, 0)
-		legPart.Anchored = false
-		legPart.CanCollide = false
-		legPart.CanQuery = false
-		legPart.CanTouch = false
-		legPart.CastShadow = false
-		legPart.Massless = true
-		legPart.Color = Color3.fromRGB(64, 64, 64)
-		legPart.Parent = rig
-		korbloxCreatedParts[legPart] = true
-
-		local mesh = Instance.new("SpecialMesh")
-		mesh.Name = "KorbloxMesh"
-		mesh.MeshType = Enum.MeshType.FileMesh
-		mesh.MeshId = "rbxassetid://" .. KORBLOX_MESH_ID
-		mesh.TextureId = "rbxassetid://" .. KORBLOX_TEXTURE_ID
-		mesh.Scale = Vector3.new(1, totalLen / 2, 1)
-		mesh.Parent = legPart
 
 		local weld = Instance.new("Weld")
 		weld.Name = "KorbloxWeld"
@@ -5126,6 +5193,7 @@ __modules["Effects"] = function()
 		weld.C0 = CFrame.new(0, offsetY, 0)
 		weld.Parent = legPart
 
+		print(string.format("[ShaderVelard] Korblox R15 leg applied (%.2f studs)", totalLen))
 		return true
 	end
 
@@ -5134,59 +5202,34 @@ __modules["Effects"] = function()
 			return false
 		end
 
-		local original = korbloxTransparencyOriginal[legPart]
-		if original == nil then
-			original = tonumber(getAttr(legPart, "ShaderVelardKorbloxTransparency"))
-			if original == nil then
-				original = legPart.Transparency
-			end
-			korbloxTransparencyOriginal[legPart] = original
-		end
-		setAttr(legPart, "ShaderVelardKorbloxTransparency", original)
-		legPart.Transparency = 1
+		Effects._korblox.hidePart(legPart)
 
-		if rig:FindFirstChild("ShaderVelard_KorbloxLeg") then
+		local existing = Effects._korblox.getHealthy(rig)
+		if existing then
 			return true
 		end
 
 		local length = math.max(legPart.Size.Y, 0.2)
-		local leg = Instance.new("Part")
-		leg.Name = "ShaderVelard_KorbloxLeg"
-		leg.Size = Vector3.new(legPart.Size.X, length, legPart.Size.Z)
+		local leg = Effects._korblox.createPart(rig, Vector3.new(legPart.Size.X, length, legPart.Size.Z))
 		leg.CFrame = legPart.CFrame
-		leg.Anchored = false
-		leg.CanCollide = false
-		leg.CanQuery = false
-		leg.CanTouch = false
-		leg.CastShadow = false
-		leg.Massless = true
-		leg.Color = Color3.fromRGB(64, 64, 64)
-		leg.Parent = rig
-		korbloxCreatedParts[leg] = true
-
-		local mesh = Instance.new("SpecialMesh")
-		mesh.Name = "KorbloxMesh"
-		mesh.MeshType = Enum.MeshType.FileMesh
-		mesh.MeshId = "rbxassetid://" .. KORBLOX_MESH_ID
-		mesh.TextureId = "rbxassetid://" .. KORBLOX_TEXTURE_ID
-		mesh.Scale = Vector3.new(1, length / 2, 1)
-		mesh.Parent = leg
 
 		local weld = Instance.new("Weld")
 		weld.Name = "KorbloxWeld"
 		weld.Part0 = legPart
 		weld.Part1 = leg
 		weld.Parent = leg
+		print("[ShaderVelard] Korblox welded leg applied")
 		return true
 	end
 
 	local function applyKorbloxLeg(rig)
-		if rigUsesR15(rig) then
-			return applyKorbloxR15(rig)
+		if rigUsesR15(rig) and applyKorbloxR15(rig) then
+			return true
 		end
 
 		-- R6 rigs migrated to MeshParts cannot use CharacterMesh, so weld the
-		-- Korblox mesh directly instead of silently doing nothing.
+		-- Korblox mesh directly instead of silently doing nothing. This is also
+		-- the fallback for rigs whose Humanoid claims R15 but uses R6-style parts.
 		local meshLeg = rig:FindFirstChild("Right Leg") or rig:FindFirstChild("RightLeg")
 		if meshLeg and meshLeg:IsA("MeshPart") then
 			return applyKorbloxWeldPart(rig, meshLeg)
