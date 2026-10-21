@@ -4937,7 +4937,21 @@ __modules["Effects"] = function()
 	-- still works when the game rebuilds or replaces the avatar.
 	local cosmetics = {
 		heads = {},
+		hiddenParts = {},
+		rigs = {},
 	}
+
+	-- Older builds (and a stale second copy of this script that may still be
+	-- looping in the executor) weld a Part with a SpecialMesh over the leg. A
+	-- Part always renders its block, so that leftover hides/overlaps the real
+	-- Korblox mesh and looks like a solid black slab. Kill it whenever we see it.
+	local function removeLegacyKorblox(rig)
+		for _, child in ipairs(rig:GetChildren()) do
+			if child.Name == "ShaderVelard_KorbloxLeg" then
+				child:Destroy()
+			end
+		end
+	end
 
 	local function collectCosmeticRigs()
 		local rigs = {}
@@ -5011,9 +5025,10 @@ __modules["Effects"] = function()
 		end
 	end
 
-	-- Removes only Korblox CharacterMeshes (plus legs welded by old builds).
-	-- Other game meshes are left alone.
+	-- Removes only Korblox CharacterMeshes / our R15 MeshPart (plus legs welded
+	-- by old builds). Other game meshes are left alone.
 	local function clearKorbloxRig(rig)
+		removeLegacyKorblox(rig)
 		for _, child in ipairs(rig:GetChildren()) do
 			if child:IsA("CharacterMesh") and child.BodyPart == Enum.BodyPart.RightLeg then
 				local meshId = tostring(child.MeshId)
@@ -5022,29 +5037,98 @@ __modules["Effects"] = function()
 					or string.find(child.Name:lower(), "korblox", 1, true) then
 					child:Destroy()
 				end
-			elseif child.Name == "ShaderVelard_KorbloxLeg" or child.Name == "ShaderVelard_KorbloxRightLeg" then
+			elseif child.Name == "ShaderVelard_KorbloxRightLeg"
+				or child.Name == "ShaderVelard_KorbloxMeshPart" then
 				child:Destroy()
 			end
 		end
-		-- Restore R15 leg parts hidden by the old welded-leg implementation.
+		-- Restore R15 leg parts hidden by this or the old welded-leg version.
 		for _, name in ipairs({ "RightUpperLeg", "RightLowerLeg", "RightFoot" }) do
 			local part = rig:FindFirstChild(name)
 			if part and part:IsA("BasePart") then
-				local stored = getAttr(part, "ShaderVelardKorbloxTransparency")
-				if stored ~= nil then
-					part.Transparency = tonumber(stored) or 0
+				local original = cosmetics.hiddenParts[part]
+				if original == nil then
+					local stored = getAttr(part, "ShaderVelardKorbloxTransparency")
+					if stored ~= nil then
+						original = tonumber(stored) or 0
+					end
+				end
+				if original ~= nil then
+					part.Transparency = original
+					cosmetics.hiddenParts[part] = nil
 					setAttr(part, "ShaderVelardKorbloxTransparency", nil)
 				end
 			end
 		end
 	end
 
-	-- R6 only: Roblox fits a CharacterMesh onto the "Right Leg" automatically,
-	-- which is exactly how the original script did it and why it looked right.
+	-- R15 fallback: hide the three real leg parts and weld a MeshPart (NOT a
+	-- Part + SpecialMesh, because the base block would still be visible) with the
+	-- Korblox mesh over them.
+	local function applyKorbloxR15(rig)
+		local upperLeg = rig:FindFirstChild("RightUpperLeg")
+		if not upperLeg or not upperLeg:IsA("BasePart") then
+			return false
+		end
+
+		local lowerLeg = rig:FindFirstChild("RightLowerLeg")
+		local foot = rig:FindFirstChild("RightFoot")
+		local lowerLen = lowerLeg and lowerLeg.Size.Y or 0
+		local footLen = foot and foot.Size.Y or 0
+		local totalLen = upperLeg.Size.Y + lowerLen + footLen
+		local offsetY = -(lowerLen + footLen) / 2
+
+		for _, part in ipairs({ upperLeg, lowerLeg, foot }) do
+			if part and part:IsA("BasePart") then
+				if cosmetics.hiddenParts[part] == nil then
+					local original = part.Transparency
+					if original >= 0.99 then
+						original = 0
+					end
+					cosmetics.hiddenParts[part] = original
+				end
+				setAttr(part, "ShaderVelardKorbloxTransparency", cosmetics.hiddenParts[part])
+				part.Transparency = 1
+			end
+		end
+
+		local existing = rig:FindFirstChild("ShaderVelard_KorbloxMeshPart")
+		if existing then
+			return true
+		end
+
+		local leg = Instance.new("MeshPart")
+		leg.Name = "ShaderVelard_KorbloxMeshPart"
+		leg.MeshId = KORBLOX_MESH_ASSET
+		leg.TextureId = KORBLOX_TEXTURE_ASSET
+		leg.Size = Vector3.new(upperLeg.Size.X, totalLen, upperLeg.Size.Z)
+		leg.CFrame = upperLeg.CFrame * CFrame.new(0, offsetY, 0)
+		leg.Anchored = false
+		leg.CanCollide = false
+		leg.CanQuery = false
+		leg.CanTouch = false
+		leg.CastShadow = false
+		leg.Massless = true
+		leg.Color = Color3.new(1, 1, 1)
+		leg.Parent = rig
+
+		local weld = Instance.new("Weld")
+		weld.Name = "KorbloxWeld"
+		weld.Part0 = upperLeg
+		weld.Part1 = leg
+		weld.C0 = CFrame.new(0, offsetY, 0)
+		weld.Parent = leg
+		return true
+	end
+
+	-- R6: Roblox fits a CharacterMesh onto the "Right Leg" automatically, which
+	-- is exactly how the original script did it and why it looked right.
 	local function applyKorbloxRig(rig)
+		removeLegacyKorblox(rig)
+
 		local rightLeg = rig:FindFirstChild("Right Leg") or rig:FindFirstChild("RightLeg")
 		if not rightLeg or not rightLeg:IsA("BasePart") then
-			return false
+			return applyKorbloxR15(rig)
 		end
 
 		matchRightLegStyle(rig)
@@ -5206,7 +5290,10 @@ __modules["Effects"] = function()
 
 	local function applyKorblox()
 		local applied = 0
-		for _, rig in ipairs(collectCosmeticRigs()) do
+		local rigs = collectCosmeticRigs()
+		cosmetics.rigs = rigs
+		for _, rig in ipairs(rigs) do
+			removeLegacyKorblox(rig)
 			local ok, result = pcall(applyKorbloxRig, rig)
 			if ok and result then
 				applied = applied + 1
@@ -5222,7 +5309,7 @@ __modules["Effects"] = function()
 	end
 
 	local function notifyKorbloxUnsupported()
-		local message = "Korblox butuh rig R6 (bagian 'Right Leg'). Avatar R15 belum didukung."
+		local message = "Rig karakter belum ditemukan. Respawn atau coba toggle lagi sebentar lagi."
 		if Effects.onNotify then
 			pcall(Effects.onNotify, "ShaderVelard", message, 4)
 		end
@@ -5273,6 +5360,8 @@ __modules["Effects"] = function()
 
 	local function resetCosmeticCache()
 		cosmetics.heads = {}
+		cosmetics.hiddenParts = {}
+		cosmetics.rigs = {}
 	end
 
 	local function looksLikeStaleHeadless(head)
@@ -5296,6 +5385,10 @@ __modules["Effects"] = function()
 				end
 			end
 			local staleLeg = rig:FindFirstChild("ShaderVelard_KorbloxLeg")
+			local staleMeshPart = rig:FindFirstChild("ShaderVelard_KorbloxMeshPart")
+			if staleMeshPart then
+				staleMeshPart:Destroy()
+			end
 			for _, name in ipairs({ "RightUpperLeg", "RightLowerLeg", "RightFoot" }) do
 				local part = rig:FindFirstChild(name)
 				if part and part:IsA("BasePart") then
@@ -6800,6 +6893,15 @@ __modules["Effects"] = function()
 			end
 		else
 			cosmeticTimer = 0
+		end
+		-- A stale second copy of an older build can keep welding its Part+SpecialMesh
+		-- leg every 1.5s. Clear that leftover every frame so it cannot cover ours.
+		if state.toggles.korblox then
+			for _, rig in ipairs(cosmetics.rigs) do
+				if rig.Parent then
+					removeLegacyKorblox(rig)
+				end
+			end
 		end
 
 		if state.toggles.chromatic then
