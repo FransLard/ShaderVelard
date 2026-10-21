@@ -7494,7 +7494,9 @@ __modules["UI"] = function()
 			UserInputService.MouseBehavior = unlocked and Enum.MouseBehavior.Default or Enum.MouseBehavior.LockCenter
 		end)
 		pcall(function()
-			UserInputService.MouseIconEnabled = unlocked
+			-- Keep the cursor visible so it does not seem to vanish when the menu
+			-- closes. Camera mouse-look still works because the pointer is locked.
+			UserInputService.MouseIconEnabled = true
 		end)
 	end
 
