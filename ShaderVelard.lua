@@ -1456,7 +1456,7 @@ __modules["Effects"] = function()
 			sparkleRate = 25,
 			rainbowSpeed = 1,
 			policeFlashSpeed = 2,
-			crownSpin = 1,
+			crownSpin = 0,
 		},
 		dropdowns = {
 			glossyMode = "Plastic",
@@ -3295,28 +3295,17 @@ __modules["Effects"] = function()
 	--     Handle (Part) + SpecialMesh (MeshId 10138606900, TextureId 10138606949)
 	--     HatAttachment
 	--     ParticleEmitter "8bit_fire" (TextureId 10126369396) on VFX_Att
-	-- The clone is attached with Humanoid:AddAccessory (AccessoryWeld) and spun
-	-- by rotating that weld each frame, matching the original behaviour.
+	-- The official visual + VFX are cloned untouched (no tint, no extra effects).
+	-- Custom-rig games often keep the visible character outside Player.Character,
+	-- so the same rigs used by Korblox/Headless are scanned for a Head.
 	local crown = {
 		objects = nil,
 		objectsTried = false,
-		accessory = nil,
-		handle = nil,
-		weld = nil,
-		emitter = nil,
-		spinBase = CFrame.new(),
-		spinBase1 = CFrame.new(),
-		spinAxis = 0,
+		entries = {},
+		warnedFallback = false,
 		angle = 0,
 	}
 
-	function crown.color()
-		local palette = Config.Crown8Bit.Colors or {}
-		return palette[state.dropdowns.crownColor] or palette.Gold or Color3.fromRGB(255, 214, 130)
-	end
-
-	-- Executor-only API. Also accepts https://assetdelivery.roblox.com/?id= URLs
-	-- if the executor returns them, because the source asset stores MeshId that way.
 	function crown.fetchObjects()
 		if crown.objectsTried then
 			return crown.objects
@@ -3355,7 +3344,6 @@ __modules["Effects"] = function()
 			end
 		end
 
-		-- Some executors return a loose Handle part instead of the Accessory.
 		for _, object in ipairs(objects) do
 			if typeof(object) == "Instance" then
 				local part = nil
@@ -3375,6 +3363,50 @@ __modules["Effects"] = function()
 			end
 		end
 		return nil
+	end
+
+	function crown.collectRigs()
+		local rigs = {}
+		local seen = {}
+		local function add(model)
+			if model
+				and typeof(model) == "Instance"
+				and model:IsA("Model")
+				and model:FindFirstChild("Head")
+				and not seen[model] then
+				seen[model] = true
+				table.insert(rigs, model)
+			end
+		end
+
+		add(player.Character)
+
+		local rigsFolder = Workspace:FindFirstChild("Rigs")
+		if rigsFolder then
+			add(rigsFolder:FindFirstChild(player.Name))
+		end
+
+		local cache = Workspace:FindFirstChild("PlayerCache")
+		if cache then
+			local entry = cache:FindFirstChild(player.Name)
+			if entry then
+				add(entry)
+				add(entry:FindFirstChild("R6"))
+				add(entry:FindFirstChild("R15"))
+			end
+		end
+
+		add(Workspace:FindFirstChild(player.Name))
+
+		for _, object in ipairs(playerGui:GetDescendants()) do
+			if object:IsA("Model")
+				and (object.Name == "VisualRigClassic" or object.Name == "VisualRig")
+				and object:FindFirstChild("Head") then
+				add(object)
+			end
+		end
+
+		return rigs
 	end
 
 	function crown.prepare(accessory, handle)
@@ -3401,7 +3433,6 @@ __modules["Effects"] = function()
 	local function makeFallbackCrown(head)
 		local headSize = (head and head.Size) or Vector3.new(2, 1, 1)
 		local width = math.max(headSize.X, headSize.Z) * (Config.Crown8Bit.WidthFactor or 1.35)
-		local color = crown.color()
 
 		local accessory = Instance.new("Accessory")
 		accessory.Name = "ShaderVelard_Crown8Bit"
@@ -3409,7 +3440,7 @@ __modules["Effects"] = function()
 		local handle = Instance.new("Part")
 		handle.Name = "Handle"
 		handle.Size = Vector3.new(width, width * 0.7, width)
-		handle.Color = color
+		handle.Color = Color3.fromRGB(255, 255, 255)
 
 		local mesh = Instance.new("SpecialMesh")
 		mesh.Name = "SpecialMesh"
@@ -3417,7 +3448,7 @@ __modules["Effects"] = function()
 		mesh.MeshId = "rbxassetid://" .. tostring(Config.Crown8Bit.MeshId)
 		mesh.TextureId = "rbxassetid://" .. tostring(Config.Crown8Bit.TextureId)
 		mesh.Scale = Vector3.new(1, 1, 1)
-		mesh.VertexColor = color
+		mesh.VertexColor = Vector3.new(1, 1, 1)
 		mesh.Parent = handle
 
 		local hatAttachment = Instance.new("Attachment")
@@ -3454,59 +3485,14 @@ __modules["Effects"] = function()
 		return accessory, handle
 	end
 
-	function crown.updateStyle()
-		local accessory = crown.accessory
-		if not accessory then
-			return
-		end
-		local color = crown.color()
-		for _, descendant in ipairs(accessory:GetDescendants()) do
-			if descendant:IsA("SpecialMesh") then
-				descendant.VertexColor = color
-			elseif descendant:IsA("BasePart") then
-				descendant.Color = color
-			end
-		end
-	end
-
-	function crown.clear()
-		if crown.accessory then
-			crown.accessory:Destroy()
-		end
-		crown.accessory = nil
-		crown.handle = nil
-		crown.weld = nil
-		crown.emitter = nil
-		crown.spinBase = CFrame.new()
-		crown.spinBase1 = CFrame.new()
-		crown.spinAxis = 0
-		crown.angle = 0
-	end
-
-	function crown.notifyUnsupported()
-		local message = "8-Bit Crown butuh karakter dengan Head (R6/R15)."
-		if Effects.onNotify then
-			pcall(Effects.onNotify, "ShaderVelard", message, 4)
-		end
-		setStatus(message)
-	end
-
-	function crown.apply()
-		local rig = player.Character
-		local head = rig and rig:FindFirstChild("Head")
+	function crown.attachTo(rig, source)
+		local head = rig:FindFirstChild("Head")
 		if not head or not head:IsA("BasePart") then
-			return false
+			return nil
 		end
-		if crown.accessory and crown.accessory.Parent == rig and crown.handle and crown.handle.Parent then
-			crown.updateStyle()
-			return true
-		end
-
-		crown.clear()
 
 		local accessory = nil
 		local handle = nil
-		local source = crown.findSourceAccessory()
 		if source then
 			local ok, clone = pcall(function()
 				return source:Clone()
@@ -3530,6 +3516,16 @@ __modules["Effects"] = function()
 				humanoid:AddAccessory(accessory)
 			end)
 		end
+		if not accessory.Parent then
+			pcall(function()
+				accessory.Parent = rig
+			end)
+		end
+		if not handle.Parent then
+			accessory, handle = makeFallbackCrown(head)
+			crown.prepare(accessory, handle)
+			accessory.Parent = rig
+		end
 
 		local weld = handle:FindFirstChild("AccessoryWeld")
 			or handle:FindFirstChildWhichIsA("Weld")
@@ -3548,19 +3544,127 @@ __modules["Effects"] = function()
 			weld.Parent = handle
 		end
 
-		crown.accessory = accessory
-		crown.handle = handle
-		crown.weld = weld
-		crown.emitter = accessory:FindFirstChildWhichIsA("ParticleEmitter", true)
-		crown.spinBase = weld.C0
-		crown.spinBase1 = weld.C1
+		local entry = {
+			rig = rig,
+			accessory = accessory,
+			handle = handle,
+			weld = weld,
+			parts = {},
+			spinBase = weld.C0,
+			spinBase1 = weld.C1,
+			spinAxis = 0,
+		}
 		if weld.C0.Position.Magnitude < 0.01 and weld.C1.Position.Magnitude > 0.01 then
-			crown.spinAxis = 1
-		else
-			crown.spinAxis = 0
+			entry.spinAxis = 1
 		end
+		for _, descendant in ipairs(accessory:GetDescendants()) do
+			if descendant:IsA("BasePart") then
+				table.insert(entry.parts, descendant)
+			end
+		end
+		return entry
+	end
+
+	function crown.updateStyle()
+		for _, entry in ipairs(crown.entries) do
+			for _, part in ipairs(entry.parts) do
+				if part.Parent then
+					part.LocalTransparencyModifier = 0
+				end
+			end
+		end
+	end
+
+	function crown.clear()
+		for _, entry in ipairs(crown.entries) do
+			if entry.accessory then
+				entry.accessory:Destroy()
+			end
+		end
+		crown.entries = {}
 		crown.angle = 0
+	end
+
+	function crown.notifyUnsupported()
+		local message = "8-Bit Crown: rig dengan Head tidak ditemukan."
+		if Effects.onNotify then
+			pcall(Effects.onNotify, "ShaderVelard", message, 4)
+		end
+		setStatus(message)
+	end
+
+	function crown.verify()
+		for _, entry in ipairs(crown.entries) do
+			local head = entry.rig and entry.rig:FindFirstChild("Head")
+			local handle = entry.handle
+			if head and handle and handle.Parent and entry.weld then
+				local distance = (handle.Position - head.Position).Magnitude
+				local limit = math.max(head.Size.Magnitude * 2.5, 8)
+				if distance > limit then
+					entry.weld:Destroy()
+					local weld = Instance.new("Weld")
+					weld.Name = "ShaderVelard_CrownWeld"
+					weld.Part0 = head
+					weld.Part1 = handle
+					weld.C0 = CFrame.new(0, head.Size.Y * 0.5 + handle.Size.Y * 0.45, 0)
+					weld.C1 = CFrame.new()
+					weld.Parent = handle
+					entry.weld = weld
+					entry.spinBase = weld.C0
+					entry.spinBase1 = weld.C1
+					entry.spinAxis = 0
+					warn(string.format("[ShaderVelard] crown weld corrected on %s (was %.1f studs away)", entry.rig.Name, distance))
+				end
+			end
+		end
+	end
+
+	function crown.apply()
+		local rigs = crown.collectRigs()
+		if #rigs == 0 then
+			return false
+		end
+
+		local valid = #crown.entries > 0
+		if valid then
+			for _, entry in ipairs(crown.entries) do
+				if not (entry.accessory.Parent and entry.handle.Parent and entry.rig.Parent) then
+					valid = false
+					break
+				end
+			end
+		end
+		if valid then
+			crown.updateStyle()
+			return true
+		end
+
+		crown.clear()
+
+		local source = crown.findSourceAccessory()
+		for _, rig in ipairs(rigs) do
+			local ok, entry = pcall(crown.attachTo, rig, source)
+			if ok and entry then
+				table.insert(crown.entries, entry)
+			end
+		end
+		if #crown.entries == 0 then
+			return false
+		end
+
+		if source == nil and not crown.warnedFallback then
+			crown.warnedFallback = true
+			if Effects.onNotify then
+				pcall(Effects.onNotify, "ShaderVelard", "GetObjects gagal - memakai mesh fallback", 5)
+			end
+		end
+
 		crown.updateStyle()
+		print(string.format("[ShaderVelard] crown equipped on %d rig(s) via %s",
+			#crown.entries, source and "GetObjects" or "fallback"))
+		task.delay(0.6, function()
+			pcall(crown.verify)
+		end)
 		return true
 	end
 
@@ -3969,8 +4073,6 @@ __modules["Effects"] = function()
 			updateAuraStyle()
 		elseif name == "trailColor" then
 			updateTrailStyle()
-		elseif name == "crownColor" then
-			crown.updateStyle()
 		elseif name == "skyTextColor" then
 			updateSkyTextStyle()
 		elseif name == "skyTextAnim" then
@@ -4221,9 +4323,6 @@ __modules["Effects"] = function()
 		if state.toggles.angelAura then
 			updateAuraStyle()
 		end
-		if crown.emitter and crown.emitter.Parent then
-			crown.emitter.Rate = state.liteMode and 5 or 10
-		end
 		setStatus("Lite Mode " .. (state.liteMode and "enabled" or "disabled"))
 		notifyChanged()
 		return state.liteMode
@@ -4293,14 +4392,23 @@ __modules["Effects"] = function()
 			cosmeticTimer = 0
 		end
 
-		if state.toggles.crown8Bit and crown.weld and crown.handle and crown.handle.Parent then
+		if state.toggles.crown8Bit and #crown.entries > 0 then
 			local spin = math.clamp(state.sliders.crownSpin or 0, 0, 3)
 			if spin > 0.01 then
 				crown.angle = (crown.angle + deltaTime * spin * (Config.Crown8Bit.SpinDegrees or 75)) % 360
-				if crown.spinAxis == 1 then
-					crown.weld.C1 = crown.spinBase1 * CFrame.Angles(0, math.rad(crown.angle), 0)
-				else
-					crown.weld.C0 = crown.spinBase * CFrame.Angles(0, math.rad(crown.angle), 0)
+			end
+			for _, entry in ipairs(crown.entries) do
+				for _, part in ipairs(entry.parts) do
+					if part.Parent and part.LocalTransparencyModifier ~= 0 then
+						part.LocalTransparencyModifier = 0
+					end
+				end
+				if spin > 0.01 and entry.weld and entry.handle and entry.handle.Parent then
+					if entry.spinAxis == 1 then
+						entry.weld.C1 = entry.spinBase1 * CFrame.Angles(0, math.rad(crown.angle), 0)
+					else
+						entry.weld.C0 = entry.spinBase * CFrame.Angles(0, math.rad(crown.angle), 0)
+					end
 				end
 			end
 		end
@@ -6160,11 +6268,7 @@ __modules["UI"] = function()
 	addSlider(worldTab, "discoSpeed", "Disco Speed", 0.2, 3, 0.05)
 
 	addSection(characterTab, "8-Bit Crown")
-	addToggle(characterTab, "crown8Bit", "8-Bit Royal Crown", "Fetch the official crown Accessory with GetObjects() and equip it via Humanoid:AddAccessory (client-side).")
-	addDropdown(characterTab, "crownColor", "Crown Color", { "Gold", "Red", "Blue", "Green", "Purple", "Pink" }, Effects.state.dropdowns.crownColor, function(value)
-		Effects.setDropdown("crownColor", value)
-	end)
-	addSlider(characterTab, "crownSpin", "Crown Spin", 0, 3, 0.05)
+	addToggle(characterTab, "crown8Bit", "8-Bit Royal Crown", "Official Roblox crown Accessory with its original 8-bit fire VFX (client-side).")
 
 	addSection(characterTab, "Korblox & Headless")
 	addToggle(characterTab, "korblox", "Korblox Right Leg", "Client-side Korblox Deathspeaker leg on your character.")
