@@ -4976,7 +4976,22 @@ __modules["UI"] = function()
 		return crown
 	end
 
-	local previousGui = playerGui:FindFirstChild("ShaderVelardUI")
+	-- Prefer CoreGui: many live games' anti-cheat clears unknown ScreenGuis sitting
+	-- in PlayerGui, which makes the menu vanish right after it is created. CoreGui
+	-- is not touched by that. Fall back to PlayerGui if CoreGui is unavailable.
+	local function pickGuiParent()
+		local ok, coreGui = pcall(function()
+			return game:GetService("CoreGui")
+		end)
+		if ok and coreGui then
+			return coreGui
+		end
+		return playerGui
+	end
+
+	local guiParent = pickGuiParent()
+	local previousGui = guiParent:FindFirstChild("ShaderVelardUI")
+			or playerGui:FindFirstChild("ShaderVelardUI")
 	if previousGui then
 		previousGui:Destroy()
 	end
@@ -4986,7 +5001,21 @@ __modules["UI"] = function()
 	gui.IgnoreGuiInset = true
 	gui.DisplayOrder = 200
 	gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-	gui.Parent = playerGui
+	gui.Parent = guiParent
+
+	-- Some games detach/destroy injected guis. If ours is ever removed from the
+	-- chosen parent while not intentionally destroyed, re-attach it. The watchdog
+	-- stops once UI.destroy() sets UI._destroyed.
+	gui.AncestryChanged:Connect(function(_, parent)
+		if UI and UI._destroyed then
+			return
+		end
+		if parent ~= guiParent then
+			pcall(function()
+				gui.Parent = guiParent
+			end)
+		end
+	end)
 
 	local window = make("Frame", {
 		Name = "Window",
@@ -6820,29 +6849,44 @@ __modules["UI"] = function()
 end
 
 -- ===== Bootstrap =====
-local function __shaderVelardReportError(err)
-	local text = tostring(err)
-	warn("[ShaderVelard] LOAD ERROR: " .. text)
+local function __shaderVelardPickGuiParent()
+	local ok, coreGui = pcall(function()
+		return game:GetService("CoreGui")
+	end)
+	if ok and coreGui then
+		return coreGui
+	end
+	local p = game:GetService("Players").LocalPlayer
+	return p and p:WaitForChild("PlayerGui")
+end
+
+local function __shaderVelardMarker(title, body, color)
 	pcall(function()
-		local Players = game:GetService("Players")
-		local player = Players.LocalPlayer
+		local parent = __shaderVelardPickGuiParent()
+		if not parent then
+			return
+		end
+		local old = parent:FindFirstChild("ShaderVelardLoadError")
+		if old then
+			old:Destroy()
+		end
 		local gui = Instance.new("ScreenGui")
 		gui.Name = "ShaderVelardLoadError"
 		gui.ResetOnSpawn = false
 		gui.IgnoreGuiInset = true
 		gui.DisplayOrder = 1000
-		gui.Parent = player and player:WaitForChild("PlayerGui")
+		gui.Parent = parent
 		local label = Instance.new("TextLabel")
 		label.AnchorPoint = Vector2.new(0.5, 0.5)
 		label.Position = UDim2.fromScale(0.5, 0.5)
-		label.Size = UDim2.fromOffset(520, 220)
+		label.Size = UDim2.fromOffset(560, 240)
 		label.BackgroundColor3 = Color3.fromRGB(20, 20, 24)
 		label.BackgroundTransparency = 0.1
-		label.TextColor3 = Color3.fromRGB(255, 90, 90)
+		label.TextColor3 = color
 		label.TextWrapped = true
 		label.Font = Enum.Font.Code
 		label.TextSize = 14
-		label.Text = "ShaderVelard failed to load:\n\n" .. text
+		label.Text = title .. "\n\n" .. body
 		label.Parent = gui
 		local corner = Instance.new("UICorner")
 		corner.CornerRadius = UDim.new(0, 10)
@@ -6980,7 +7024,22 @@ local __bootOk, __bootResult = pcall(function()
 end)
 
 if not __bootOk then
-	__shaderVelardReportError(__bootResult)
+	local text = tostring(__bootResult)
+	warn("[ShaderVelard] LOAD ERROR: " .. text)
+	__shaderVelardMarker("ShaderVelard failed to load:", text, Color3.fromRGB(255, 90, 90))
 else
-	print("[ShaderVelard] loaded OK (" .. tostring(__bootResult and __bootResult.Version or "n/a") .. ")")
+	local version = tostring(__bootResult and __bootResult.Version or "n/a")
+	print("[ShaderVelard] loaded OK (" .. version .. ")")
+	__shaderVelardMarker("ShaderVelard loaded OK (" .. version .. ")",
+		"If the main menu is not visible, it was removed by the game. This marker lives in CoreGui.",
+		Color3.fromRGB(120, 255, 140))
+	task.delay(6, function()
+		pcall(function()
+			local parent = __shaderVelardPickGuiParent()
+			local m = parent and parent:FindFirstChild("ShaderVelardLoadError")
+			if m then
+				m:Destroy()
+			end
+		end)
+	end)
 end
