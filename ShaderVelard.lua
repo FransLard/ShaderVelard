@@ -2282,6 +2282,14 @@ __modules["Effects"] = function()
 			stale:Destroy()
 		end
 	end
+	-- Glossy overlays from a previous execution are welded clones named
+	-- Preset_Overlay. Sweep them so an old run cannot leave a translucent box
+	-- around the avatar.
+	for _, descendant in ipairs(Workspace:GetDescendants()) do
+		if descendant.Name == "Preset_Overlay" then
+			descendant:Destroy()
+		end
+	end
 	local staleSky = Lighting:FindFirstChild("ShaderVelard_Sky")
 	if staleSky then
 		staleSky:Destroy()
@@ -2392,6 +2400,12 @@ __modules["Effects"] = function()
 			stale:Destroy()
 		end
 	end
+	-- Motion blur is a real BlurEffect owned by this script. A previous execution
+	-- must not leave it enabled, otherwise the whole screen stays blurry.
+	local staleMotionBlur = Lighting:FindFirstChild("ShaderVelard_MotionBlur")
+	if staleMotionBlur then
+		staleMotionBlur:Destroy()
+	end
 
 	local function postClassFor(key)
 		for _, entry in ipairs(POST_CLASSES) do
@@ -2489,6 +2503,10 @@ __modules["Effects"] = function()
 		end
 	end
 
+	-- Celestial body defaults live in Effects._applyCelestials: Roblox's own
+	-- round sun/moon are the fallback, so a skybox with a custom (often square)
+	-- sun texture can never leak into the next sky.
+
 	local cloudsOriginal = nil
 	local cloudsWasCreated = false
 	local existingClouds = terrain:FindFirstChildOfClass("Clouds")
@@ -2537,6 +2555,11 @@ __modules["Effects"] = function()
 		presetName = "None",
 		skyName = "Default",
 		skyIndex = 1,
+		-- True when the active sky comes from the six-face custom/preset path.
+		-- syncSky() uses this to keep that sky's own sun/moon metadata instead of
+		-- falling back to the Default skybox table.
+		skyIsCustom = false,
+		customSkyMeta = nil,
 		-- Joevan GraphicStates defaults: atmosDensity 0.28 (pc 6857), atmosHaze 0.8
 		-- (pc 6862). Only consulted when smartAtmosphere is enabled.
 		atmosDensity = 0.28,
@@ -2978,6 +3001,31 @@ __modules["Effects"] = function()
 		motionStreaks[i] = streak
 	end
 
+	-- Real motion blur is a BlurEffect whose Size follows camera motion. The old
+	-- radial GUI streaks always looked like a static cinematic starburst in the
+	-- middle of the screen, even when the camera was not moving, so they are kept
+	-- invisible.
+	function Effects._ensureMotionBlur()
+		local effect = Effects._motionBlur
+		if effect and effect.Parent then
+			return effect
+		end
+		local found = Lighting:FindFirstChild("ShaderVelard_MotionBlur")
+		if found and not found:IsA("BlurEffect") then
+			found:Destroy()
+			found = nil
+		end
+		if not found then
+			found = Instance.new("BlurEffect")
+			found.Name = "ShaderVelard_MotionBlur"
+			found.Enabled = false
+			found.Size = 0
+			found.Parent = Lighting
+		end
+		Effects._motionBlur = found
+		return found
+	end
+
 	local vhsContainer = newFrame(overlay, "VHS", {
 		Size = UDim2.fromScale(1, 1),
 		BackgroundTransparency = 1,
@@ -3171,24 +3219,59 @@ __modules["Effects"] = function()
 		return skyInstance
 	end
 
+	-- Writes a complete celestial state. Missing textures fall back to the game's
+	-- original sun/moon (or Roblox's round defaults), which prevents a custom
+	-- square sun texture from a previous skybox leaking into the new one.
+	function Effects._applyCelestials(sky, data, fallbackSunSize)
+		data = data or {}
+		local sun = data.SunTextureId
+		if type(sun) ~= "string" or sun == "" then
+			sun = skyOriginal and skyOriginal.SunTextureId
+			if type(sun) ~= "string" or sun == "" then
+				sun = "rbxasset://sky/sun.jpg"
+			end
+		end
+		local moon = data.MoonTextureId
+		if type(moon) ~= "string" or moon == "" then
+			moon = skyOriginal and skyOriginal.MoonTextureId
+			if type(moon) ~= "string" or moon == "" then
+				moon = "rbxasset://sky/moon.jpg"
+			end
+		end
+		local meta = {
+			SunTextureId = sun,
+			MoonTextureId = moon,
+			StarCount = data.StarCount or 3000,
+			CelestialBodiesShown = data.CelestialBodiesShown ~= false,
+			SunAngularSize = data.SunAngularSize or fallbackSunSize or 21,
+			MoonAngularSize = data.MoonAngularSize or (skyOriginal and skyOriginal.MoonAngularSize) or 11,
+		}
+		safeSet(sky, "SunTextureId", meta.SunTextureId)
+		safeSet(sky, "MoonTextureId", meta.MoonTextureId)
+		safeSet(sky, "StarCount", meta.StarCount)
+		safeSet(sky, "CelestialBodiesShown", meta.CelestialBodiesShown)
+		safeSet(sky, "SunAngularSize", state.toggles.hideSun and 0 or meta.SunAngularSize)
+		safeSet(sky, "MoonAngularSize", meta.MoonAngularSize)
+		return meta
+	end
+
 	local function syncSky()
 		if not skyInstance or not skyInstance.Parent then
 			return
 		end
+		local originalSize = skyOriginal and skyOriginal.SunAngularSize or 21
 		if state.skyName == "Default" and not skyWasCreated then
-			local size = skyOriginal and skyOriginal.SunAngularSize or 21
-			skyInstance.SunAngularSize = state.toggles.hideSun and 0 or size
+			skyInstance.SunAngularSize = state.toggles.hideSun and 0 or originalSize
 			return
 		end
-		if state.skyName == "Custom" then
-			local size = skyOriginal and skyOriginal.SunAngularSize or 21
-			skyInstance.SunAngularSize = state.toggles.hideSun and 0 or size
+		if state.skyIsCustom then
+			Effects._applyCelestials(skyInstance, state.customSkyMeta, originalSize)
 			return
 		end
 		local data = Config.findSky(state.skyName)
-		skyInstance.SunAngularSize = state.toggles.hideSun and 0 or 21
-		skyInstance.StarCount = data.StarCount or 3000
-		skyInstance.CelestialBodiesShown = data.CelestialBodiesShown ~= false
+		-- A built-in sky always owns its complete sun/moon state. Re-writing it on
+		-- every look update also clears stale textures from a previous skybox.
+		Effects._applyCelestials(skyInstance, data, 21)
 	end
 
 	function Effects.applySky(name)
@@ -3207,6 +3290,8 @@ __modules["Effects"] = function()
 			end
 			state.skyName = "Default"
 			state.skyIndex = 1
+			state.skyIsCustom = false
+			state.customSkyMeta = nil
 			if Effects.onSkyChanged then
 				Effects.onSkyChanged("Default")
 			end
@@ -3220,21 +3305,15 @@ __modules["Effects"] = function()
 		safeSet(sky, "SkyboxLf", data.Lf)
 		safeSet(sky, "SkyboxRt", data.Rt)
 		safeSet(sky, "SkyboxUp", data.Up)
-		-- setSkybox() in Joevan only writes sun/moon when the sky defines them,
-		-- and falls back to StarCount 3000 / CelestialBodiesShown true otherwise.
-		if data.SunTextureId then
-			safeSet(sky, "SunTextureId", data.SunTextureId)
-		end
-		if data.MoonTextureId then
-			safeSet(sky, "MoonTextureId", data.MoonTextureId)
-		end
-		safeSet(sky, "StarCount", data.StarCount or 3000)
-		safeSet(sky, "CelestialBodiesShown", data.CelestialBodiesShown ~= false)
-		safeSet(sky, "MoonAngularSize", 11)
-		safeSet(sky, "SunAngularSize", state.toggles.hideSun and 0 or 21)
+		-- Every built-in sky writes a full celestial state. If the sky does not
+		-- define a sun/moon texture we restore the round default instead of
+		-- leaving the previous sky's custom texture in place.
+		Effects._applyCelestials(sky, data, 21)
 
 		state.skyName = data.Name
 		state.skyIndex = 0
+		state.skyIsCustom = false
+		state.customSkyMeta = nil
 		for index, entry in ipairs(Config.Skyboxes) do
 			if entry.Name == data.Name then
 				state.skyIndex = index
@@ -3265,24 +3344,16 @@ __modules["Effects"] = function()
 			safeSet(sky, "Skybox" .. key, value)
 		end
 
-		-- Match Joevan setSkybox(name, faces): raw preset faces do not touch the
-		-- sun/moon textures, and star settings fall back to 3000 / true. Sun and
-		-- Moon textures are only written when the caller defines them.
+		-- Custom/preset faces keep Joevan's 3000 / true fallbacks. The textures
+		-- that were not supplied are still reset to the round default so they
+		-- cannot bleed in from the skybox that was active before.
 		meta = meta or {}
-		if meta.SunTextureId then
-			safeSet(sky, "SunTextureId", meta.SunTextureId)
-		end
-		if meta.MoonTextureId then
-			safeSet(sky, "MoonTextureId", meta.MoonTextureId)
-		end
-		safeSet(sky, "StarCount", meta.StarCount or 3000)
-		safeSet(sky, "CelestialBodiesShown", meta.CelestialBodiesShown ~= false)
-		safeSet(sky, "MoonAngularSize", skyOriginal and skyOriginal.MoonAngularSize or 11)
-		safeSet(sky, "SunAngularSize", state.toggles.hideSun and 0 or (skyOriginal and skyOriginal.SunAngularSize or 21))
+		state.customSkyMeta = Effects._applyCelestials(sky, meta, skyOriginal and skyOriginal.SunAngularSize or 21)
 
 		state.customSky = copy(normalized)
 		state.skyName = label or "Custom"
 		state.skyIndex = 0
+		state.skyIsCustom = true
 
 		if Effects.onSkyChanged then
 			Effects.onSkyChanged(state.skyName)
@@ -3570,6 +3641,27 @@ __modules["Effects"] = function()
 			return
 		end
 		if not part:IsA("BasePart") or part:IsA("Terrain") then
+			return
+		end
+		-- Joevan's glossy pass only wraps the static world. Cloning the player or
+		-- another character created a translucent "box" around the avatar, so
+		-- character parts (including accessories) are never wrapped here.
+		local characterPart = false
+		local node = part
+		while node do
+			if type(node) == "table" and type(node.IsA) == "function" then
+				local isRig = false
+				pcall(function()
+					isRig = node:IsA("Model") and node:FindFirstChildOfClass("Humanoid") ~= nil
+				end)
+				if isRig then
+					characterPart = true
+					break
+				end
+			end
+			node = node.Parent
+		end
+		if characterPart then
 			return
 		end
 		local transparency = tonumber(part.Transparency) or 0
@@ -3929,7 +4021,13 @@ __modules["Effects"] = function()
 	end
 
 	local function updateMotion()
-		motionContainer.Visible = state.toggles.motionBlur
+		-- Never draw the radial starburst container; it reads as a lens/god-ray
+		-- artifact rather than motion blur.
+		motionContainer.Visible = false
+		if not state.toggles.motionBlur and Effects._motionBlur then
+			Effects._motionBlur.Enabled = false
+			Effects._motionBlur.Size = 0
+		end
 	end
 
 	local function localTimeString()
@@ -6667,6 +6765,8 @@ __modules["Effects"] = function()
 			skyName = state.skyName,
 			skyIndex = state.skyIndex,
 			customSky = state.customSky,
+			skyIsCustom = state.skyIsCustom == true,
+			customSkyMeta = state.customSkyMeta,
 			skyTextString = state.skyTextString,
 			presetName = state.presetName,
 			discoColorizeLamps = state.discoColorizeLamps == true,
@@ -6809,6 +6909,15 @@ __modules["Effects"] = function()
 					end
 				end
 			end
+			state.customSkyMeta = nil
+			if type(snapshot.customSkyMeta) == "table" then
+				state.customSkyMeta = {}
+				for key, value in pairs(snapshot.customSkyMeta) do
+					if type(key) == "string" then
+						state.customSkyMeta[key] = value
+					end
+				end
+			end
 			state.skyTextString = tostring(snapshot.skyTextString or state.skyTextString or "")
 			state.presetName = tostring(snapshot.presetName or "Imported")
 			if type(snapshot.skyIndex) == "number" then
@@ -6823,8 +6932,8 @@ __modules["Effects"] = function()
 				state.toggles[key] = true
 			end
 
-			if snapshot.skyName == "Custom" or snapshot.skyName == "Preset Sky" then
-				Effects.applyCustomSky(state.customSky, snapshot.skyName)
+			if snapshot.skyIsCustom == true or snapshot.skyName == "Custom" or snapshot.skyName == "Preset Sky" then
+				Effects.applyCustomSky(state.customSky, snapshot.skyName, state.customSkyMeta)
 			elseif type(snapshot.skyName) == "string" then
 				Effects.applySky(snapshot.skyName)
 			end
@@ -7358,6 +7467,8 @@ __modules["Effects"] = function()
 		state.presetName = "None"
 		state.skyName = "Default"
 		state.skyIndex = 1
+		state.skyIsCustom = false
+		state.customSkyMeta = nil
 
 		vignetteContainer.Visible = false
 		letterboxTop.Visible = false
@@ -7367,6 +7478,10 @@ __modules["Effects"] = function()
 		rainContainer.Visible = false
 		flareContainer.Visible = false
 		motionContainer.Visible = false
+		if Effects._motionBlur then
+			Effects._motionBlur.Enabled = false
+			Effects._motionBlur.Size = 0
+		end
 		vhsContainer.Visible = false
 		reShadeContainer.Visible = false
 		snowContainer.Visible = false
@@ -7606,10 +7721,17 @@ __modules["Effects"] = function()
 
 		if state.toggles.motionBlur then
 			local strength = math.clamp(state.sliders.motionBlurStrength * math.min(cameraMotion * 5, 1), 0, 1)
+			local blur = Effects._ensureMotionBlur()
+			blur.Size = strength * 8
+			blur.Enabled = strength > 0.01
 			for _, streak in ipairs(motionStreaks) do
-				streak.BackgroundTransparency = 1 - strength * 0.16
+				streak.BackgroundTransparency = 1
 			end
 		else
+			if Effects._motionBlur then
+				Effects._motionBlur.Enabled = false
+				Effects._motionBlur.Size = 0
+			end
 			for _, streak in ipairs(motionStreaks) do
 				streak.BackgroundTransparency = 1
 			end
