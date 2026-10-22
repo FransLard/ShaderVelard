@@ -3680,6 +3680,13 @@ __modules["Effects"] = function()
 		if Effects._isCharacterPart(part) then
 			return
 		end
+		-- Joevan FUNCTION #466 only selects anchored BaseParts. Character limbs and
+		-- accessory handles are unanchored (and can be caught mid-load, before the
+		-- Humanoid/Accessory parent chain exists). Requiring an anchored part is the
+		-- reliable guard that stops the translucent clone boxes on the avatar.
+		if not part.Anchored then
+			return
+		end
 		local transparency = tonumber(part.Transparency) or 0
 		if transparency > 0.95 or string.sub(part.Name, 1, 13) == "ShaderVelard_" then
 			return
@@ -3747,8 +3754,10 @@ __modules["Effects"] = function()
 		-- A character can stream in after the cache was built (or an accessory can
 		-- be added before its character model). Release any overlay that ended up
 		-- on a character so no translucent box is left around the head or body.
+		-- Parts that became unanchored (for example a prop picked up by a rig) are
+		-- released for the same reason.
 		for part, props in pairs(glossySaved) do
-			if Effects._isCharacterPart(part) then
+			if Effects._isCharacterPart(part) or not part.Anchored then
 				if props.overlay and props.overlay.Parent then
 					props.overlay:Destroy()
 				end
