@@ -99,6 +99,9 @@ __modules["Config"] = function()
 		},
 	}
 
+	-- Joevan V15 built-in skyboxes, exact names, face IDs and metadata.
+	-- Order matches the table in the payload. StarCount/CelestialBodiesShown
+	-- default to 3000/true in setSkybox when a field is absent.
 	Config.Skyboxes = {
 		{
 			Name = "Default",
@@ -108,21 +111,28 @@ __modules["Config"] = function()
 			Lf = "rbxasset://textures/sky/sky512_lf.tex",
 			Rt = "rbxasset://textures/sky/sky512_rt.tex",
 			Up = "rbxasset://textures/sky/sky512_up.tex",
+			StarCount = 3000,
+			CelestialBodiesShown = true,
 			SunTextureId = "rbxasset://sky/sun.jpg",
 			MoonTextureId = "rbxasset://sky/moon.jpg",
-			StarCount = 3000, CelestialBodiesShown = true,
 		},
 		{
-			Name = "Anime Sky",
+			Name = "Experimental Skybox",
 			Bk = "rbxassetid://18351376859",
 			Dn = "rbxassetid://18351374919",
 			Ft = "rbxassetid://18351376800",
 			Lf = "rbxassetid://18351376469",
 			Rt = "rbxassetid://18351376457",
 			Up = "rbxassetid://18351377189",
-			SunTextureId = "rbxasset://sky/sun.jpg",
-			MoonTextureId = "rbxasset://sky/moon.jpg",
-			StarCount = 3000, CelestialBodiesShown = true,
+		},
+		{
+			Name = "Anime Sky",
+			Bk = "rbxassetid://11427769401",
+			Dn = "rbxassetid://11427770685",
+			Ft = "rbxassetid://11427769401",
+			Lf = "rbxassetid://11427769401",
+			Rt = "rbxassetid://11427769401",
+			Up = "rbxassetid://11427771954",
 		},
 		{
 			Name = "Purple Nebula",
@@ -132,9 +142,6 @@ __modules["Config"] = function()
 			Lf = "rbxassetid://159454286",
 			Rt = "rbxassetid://159454300",
 			Up = "rbxassetid://159454288",
-			SunTextureId = "rbxasset://sky/sun.jpg",
-			MoonTextureId = "rbxasset://sky/moon.jpg",
-			StarCount = 5000, CelestialBodiesShown = true,
 		},
 		{
 			Name = "Night Sky",
@@ -144,9 +151,6 @@ __modules["Config"] = function()
 			Lf = "rbxassetid://12063984",
 			Rt = "rbxassetid://12064115",
 			Up = "rbxassetid://12064131",
-			SunTextureId = "rbxasset://sky/sun.jpg",
-			MoonTextureId = "rbxasset://sky/moon.jpg",
-			StarCount = 4000, CelestialBodiesShown = true,
 		},
 		{
 			Name = "Pink Daylight",
@@ -156,9 +160,6 @@ __modules["Config"] = function()
 			Lf = "rbxassetid://271042310",
 			Rt = "rbxassetid://271042467",
 			Up = "rbxassetid://271077958",
-			SunTextureId = "rbxasset://sky/sun.jpg",
-			MoonTextureId = "rbxasset://sky/moon.jpg",
-			StarCount = 3000, CelestialBodiesShown = true,
 		},
 		{
 			Name = "Morning Glow",
@@ -168,9 +169,6 @@ __modules["Config"] = function()
 			Lf = "rbxassetid://1417494402",
 			Rt = "rbxassetid://1417494499",
 			Up = "rbxassetid://1417494643",
-			SunTextureId = "rbxasset://sky/sun.jpg",
-			MoonTextureId = "rbxasset://sky/moon.jpg",
-			StarCount = 3000, CelestialBodiesShown = true,
 		},
 		{
 			Name = "Setting Sun",
@@ -180,9 +178,6 @@ __modules["Config"] = function()
 			Lf = "rbxassetid://626473032",
 			Rt = "rbxassetid://626458639",
 			Up = "rbxassetid://626460625",
-			SunTextureId = "rbxasset://sky/sun.jpg",
-			MoonTextureId = "rbxasset://sky/moon.jpg",
-			StarCount = 3000, CelestialBodiesShown = true,
 		},
 		{
 			Name = "Fade Blue",
@@ -192,9 +187,6 @@ __modules["Config"] = function()
 			Lf = "rbxassetid://153695320",
 			Rt = "rbxassetid://153695383",
 			Up = "rbxassetid://153695471",
-			SunTextureId = "rbxasset://sky/sun.jpg",
-			MoonTextureId = "rbxasset://sky/moon.jpg",
-			StarCount = 3000, CelestialBodiesShown = true,
 		},
 		{
 			Name = "Elegant Morning",
@@ -204,9 +196,6 @@ __modules["Config"] = function()
 			Lf = "rbxassetid://153767200",
 			Rt = "rbxassetid://153767231",
 			Up = "rbxassetid://153767288",
-			SunTextureId = "rbxasset://sky/sun.jpg",
-			MoonTextureId = "rbxasset://sky/moon.jpg",
-			StarCount = 3000, CelestialBodiesShown = true,
 		},
 		{
 			Name = "Neptune",
@@ -216,9 +205,6 @@ __modules["Config"] = function()
 			Lf = "rbxassetid://218958493",
 			Rt = "rbxassetid://218957134",
 			Up = "rbxassetid://218950090",
-			SunTextureId = "rbxasset://sky/sun.jpg",
-			MoonTextureId = "rbxasset://sky/moon.jpg",
-			StarCount = 3000, CelestialBodiesShown = true,
 		},
 		{
 			Name = "Redshift",
@@ -228,21 +214,15 @@ __modules["Config"] = function()
 			Lf = "rbxassetid://401664881",
 			Rt = "rbxassetid://401664901",
 			Up = "rbxassetid://401664936",
-			SunTextureId = "rbxasset://sky/sun.jpg",
-			MoonTextureId = "rbxasset://sky/moon.jpg",
-			StarCount = 4000, CelestialBodiesShown = true,
 		},
 		{
 			Name = "Aesthetic Night",
 			Bk = "rbxassetid://1045964490",
 			Dn = "rbxassetid://1045964368",
 			Ft = "rbxassetid://1045964655",
-			Lf = "rbxassetid://1045962969",
-			Rt = "rbxassetid://1045964490",
-			Up = "rbxassetid://1045964655",
-			SunTextureId = "rbxasset://sky/sun.jpg",
-			MoonTextureId = "rbxasset://sky/moon.jpg",
-			StarCount = 5000, CelestialBodiesShown = true,
+			Lf = "rbxassetid://1045964655",
+			Rt = "rbxassetid://1045964655",
+			Up = "rbxassetid://1045962969",
 		},
 		{
 			Name = "Pinky Heavenly",
@@ -252,9 +232,10 @@ __modules["Config"] = function()
 			Lf = "rbxassetid://75788392617068",
 			Rt = "rbxassetid://119312267154462",
 			Up = "rbxassetid://115689518778407",
-			SunTextureId = "rbxasset://sky/sun.jpg",
-			MoonTextureId = "rbxasset://sky/moon.jpg",
-			StarCount = 4000, CelestialBodiesShown = true,
+			StarCount = 5000,
+			CelestialBodiesShown = false,
+			SunTextureId = "rbxassetid://6196665106",
+			MoonTextureId = "rbxassetid://6444320592",
 		},
 		{
 			Name = "Fantasy Sky",
@@ -264,9 +245,10 @@ __modules["Config"] = function()
 			Lf = "rbxassetid://125751829222064",
 			Rt = "rbxassetid://103246285327245",
 			Up = "rbxassetid://127077053569035",
+			StarCount = 0,
+			CelestialBodiesShown = false,
 			SunTextureId = "rbxasset://sky/sun.jpg",
 			MoonTextureId = "rbxasset://sky/moon.jpg",
-			StarCount = 5000, CelestialBodiesShown = true,
 		},
 		{
 			Name = "Galaxy",
@@ -276,9 +258,24 @@ __modules["Config"] = function()
 			Lf = "rbxassetid://125179447430907",
 			Rt = "rbxassetid://89712202858935",
 			Up = "rbxassetid://104849425853498",
+			StarCount = 3000,
+			CelestialBodiesShown = true,
 			SunTextureId = "rbxasset://sky/sun.jpg",
 			MoonTextureId = "rbxasset://sky/moon.jpg",
-			StarCount = 6000, CelestialBodiesShown = true,
+		},
+	}
+
+	-- Sky data used by remake-only presets and old share codes. Not listed in
+	-- the Skybox tab: Joevan has no built-in sky with these names.
+	Config.ExtraSkies = {
+		{
+			Name = "Overcast",
+			Bk = "rbxassetid://135483466",
+			Dn = "rbxassetid://135483484",
+			Ft = "rbxassetid://135483461",
+			Lf = "rbxassetid://135483495",
+			Rt = "rbxassetid://135483499",
+			Up = "rbxassetid://135483475",
 		},
 		{
 			Name = "Vaporwave",
@@ -288,39 +285,12 @@ __modules["Config"] = function()
 			Lf = "rbxassetid://8631777199",
 			Rt = "rbxassetid://8631735555",
 			Up = "rbxassetid://8631782345",
-			SunTextureId = "rbxasset://sky/sun.jpg",
-			MoonTextureId = "rbxasset://sky/moon.jpg",
-			StarCount = 3000, CelestialBodiesShown = true,
-		},
-		{
-			Name = "Overcast",
-			Bk = "rbxassetid://135483466",
-			Dn = "rbxassetid://135483484",
-			Ft = "rbxassetid://135483461",
-			Lf = "rbxassetid://135483495",
-			Rt = "rbxassetid://135483499",
-			Up = "rbxassetid://135483475",
-			SunTextureId = "rbxasset://sky/sun.jpg",
-			MoonTextureId = "rbxasset://sky/moon.jpg",
-			StarCount = 0, CelestialBodiesShown = false,
-		},
-		{
-			Name = "Experimental Skybox",
-			Bk = "rbxassetid://570557514",
-			Dn = "rbxassetid://570557775",
-			Ft = "rbxassetid://570557559",
-			Lf = "rbxassetid://570557620",
-			Rt = "rbxassetid://570557672",
-			Up = "rbxassetid://570557727",
-			SunTextureId = "rbxasset://sky/sun.jpg",
-			MoonTextureId = "rbxasset://sky/moon.jpg",
-			StarCount = 3500, CelestialBodiesShown = true,
 		},
 	}
 
 	Config.Presets = {
 		{
-			Name = "Velard Wet Floor RTX",
+			Name = "RTX WetLook (Wet Floor)",
 			Key = "WetRTX",
 			Desc = "Glossy wet floor + character reflection",
 			AccentColor = Color3.fromRGB(95, 165, 215),
@@ -385,7 +355,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Luminous Realism",
+			Name = "Realistic Glow",
 			Key = "RealisticGlow",
 			Desc = "Natural blue sky with realistic lighting",
 			AccentColor = Color3.fromRGB(180, 220, 255),
@@ -410,11 +380,11 @@ __modules["Config"] = function()
 				lensFlare = true,
 				clouds = true,
 				wetFloor = true,
-				ssr = true,
 			},
 			Sliders = {
 				vignette = 0.06,
 				cloudCover = 0.4,
+				cloudDensity = 0.7,
 				glossyReflectance = 0.15,
 			},
 			Look = {
@@ -463,7 +433,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Crisp Realism HD",
+			Name = "Realistic HD",
 			Key = "RealisticHD",
 			Desc = "High-definition realistic look, natural colors",
 			AccentColor = Color3.fromRGB(0, 255, 170),
@@ -488,6 +458,7 @@ __modules["Config"] = function()
 			Sliders = {
 				vignette = 0.06,
 				cloudCover = 0.35,
+				cloudDensity = 0.65,
 			},
 			Look = {
 				Lighting = {
@@ -535,7 +506,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Pure Natural Light",
+			Name = "Natural Realistic",
 			Key = "NaturalRealistic",
 			Desc = "Template natural realistic parameter preset",
 			AccentColor = Color3.fromRGB(85, 255, 127),
@@ -558,6 +529,7 @@ __modules["Config"] = function()
 			Sliders = {
 				vignette = 0.05,
 				cloudCover = 0.4,
+				cloudDensity = 0.7,
 			},
 			Look = {
 				Lighting = {
@@ -605,7 +577,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Marble Luxe",
+			Name = "Ultra Marble",
 			Key = "Marble",
 			Desc = "Elegant polished marble floor",
 			AccentColor = Color3.fromRGB(235, 220, 180),
@@ -628,7 +600,6 @@ __modules["Config"] = function()
 			Toggles = {
 				vignette = true,
 				wetFloor = true,
-				ssr = true,
 			},
 			Sliders = {
 				vignette = 0.2,
@@ -670,7 +641,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Chrome Mirror",
+			Name = "RTX Chrome",
 			Key = "Chrome",
 			Desc = "Metallic chrome mirror floor",
 			AccentColor = Color3.fromRGB(205, 205, 215),
@@ -688,12 +659,11 @@ __modules["Config"] = function()
 			},
 			SkyName = "Overcast",
 			Dropdowns = {
-				glossyMode = "Plastic",
+				glossyMode = "Metal",
 			},
 			Toggles = {
 				vignette = true,
 				wetFloor = true,
-				ssr = true,
 			},
 			Sliders = {
 				vignette = 0.3,
@@ -735,7 +705,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Night City Neon",
+			Name = "Cyberpunk Neon",
 			Key = "Neon",
 			Desc = "Neon reflective glass floor",
 			AccentColor = Color3.fromRGB(225, 90, 255),
@@ -753,13 +723,12 @@ __modules["Config"] = function()
 			},
 			SkyName = "Redshift",
 			Dropdowns = {
-				glossyMode = "Plastic",
+				glossyMode = "Glass",
 			},
 			Toggles = {
 				vignette = true,
 				chromatic = true,
 				wetFloor = true,
-				ssr = true,
 			},
 			Sliders = {
 				vignette = 0.4,
@@ -801,7 +770,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Soft Aesthetic Glow",
+			Name = "Aesthetic Glow",
 			Key = "Aesthetic",
 			Desc = "Pastel pink twilight lighting",
 			AccentColor = Color3.fromRGB(255, 200, 220),
@@ -815,6 +784,9 @@ __modules["Config"] = function()
 				Lf = "rbxassetid://12635313718",
 				Rt = "rbxassetid://12635315817",
 				Up = "rbxassetid://12635316856",
+			},
+			Sliders = {
+				vignette = 0,
 			},
 			Look = {
 				Lighting = {
@@ -849,7 +821,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Warm Cinematic",
+			Name = "Cinematic Warm",
 			Key = "Cinematic",
 			Desc = "Warm film look with deep contrast",
 			AccentColor = Color3.fromRGB(255, 120, 20),
@@ -902,7 +874,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Fog Horror",
+			Name = "Horror Fog",
 			Key = "Horror",
 			Desc = "Cold, desaturated, heavy fog",
 			AccentColor = Color3.fromRGB(255, 60, 90),
@@ -965,7 +937,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Vivid Anime",
+			Name = "Anime Vibrant",
 			Key = "Anime",
 			Desc = "Bright, saturated, vibrant colors",
 			AccentColor = Color3.fromRGB(255, 80, 160),
@@ -980,8 +952,12 @@ __modules["Config"] = function()
 				Rt = "rbxassetid://11427769401",
 				Up = "rbxassetid://11427771954",
 			},
+			SkyName = "Anime Sky",
 			Toggles = {
 				celShading = true,
+			},
+			Sliders = {
+				vignette = 0,
 			},
 			Look = {
 				Lighting = {
@@ -1013,7 +989,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Clear Day Realism",
+			Name = "Realistic Day",
 			Key = "Realistic",
 			Desc = "Natural colors, balanced lighting",
 			AccentColor = Color3.fromRGB(0, 255, 170),
@@ -1033,7 +1009,9 @@ __modules["Config"] = function()
 				clouds = true,
 			},
 			Sliders = {
+				vignette = 0,
 				cloudCover = 0.35,
+				cloudDensity = 0.65,
 			},
 			Look = {
 				Lighting = {
@@ -1081,7 +1059,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Golden Sunset",
+			Name = "Sunset Gold",
 			Key = "Sunset",
 			Desc = "Golden hour warmth, long shadows",
 			AccentColor = Color3.fromRGB(255, 170, 0),
@@ -1132,7 +1110,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Ethereal Dream",
+			Name = "Dreamy Ethereal",
 			Key = "Dreamy",
 			Desc = "Soft glow, ethereal atmosphere",
 			AccentColor = Color3.fromRGB(60, 140, 255),
@@ -1148,6 +1126,9 @@ __modules["Config"] = function()
 				Up = "rbxassetid://159454288",
 			},
 			SkyName = "Purple Nebula",
+			Sliders = {
+				vignette = 0,
+			},
 			Look = {
 				Lighting = {
 					ClockTime = 16,
@@ -1178,7 +1159,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Sepia Memories",
+			Name = "Vintage Sepia",
 			Key = "Vintage",
 			Desc = "Sepia tones, nostalgic feel",
 			AccentColor = Color3.fromRGB(255, 120, 20),
@@ -1229,7 +1210,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Crimson Night",
+			Name = "RedNight (Red Night)",
 			Key = "RedNight",
 			Desc = "Dark night sky with an orange/red tint",
 			AccentColor = Color3.fromRGB(240, 127, 14),
@@ -1280,7 +1261,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Futuristic Blue",
+			Name = "Blue* (Futuristic Blue)",
 			Key = "BlueFuturistic",
 			Desc = "Bright blue sci-fi themed sky",
 			AccentColor = Color3.fromRGB(180, 220, 255),
@@ -1325,7 +1306,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Purple Nebula Galaxy",
+			Name = "Galaxy (Purple Nebula)",
 			Key = "GalaxyNebula",
 			Desc = "Starry deep space with purple/blue nebula",
 			AccentColor = Color3.fromRGB(150, 100, 200),
@@ -1371,7 +1352,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Retro Vaporwave",
+			Name = "Vaporwave",
 			Key = "Vaporwave",
 			Desc = "Retro-futuristic neon pink aesthetic",
 			AccentColor = Color3.fromRGB(200, 100, 220),
@@ -1386,7 +1367,7 @@ __modules["Config"] = function()
 				Rt = "rbxassetid://8631735555",
 				Up = "rbxassetid://8631782345",
 			},
-			SkyName = "Retro Vaporwave",
+			SkyName = "Vaporwave",
 			Look = {
 				Lighting = {
 					ClockTime = 19,
@@ -1415,7 +1396,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Pink Morning",
+			Name = "Pinkful Morning",
 			Key = "PinkfulMorning",
 			Desc = "Bright pastel pink-orange sky",
 			AccentColor = Color3.fromRGB(255, 200, 230),
@@ -1460,7 +1441,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Blush Gradient",
+			Name = "White to Pink",
 			Key = "WhiteToPink",
 			Desc = "Fading from pure white to soft pink",
 			AccentColor = Color3.fromRGB(255, 210, 220),
@@ -1475,6 +1456,7 @@ __modules["Config"] = function()
 				Rt = "rbxassetid://11427769401",
 				Up = "rbxassetid://11427771954",
 			},
+			SkyName = "Anime Sky",
 			Look = {
 				Lighting = {
 					Brightness = 2.5,
@@ -1503,7 +1485,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Oblivion Sky",
+			Name = "Oblivion Skybox",
 			Key = "OblivionSky",
 			Desc = "Gloomy greenish-yellow sky",
 			AccentColor = Color3.fromRGB(255, 200, 100),
@@ -1548,7 +1530,7 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Frozen Wonderland",
+			Name = "Winter Wonderland",
 			Key = "Winter",
 			Desc = "Snowy terrain with winter effects",
 			AccentColor = Color3.fromRGB(200, 240, 255),
@@ -1603,12 +1585,13 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Velard Cinema 8K",
+			Name = "Photoreal Cinema 8K",
 			Key = "PhotorealCinema8K",
 			Desc = "Ultra HD cinematic photorealism with volumetric atmosphere, solar raymarching & natural lighting",
 			AccentColor = Color3.fromRGB(0, 220, 255),
 			Material = "SmoothPlastic",
 			Reflectance = 0.2,
+			GlossyIntensity = 14,
 			SkyFaces = {
 				Bk = "rbxassetid://135483466",
 				Dn = "rbxassetid://135483484",
@@ -1629,7 +1612,6 @@ __modules["Config"] = function()
 				reShade = true,
 				fakeSSAO = true,
 				wetFloor = true,
-				ssr = true,
 			},
 			Sliders = {
 				windStrength = 14,
@@ -1683,12 +1665,13 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Daylight Experiment",
+			Name = "Experimental Daylight",
 			Key = "ExperimentalDaylight",
 			Desc = "Natural physical daylight with photorealistic sun glare, crisp horizon & true sky bounce",
 			AccentColor = Color3.fromRGB(255, 200, 60),
 			Material = "SmoothPlastic",
 			Reflectance = 0.2,
+			GlossyIntensity = 12,
 			SkyFaces = {
 				Bk = "rbxassetid://76799255392351",
 				Dn = "rbxassetid://72828282060364",
@@ -1708,7 +1691,6 @@ __modules["Config"] = function()
 				reShade = true,
 				fakeSSAO = true,
 				wetFloor = true,
-				ssr = true,
 			},
 			Sliders = {
 				cloudCover = 0.35,
@@ -1761,12 +1743,13 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Rainy Asphalt PBR",
+			Name = "Overcast Wet Asphalt (PBR)",
 			Key = "OvercastWetAsphalt",
 			Desc = "Photorealistic wet ground reflections with soft overcast lighting, diffused shadows & cool atmospheric haze",
 			AccentColor = Color3.fromRGB(120, 170, 220),
 			Material = "SmoothPlastic",
 			Reflectance = 0.35,
+			GlossyIntensity = 0,
 			SkyFaces = {
 				Bk = "rbxassetid://401664839",
 				Dn = "rbxassetid://401664862",
@@ -1835,12 +1818,13 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Golden Dusk Realism",
+			Name = "Golden Hour Photorealism",
 			Key = "GoldenHourPhotoreal",
 			Desc = "Warm cinematic sunset warmth, rich golden ambient bounce & soft optical bokeh without overexposure",
 			AccentColor = Color3.fromRGB(255, 150, 50),
 			Material = "SmoothPlastic",
 			Reflectance = 0.2,
+			GlossyIntensity = 0,
 			SkyFaces = {
 				Bk = "rbxassetid://116125630991600",
 				Dn = "rbxassetid://129095827049856",
@@ -1909,12 +1893,14 @@ __modules["Config"] = function()
 			},
 		},
 		{
-			Name = "Neon City Raytrace",
+			Name = "Cyberpunk Raytraced Neon",
 			Key = "CyberpunkRaytracedNeon",
 			Desc = "Photorealistic night illumination with deep shadows, crisp neon specular bloom & chromatic night ambiance",
 			AccentColor = Color3.fromRGB(0, 235, 255),
 			Material = "SmoothPlastic",
 			Reflectance = 0.35,
+			GlossyIntensity = 0,
+			DiscoColorizeLamps = true,
 			SkyFaces = {
 				Bk = "rbxassetid://1045964490",
 				Dn = "rbxassetid://1045964368",
@@ -1923,6 +1909,7 @@ __modules["Config"] = function()
 				Rt = "rbxassetid://1045964655",
 				Up = "rbxassetid://1045962969",
 			},
+			SkyName = "Aesthetic Night",
 			Dropdowns = {
 				discoMode = "Neon Cyberpunk",
 			},
@@ -1934,8 +1921,6 @@ __modules["Config"] = function()
 				reShade = true,
 				fakeSSAO = true,
 				disco = true,
-				discoBloom = true,
-				discoAura = true,
 			},
 			Sliders = {
 				windStrength = 12,
@@ -1992,7 +1977,8 @@ __modules["Config"] = function()
 	}
 
 	-- Effect-only looks kept for backwards compatibility with old share codes and
-	-- API calls. The Presets tab shows only Config.Presets above.
+	-- API calls. They are not part of Joevan's preset list, so the Presets tab
+	-- shows only Config.Presets above (exactly the 28 Joevan presets).
 	Config.ExtraPresets = {
 		{
 			Name = "Dynamic DOF",
@@ -2178,46 +2164,45 @@ __modules["Config"] = function()
 		}
 	}
 
-	-- Display names / keys kept for backwards compatibility. Older builds and
-	-- saved share codes used the left-hand names, so they keep working.
+	-- Joevan-compatible display names / keys.
+	-- Old remake display names kept as aliases so old share codes keep working.
 	Config.PresetAliases = {
-		["RTX WetLook (Wet Floor)"] = "Velard Wet Floor RTX",
-		["Realistic Glow"] = "Luminous Realism",
-		["Realistic HD"] = "Crisp Realism HD",
-		["Natural Realistic"] = "Pure Natural Light",
-		["Ultra Marble"] = "Marble Luxe",
-		["RTX Chrome"] = "Chrome Mirror",
-		["Cyberpunk Neon"] = "Night City Neon",
-		["Aesthetic Glow"] = "Soft Aesthetic Glow",
-		["Cinematic Warm"] = "Warm Cinematic",
-		["Horror Fog"] = "Fog Horror",
-		["Anime Vibrant"] = "Vivid Anime",
-		["Realistic Day"] = "Clear Day Realism",
-		["Sunset Gold"] = "Golden Sunset",
-		["Dreamy Ethereal"] = "Ethereal Dream",
-		["Vintage Sepia"] = "Sepia Memories",
-		["RedNight (Red Night)"] = "Crimson Night",
-		["Blue* (Futuristic Blue)"] = "Futuristic Blue",
-		["Galaxy (Purple Nebula)"] = "Purple Nebula Galaxy",
-		["Vaporwave"] = "Retro Vaporwave",
-		["Pinkful Morning"] = "Pink Morning",
-		["White to Pink"] = "Blush Gradient",
-		["Oblivion Skybox"] = "Oblivion Sky",
-		["Winter Wonderland"] = "Frozen Wonderland",
-		["Wet RTX"] = "Velard Wet Floor RTX",
-		["Realistic"] = "Clear Day Realism",
-		["Galaxy Nebula"] = "Purple Nebula Galaxy",
-		["Golden Hour HD"] = "Golden Dusk Realism",
-		["Golden Hour Photorealism"] = "Golden Dusk Realism",
+		["Velard Wet Floor RTX"] = "RTX WetLook (Wet Floor)",
+		["Wet RTX"] = "RTX WetLook (Wet Floor)",
+		["Luminous Realism"] = "Realistic Glow",
+		["Crisp Realism HD"] = "Realistic HD",
+		["Pure Natural Light"] = "Natural Realistic",
+		["Marble Luxe"] = "Ultra Marble",
+		["Chrome Mirror"] = "RTX Chrome",
+		["Night City Neon"] = "Cyberpunk Neon",
+		["Soft Aesthetic Glow"] = "Aesthetic Glow",
+		["Warm Cinematic"] = "Cinematic Warm",
+		["Fog Horror"] = "Horror Fog",
+		["Vivid Anime"] = "Anime Vibrant",
+		["Clear Day Realism"] = "Realistic Day",
+		["Golden Sunset"] = "Sunset Gold",
+		["Ethereal Dream"] = "Dreamy Ethereal",
+		["Sepia Memories"] = "Vintage Sepia",
+		["Crimson Night"] = "RedNight (Red Night)",
+		["Red Night"] = "RedNight (Red Night)",
+		["Futuristic Blue"] = "Blue* (Futuristic Blue)",
+		["Blue Futuristic"] = "Blue* (Futuristic Blue)",
+		["Purple Nebula Galaxy"] = "Galaxy (Purple Nebula)",
+		["Galaxy Nebula"] = "Galaxy (Purple Nebula)",
+		["Retro Vaporwave"] = "Vaporwave",
+		["Pink Morning"] = "Pinkful Morning",
+		["Blush Gradient"] = "White to Pink",
+		["Oblivion Sky"] = "Oblivion Skybox",
+		["Oblivion"] = "Oblivion Skybox",
+		["Frozen Wonderland"] = "Winter Wonderland",
+		["Velard Cinema 8K"] = "Photoreal Cinema 8K",
+		["Daylight Experiment"] = "Experimental Daylight",
+		["Rainy Asphalt PBR"] = "Overcast Wet Asphalt (PBR)",
+		["Overcast Wet Asphalt"] = "Overcast Wet Asphalt (PBR)",
+		["Golden Dusk Realism"] = "Golden Hour Photorealism",
+		["Golden Hour HD"] = "Golden Hour Photorealism",
+		["Neon City Raytrace"] = "Cyberpunk Raytraced Neon",
 		["Lens Flare Sun"] = "Lens Flare",
-		["Red Night"] = "Crimson Night",
-		["Blue Futuristic"] = "Futuristic Blue",
-		["Oblivion"] = "Oblivion Sky",
-		["Overcast Wet Asphalt"] = "Rainy Asphalt PBR",
-		["Overcast Wet Asphalt (PBR)"] = "Rainy Asphalt PBR",
-		["Photoreal Cinema 8K"] = "Velard Cinema 8K",
-		["Experimental Daylight"] = "Daylight Experiment",
-		["Cyberpunk Raytraced Neon"] = "Neon City Raytrace",
 		["Light Glossy Plastic"] = "Light Glossy Plastic [Medium]",
 		["Light Glossy Metal"] = "Light Glossy Metal [Medium]",
 		["Light Glossy Combo"] = "Combo Glossy [Heavy]",
@@ -2225,6 +2210,11 @@ __modules["Config"] = function()
 
 	function Config.findSky(name)
 		for _, sky in ipairs(Config.Skyboxes) do
+			if sky.Name == name then
+				return sky
+			end
+		end
+		for _, sky in ipairs(Config.ExtraSkies or {}) do
 			if sky.Name == name then
 				return sky
 			end
@@ -2392,6 +2382,17 @@ __modules["Effects"] = function()
 	}
 	local posts = {}
 
+	-- A previous execution can leave its post-processing instances behind. If one
+	-- of those is picked up as the game's "original", resetAll() restores the
+	-- previous run's Enabled=true ColorCorrection and the effect appears stuck.
+	-- ShaderVelard-owned instances are always treated as disposable.
+	for _, post in ipairs(POST_CLASSES) do
+		local stale = Lighting:FindFirstChild("ShaderVelard_" .. post.key)
+		if stale then
+			stale:Destroy()
+		end
+	end
+
 	local function postClassFor(key)
 		for _, entry in ipairs(POST_CLASSES) do
 			if entry.key == key then
@@ -2410,6 +2411,11 @@ __modules["Effects"] = function()
 		local class = postClassFor(className)
 		local instance = Lighting:FindFirstChildOfClass(class)
 		local created = false
+		if instance and string.sub(instance.Name, 1, 13) == "ShaderVelard_" then
+			-- Never treat our own leftover as the game's original.
+			instance:Destroy()
+			instance = nil
+		end
 		if not instance then
 			instance = Instance.new(class)
 			instance.Name = "ShaderVelard_" .. className
@@ -2531,6 +2537,10 @@ __modules["Effects"] = function()
 		presetName = "None",
 		skyName = "Default",
 		skyIndex = 1,
+		-- Joevan GraphicStates defaults: atmosDensity 0.28 (pc 6857), atmosHaze 0.8
+		-- (pc 6862). Only consulted when smartAtmosphere is enabled.
+		atmosDensity = 0.28,
+		atmosHaze = 0.8,
 		customSky = {
 			Bk = "",
 			Dn = "",
@@ -2560,6 +2570,9 @@ __modules["Effects"] = function()
 			discoBloom = false,
 			discoAura = false,
 			skyAnimation = false,
+			-- P2 Smart Atmosphere (non-premium Joevan toggle, MAIN pc 9082-9096).
+			-- Default OFF so preset parity is unaffected.
+			smartAtmosphere = false,
 			bokeh = false,
 			motionBlur = false,
 			vhs = false,
@@ -2624,11 +2637,15 @@ __modules["Effects"] = function()
 			windStrength = 25,
 			discoSpeed = 1,
 			cloudCover = 0.5,
+			cloudDensity = 0.55,
 			skySpeed = 7,
 			bokehFocus = 30,
 			bokehIntensity = 0.35,
 			ssrDetail = 0.6,
 			ssrOpacity = 0.5,
+			-- Joevan's GlossyIntensity slider (0..25 in the UI). It is not shown
+			-- by this remake; presets drive it through applyPreset.
+			glossyIntensity = 25,
 			glossyReflectance = 0.45,
 			bananoLevel = 3,
 			bananoRadius = 120,
@@ -2674,6 +2691,10 @@ __modules["Effects"] = function()
 			emote = "Wave",
 		},
 		skyTextString = "ShaderVelard",
+		-- Preset-only flag (no dedicated UI control): CyberpunkRaytracedNeon uses
+		-- Joevan's DiscoColorizeLamps to tint existing lamps instead of only
+		-- adding the remake's own disco lights.
+		discoColorizeLamps = false,
 		liteMode = false,
 	}
 
@@ -3087,11 +3108,19 @@ __modules["Effects"] = function()
 	local glossyConnection = nil
 	local glossyCandidates = nil
 	local glossyCacheBuilt = false
+	-- P1 Glossy overlay (Joevan FUNCTION #466/#467): one Preset_Overlay part per
+	-- BasePart, welded to the original. The base part's Material/Reflectance/
+	-- Transparency/MaterialVariant are stored and restored, never overwritten by
+	-- SSR/GlossyIntensity.
+	local textureDetailSaved = {}
+	local textureDetailConnection = nil
 	local celHighlights = {}
 	local celConnection = nil
 	local discoPart = nil
 	local discoLights = {}
 	local discoAuraLight = nil
+	Effects._discoLampSaved = {}
+	Effects._textureMaterials = {}
 	local lightningToken = 0
 	local skyTimer = 0
 	local clock = 0
@@ -3158,8 +3187,8 @@ __modules["Effects"] = function()
 		end
 		local data = Config.findSky(state.skyName)
 		skyInstance.SunAngularSize = state.toggles.hideSun and 0 or 21
-		skyInstance.StarCount = data.StarCount
-		skyInstance.CelestialBodiesShown = data.CelestialBodiesShown
+		skyInstance.StarCount = data.StarCount or 3000
+		skyInstance.CelestialBodiesShown = data.CelestialBodiesShown ~= false
 	end
 
 	function Effects.applySky(name)
@@ -3191,14 +3220,21 @@ __modules["Effects"] = function()
 		safeSet(sky, "SkyboxLf", data.Lf)
 		safeSet(sky, "SkyboxRt", data.Rt)
 		safeSet(sky, "SkyboxUp", data.Up)
-		safeSet(sky, "SunTextureId", data.SunTextureId)
-		safeSet(sky, "MoonTextureId", data.MoonTextureId)
-		safeSet(sky, "StarCount", data.StarCount)
-		safeSet(sky, "CelestialBodiesShown", data.CelestialBodiesShown)
+		-- setSkybox() in Joevan only writes sun/moon when the sky defines them,
+		-- and falls back to StarCount 3000 / CelestialBodiesShown true otherwise.
+		if data.SunTextureId then
+			safeSet(sky, "SunTextureId", data.SunTextureId)
+		end
+		if data.MoonTextureId then
+			safeSet(sky, "MoonTextureId", data.MoonTextureId)
+		end
+		safeSet(sky, "StarCount", data.StarCount or 3000)
+		safeSet(sky, "CelestialBodiesShown", data.CelestialBodiesShown ~= false)
 		safeSet(sky, "MoonAngularSize", 11)
 		safeSet(sky, "SunAngularSize", state.toggles.hideSun and 0 or 21)
 
 		state.skyName = data.Name
+		state.skyIndex = 0
 		for index, entry in ipairs(Config.Skyboxes) do
 			if entry.Name == data.Name then
 				state.skyIndex = index
@@ -3212,7 +3248,7 @@ __modules["Effects"] = function()
 		return data.Name
 	end
 
-	function Effects.applyCustomSky(faces, label)
+	function Effects.applyCustomSky(faces, label, meta)
 		faces = faces or {}
 		local normalized = {}
 		for _, key in ipairs({ "Bk", "Dn", "Ft", "Lf", "Rt", "Up" }) do
@@ -3229,11 +3265,18 @@ __modules["Effects"] = function()
 			safeSet(sky, "Skybox" .. key, value)
 		end
 
-		local defaultData = Config.Skyboxes[1]
-		safeSet(sky, "SunTextureId", skyOriginal and skyOriginal.SunTextureId or defaultData.SunTextureId)
-		safeSet(sky, "MoonTextureId", skyOriginal and skyOriginal.MoonTextureId or defaultData.MoonTextureId)
-		safeSet(sky, "StarCount", skyOriginal and skyOriginal.StarCount or defaultData.StarCount)
-		safeSet(sky, "CelestialBodiesShown", skyOriginal and skyOriginal.CelestialBodiesShown or defaultData.CelestialBodiesShown)
+		-- Match Joevan setSkybox(name, faces): raw preset faces do not touch the
+		-- sun/moon textures, and star settings fall back to 3000 / true. Sun and
+		-- Moon textures are only written when the caller defines them.
+		meta = meta or {}
+		if meta.SunTextureId then
+			safeSet(sky, "SunTextureId", meta.SunTextureId)
+		end
+		if meta.MoonTextureId then
+			safeSet(sky, "MoonTextureId", meta.MoonTextureId)
+		end
+		safeSet(sky, "StarCount", meta.StarCount or 3000)
+		safeSet(sky, "CelestialBodiesShown", meta.CelestialBodiesShown ~= false)
 		safeSet(sky, "MoonAngularSize", skyOriginal and skyOriginal.MoonAngularSize or 11)
 		safeSet(sky, "SunAngularSize", state.toggles.hideSun and 0 or (skyOriginal and skyOriginal.SunAngularSize or 21))
 
@@ -3265,10 +3308,17 @@ __modules["Effects"] = function()
 
 	local function clearGlossy(keepCache)
 		for part, props in pairs(glossySaved) do
+			if props.overlay and props.overlay.Parent then
+				props.overlay:Destroy()
+			end
 			if part and part.Parent then
 				pcall(function()
 					part.Material = props.Material
 					part.Reflectance = props.Reflectance
+					part.Transparency = props.Transparency
+					if props.MaterialVariant ~= nil then
+						part.MaterialVariant = props.MaterialVariant
+					end
 				end)
 			end
 		end
@@ -3297,12 +3347,31 @@ __modules["Effects"] = function()
 		return Enum.Material.SmoothPlastic
 	end
 
-	local function glossyReflectance()
-		local reflectance = state.sliders.glossyReflectance
-		if state.toggles.ssr then
-			reflectance = math.max(reflectance, 0.5 + state.sliders.ssrDetail * 0.3 + (state.sliders.ssrThickness or 0.5) * 0.2)
+	function Effects._glossyStrength()
+		-- Joevan FUNCTION #437 (GlossyIntensity callback, pc 0-11):
+		--   v = GlossyIntensity; if v <= 10 then v = v * 10 end
+		--   strength = 1 - v / 100
+		-- The strength is written to the glossy overlay's Transparency, not to the
+		-- part's Reflectance (FUNCTION #395 restores Material/Reflectance/
+		-- Transparency/MaterialVariant when the overlay is removed).
+		local v = tonumber(state.sliders.glossyIntensity)
+		if v == nil then
+			return nil
 		end
-		return math.clamp(reflectance, 0, 1)
+		if v <= 10 then
+			v = v * 10
+		end
+		return math.clamp(1 - v / 100, 0, 1)
+	end
+
+	function Effects._glossyIntensityActive()
+		return (Effects._glossyStrength() or 0) < 0.999
+	end
+
+	local function glossyReflectance()
+		-- Joevan applies each preset's literal Reflectance. SSR/SSR detail must not
+		-- inflate it, otherwise every preset with SSR ends up as a >=0.5 mirror.
+		return math.clamp(state.sliders.glossyReflectance, 0, 1)
 	end
 
 	local function reflectionRadius()
@@ -3331,6 +3400,35 @@ __modules["Effects"] = function()
 		return offset
 	end
 
+	Effects._reflectionRadius = reflectionRadius
+	Effects._reflectionOffset = reflectionOffset
+
+	function Effects._effectiveGlossyRadius()
+		local radius = reflectionRadius()
+		if (state.toggles.rtx and state.toggles.rtxWrapObjects)
+			or (state.toggles.banano and state.toggles.bananoWrapObjects) then
+			return nil
+		end
+		return radius
+	end
+
+	function Effects._glossyOverlayCount()
+		local count = 0
+		for _ in pairs(glossySaved) do
+			count = count + 1
+		end
+		return count
+	end
+
+	function Effects._glossyOverlayFor(part)
+		local props = glossySaved[part]
+		return props and props.overlay or nil
+	end
+
+	function Effects._glossySavedFor(part)
+		return glossySaved[part]
+	end
+
 	local function glossyPass()
 		local material = glossyMaterial()
 		local reflectance = glossyReflectance()
@@ -3346,35 +3444,158 @@ __modules["Effects"] = function()
 		return material, reflectance, origin, reflectionRadius()
 	end
 
+	Effects._glossyPass = glossyPass
+
+	-- Joevan #467 marks MeshPart/WedgePart/CornerWedgePart/UnionOperation and any
+	-- non-Block Part as "complex geometry": Size grows by 0.02 and the overlay is
+	-- lifted by 0.045 studs. Block parts grow by 0.06 with no lift.
+	Effects._glossyOverlayImpl = {}
+	function Effects._glossyOverlayImpl.isComplex(part)
+		local complex = false
+		pcall(function()
+			complex = part:IsA("MeshPart")
+				or part:IsA("WedgePart")
+				or part:IsA("CornerWedgePart")
+				or part:IsA("UnionOperation")
+		end)
+		if not complex then
+			local ok, shape = pcall(function()
+				return part.Shape
+			end)
+			if ok and shape ~= nil then
+				complex = shape ~= Enum.PartType.Block
+			end
+		end
+		return complex
+	end
+
+	function Effects._glossyOverlayImpl.create(part, material, reflectance)
+		-- Joevan clones the source part, clears DataModelMesh children, and welds
+		-- the clone to the original (FUNCTION #467 pc 0-242).
+		local overlay = nil
+		local okClone, clone = pcall(function()
+			return part:Clone()
+		end)
+		if okClone and clone ~= nil and clone.ClassName ~= nil then
+			overlay = clone
+			pcall(function()
+				for _, child in ipairs(overlay:GetChildren()) do
+					if child:IsA("DataModelMesh") then
+						child:Destroy()
+					end
+				end
+			end)
+		else
+			overlay = Instance.new("Part")
+		end
+
+		overlay.Name = "Preset_Overlay"
+		if material then
+			pcall(function()
+				overlay.Material = material
+			end)
+		end
+		pcall(function()
+			overlay.Transparency = 0.85
+			overlay.Reflectance = reflectance
+			overlay.Color = Color3.fromRGB(15, 15, 15)
+			overlay.CanCollide = false
+			overlay.CanTouch = false
+			overlay.CanQuery = false
+			overlay.CastShadow = false
+			overlay.Massless = true
+		end)
+		pcall(function()
+			if overlay:IsA("MeshPart") then
+				overlay.TextureID = ""
+			end
+		end)
+
+		local complex = Effects._glossyOverlayImpl.isComplex(part)
+		local growth = complex and 0.02 or 0.06
+		local size = part.Size
+		pcall(function()
+			overlay.Size = Vector3.new(
+				math.max(size.X + growth, 0.1),
+				math.max(size.Y + growth, 0.1),
+				math.max(size.Z + growth, 0.1)
+			)
+		end)
+		if complex then
+			local lifted = pcall(function()
+				overlay.CFrame = part.CFrame + Vector3.new(0, 0.045, 0)
+			end)
+			if not lifted then
+				pcall(function()
+					overlay.CFrame = part.CFrame
+				end)
+			end
+		else
+			pcall(function()
+				overlay.CFrame = part.CFrame
+			end)
+		end
+
+		local weld = Instance.new("WeldConstraint")
+		pcall(function()
+			weld.Part0 = part
+			weld.Part1 = overlay
+			weld.Parent = overlay
+		end)
+		pcall(function()
+			overlay.Parent = part.Parent or Workspace
+		end)
+		return overlay
+	end
+
+	function Effects._glossyOverlayImpl.update(props, material, reflectance)
+		local overlay = props.overlay
+		if not overlay or not overlay.Parent then
+			return false
+		end
+		local strength = Effects._glossyStrength() or 1
+		pcall(function()
+			if material then
+				overlay.Material = material
+			end
+			overlay.Reflectance = reflectance
+			overlay.Transparency = strength
+		end)
+		return true
+	end
+
 	local function collectGlossyPart(part, material, reflectance, origin, radius)
 		if glossySaved[part] then
-			pcall(function()
-				if material then
-					part.Material = material
-				end
-				part.Reflectance = reflectance
-			end)
+			Effects._glossyOverlayImpl.update(glossySaved[part], material, reflectance)
 			return
 		end
 		if not part:IsA("BasePart") or part:IsA("Terrain") then
 			return
 		end
-		if part.Transparency > 0.95 or string.sub(part.Name, 1, 13) == "ShaderVelard_" then
+		local transparency = tonumber(part.Transparency) or 0
+		if transparency > 0.95 or string.sub(part.Name, 1, 13) == "ShaderVelard_" then
+			return
+		end
+		if string.sub(part.Name, 1, 14) == "Preset_Overlay" then
 			return
 		end
 		if radius and origin and (part.Position - origin).Magnitude > radius then
 			return
 		end
-		glossySaved[part] = {
+		local props = {
 			Material = part.Material,
 			Reflectance = part.Reflectance,
+			Transparency = part.Transparency,
 		}
-		pcall(function()
-			if material then
-				part.Material = material
-			end
-			part.Reflectance = math.max(part.Reflectance, reflectance)
+		local okVariant, variant = pcall(function()
+			return part.MaterialVariant
 		end)
+		if okVariant then
+			props.MaterialVariant = variant
+		end
+		props.overlay = Effects._glossyOverlayImpl.create(part, material, reflectance)
+		glossySaved[part] = props
+		Effects._glossyOverlayImpl.update(props, material, reflectance)
 	end
 
 	local function buildGlossyCache(limit)
@@ -3406,21 +3627,19 @@ __modules["Effects"] = function()
 
 	local function applyGlossy()
 		local active = state.toggles.wetFloor or state.toggles.ssr or state.toggles.banano or state.toggles.rtx
+		if active and not Effects._glossyIntensityActive() then
+			active = false
+		end
 		if not active then
 			clearGlossy()
 			restoreTerrain()
 			return
 		end
 
-		local material, reflectance, origin, radius = glossyPass()
+		local material, reflectance, origin = glossyPass()
 		-- "Wrap All Objects" reflects the RTX/Banano option: when enabled the
 		-- reflection pass ignores the radius and wraps the entire workspace.
-		if state.toggles.rtx and state.toggles.rtxWrapObjects then
-			radius = nil
-		end
-		if state.toggles.banano and state.toggles.bananoWrapObjects then
-			radius = nil
-		end
+		local radius = Effects._effectiveGlossyRadius()
 		local limit = state.liteMode and 300 or 1800
 		-- Cache the workspace part list. Slider changes (reflectance, SSR detail,
 		-- thickness, radius, offset) then only touch known parts instead of walking
@@ -3432,14 +3651,24 @@ __modules["Effects"] = function()
 			end
 		end
 
-		local terrainEnabled = state.toggles.ssr or state.toggles.banano
-			or (state.toggles.rtx and state.toggles.rtxWrapTerrain ~= false)
+		local ssrOn = state.toggles.ssr == true
+		local rtxTerrain = state.toggles.rtx == true and state.toggles.rtxWrapTerrain ~= false
+		local bananoTerrain = state.toggles.banano == true and state.toggles.bananoWrapTerrain ~= false
+		local terrainEnabled = ssrOn or rtxTerrain or bananoTerrain
 		if terrainEnabled and terrain then
 			local offset = reflectionOffset()
-			safeSet(terrain, "WaterReflectance", math.clamp(0.55 + state.sliders.ssrDetail * 0.35 + offset * 0.02, 0, 0.95))
-			safeSet(terrain, "WaterTransparency", math.clamp(0.35 - state.sliders.ssrOpacity * 0.3, 0.02, 0.4))
-			safeSet(terrain, "WaterWaveSize", 0.15)
-			safeSet(terrain, "WaterWaveSpeed", 2)
+			local detail = ssrOn and state.sliders.ssrDetail or 0
+			local opacity = ssrOn and state.sliders.ssrOpacity or 0
+			local thickness = math.clamp(state.sliders.ssrThickness or 0.5, 0, 1)
+			-- SSR's three controls each write a distinct terrain property:
+			-- detail -> reflectance, opacity -> transparency, thickness -> waves.
+			local levelBoost = 0
+			if state.toggles.rtx then levelBoost = levelBoost + state.sliders.rtxLevel * 0.02 end
+			if state.toggles.banano then levelBoost = levelBoost + state.sliders.bananoLevel * 0.02 end
+			safeSet(terrain, "WaterReflectance", math.clamp(0.45 + detail * 0.45 + offset * 0.02 + levelBoost, 0, 0.95))
+			safeSet(terrain, "WaterTransparency", math.clamp(0.4 - opacity * 0.3, 0.02, 0.45))
+			safeSet(terrain, "WaterWaveSize", math.clamp(0.05 + thickness * 0.35, 0.02, 0.5))
+			safeSet(terrain, "WaterWaveSpeed", 1 + thickness * 3)
 		else
 			restoreTerrain()
 		end
@@ -3466,6 +3695,139 @@ __modules["Effects"] = function()
 	local function refreshGlossy()
 		clearGlossy(true)
 		applyGlossy()
+	end
+
+	-- Joevan's Texture Detail (MAIN pc 3737 -> FUNCTION #314, setTextureDetail)
+	-- walks workspace descendants and calls applyTex(instance, value)
+	-- (FUNCTION #313). applyTex only changes two things:
+	--   value  = GraphicStates.TextureDetail (0..100)
+	--   alpha  = 1 - value / 100
+	--   Texture/Decal.Transparency = original + (1 - original) * alpha
+	-- BasePart Material is only touched for the "wet" look (value >= 50 keeps
+	-- SmoothPlastic); the remake's glossy pass already owns wet materials, so the
+	-- decal/texture transparency is the part that is missing here.
+	local function textureDetailValue()
+		return math.clamp(tonumber(state.sliders.textureDetail) or 0.5, 0, 1) * 100
+	end
+
+	-- isWet in Joevan #313 is the wet/glossy world state. The remake treats an
+	-- active reflection pass as wet. The wet branch owns only the base part's
+	-- Material; the glossy pass now owns a separate Preset_Overlay part, so the
+	-- two never fight over the same property.
+	function Effects._applyTextureWetMaterial(instance, value)
+		if not instance:IsA("BasePart") or instance:IsA("Terrain") then
+			return
+		end
+		local saved = Effects._textureMaterials[instance]
+		local wet = state.toggles.wetFloor or state.toggles.ssr
+			or state.toggles.banano or state.toggles.rtx
+		if not wet then
+			if saved then
+				pcall(function()
+					instance.Material = saved.Material
+					instance.Reflectance = saved.Reflectance
+				end)
+				Effects._textureMaterials[instance] = nil
+			end
+			return
+		end
+		if string.sub(instance.Name, 1, 13) == "ShaderVelard_"
+			or string.sub(instance.Name, 1, 14) == "Preset_Overlay" then
+			return
+		end
+		local parent = instance.Parent
+		if parent then
+			local isHumanoid = false
+			pcall(function()
+				isHumanoid = parent:FindFirstChild("Humanoid") ~= nil
+			end)
+			if isHumanoid then
+				return
+			end
+		end
+		if not saved then
+			saved = {
+				Material = instance.Material,
+				Reflectance = instance.Reflectance,
+			}
+			Effects._textureMaterials[instance] = saved
+		end
+		if value >= 50 then
+			safeSet(instance, "Material", Enum.Material.SmoothPlastic)
+		else
+			safeSet(instance, "Material", saved.Material)
+		end
+	end
+
+	local function applyTextureDetailTo(instance, value)
+		if instance:IsA("Texture") or instance:IsA("Decal") then
+			local saved = textureDetailSaved[instance]
+			if not saved then
+				saved = { Transparency = instance.Transparency }
+				textureDetailSaved[instance] = saved
+			end
+			local alpha = 1 - value / 100
+			safeSet(instance, "Transparency", saved.Transparency + (1 - saved.Transparency) * alpha)
+			return
+		end
+		Effects._applyTextureWetMaterial(instance, value)
+	end
+
+	function Effects._applyTextureDetail()
+		local value = textureDetailValue()
+		for _, descendant in ipairs(Workspace:GetDescendants()) do
+			applyTextureDetailTo(descendant, value)
+		end
+		if not textureDetailConnection then
+			textureDetailConnection = Workspace.DescendantAdded:Connect(function(instance)
+				if instance:IsA("Texture") or instance:IsA("Decal") then
+					task.defer(function()
+						if instance.Parent then
+							applyTextureDetailTo(instance, textureDetailValue())
+						end
+					end)
+				end
+			end)
+		end
+		return value
+	end
+
+	function Effects._clearTextureDetail()
+		for instance, saved in pairs(textureDetailSaved) do
+			if instance and instance.Parent then
+				safeSet(instance, "Transparency", saved.Transparency)
+			end
+		end
+		for instance, saved in pairs(Effects._textureMaterials) do
+			if instance and instance.Parent then
+				pcall(function()
+					instance.Material = saved.Material
+					instance.Reflectance = saved.Reflectance
+				end)
+			end
+		end
+		textureDetailSaved = {}
+		Effects._textureMaterials = {}
+		if textureDetailConnection then
+			textureDetailConnection:Disconnect()
+			textureDetailConnection = nil
+		end
+	end
+
+	function Effects._textureDetailSavedCount()
+		local count = 0
+		for _ in pairs(textureDetailSaved) do
+			count = count + 1
+		end
+		return count
+	end
+
+	function Effects._textureMaterialSavedCount()
+		local count = 0
+		for _ in pairs(Effects._textureMaterials) do
+			count = count + 1
+		end
+		return count
 	end
 
 	local function syncReflectionFloors()
@@ -3707,8 +4069,55 @@ __modules["Effects"] = function()
 		end
 		safeSet(clouds, "Enabled", true)
 		safeSet(clouds, "Cover", math.clamp(state.sliders.cloudCover, 0, 1))
-		safeSet(clouds, "Density", 0.55)
+		safeSet(clouds, "Density", math.clamp(state.sliders.cloudDensity or 0.55, 0, 1))
 		safeSet(clouds, "Color", Color3.fromRGB(255, 255, 255))
+	end
+
+	function Effects._restoreDiscoLamps()
+		for light, props in pairs(Effects._discoLampSaved) do
+			if light and light.Parent then
+				pcall(function()
+					light.Color = props.Color
+					light.Brightness = props.Brightness
+				end)
+			end
+		end
+		Effects._discoLampSaved = {}
+	end
+
+	function Effects._colorizeDiscoLamps(intensity, mode)
+		if not state.discoColorizeLamps or not state.toggles.disco then
+			Effects._restoreDiscoLamps()
+			return
+		end
+		for _, descendant in ipairs(Workspace:GetDescendants()) do
+			local isLamp = descendant:IsA("PointLight")
+				or descendant:IsA("SpotLight") or descendant:IsA("SurfaceLight")
+			if isLamp and string.find(descendant.Name, "ShaderVelard_", 1, true) == nil then
+				if not Effects._discoLampSaved[descendant] then
+					Effects._discoLampSaved[descendant] = {
+						Color = descendant.Color,
+						Brightness = descendant.Brightness,
+					}
+				end
+				local hue
+				if mode == "Warm Pulse" then
+					hue = 0.06 + math.sin(clock * 2) * 0.04
+				elseif mode == "Cool Pulse" then
+					hue = 0.55 + math.sin(clock * 2) * 0.05
+				elseif mode == "Strobe" then
+					hue = (math.floor(clock * 6) % 2 == 0) and 0 or 0.66
+				elseif mode == "Neon Cyberpunk" then
+					hue = (math.floor(clock * 3) % 2 == 0) and 0.5 or 0.85
+				else
+					hue = (clock * 0.18 * state.sliders.discoSpeed) % 1
+				end
+				pcall(function()
+					descendant.Color = Color3.fromHSV((hue % 1 + 1) % 1, 0.85, 1)
+					descendant.Brightness = math.max(1, intensity * (0.8 + math.sin(clock * 3) * 0.25))
+				end)
+			end
+		end
 	end
 
 	local function clearDisco()
@@ -3717,6 +4126,7 @@ __modules["Effects"] = function()
 			discoPart = nil
 		end
 		discoLights = {}
+		Effects._restoreDiscoLamps()
 		if discoAuraLight then
 			discoAuraLight:Destroy()
 			discoAuraLight = nil
@@ -3877,14 +4287,10 @@ __modules["Effects"] = function()
 	end
 
 	fx.celShading = function(look)
-		look.Lighting.GlobalShadows = false
-		look.Lighting.ShadowSoftness = 0
-		look.Lighting.Ambient = Color3.fromRGB(190, 190, 198)
-		look.Lighting.OutdoorAmbient = Color3.fromRGB(215, 215, 222)
-		look.Lighting.Brightness = look.Lighting.Brightness + 0.8
-		look.ColorCorrection.Saturation = math.max(look.ColorCorrection.Saturation, 0.18)
-		look.ColorCorrection.Contrast = look.ColorCorrection.Contrast + 0.16
-		look.Bloom.Intensity = look.Bloom.Intensity + 0.25
+		-- Joevan setCelShading (FUNCTION #199) only builds Highlight outlines around
+		-- character rigs (FUNCTION #195); it never rewrites Lighting/post values.
+		-- The remake keeps the outline pass in refreshCelHighlights(), so this must
+		-- not contribute any Look delta.
 	end
 
 	fx.greenScreen = function(look)
@@ -3899,20 +4305,41 @@ __modules["Effects"] = function()
 	end
 
 	fx.fakeSSAO = function(look)
-		look.ColorCorrection.Contrast = look.ColorCorrection.Contrast + 0.14
-		look.ColorCorrection.Saturation = look.ColorCorrection.Saturation - 0.05
-		look.Lighting.EnvironmentDiffuseScale = look.Lighting.EnvironmentDiffuseScale * 0.72
-		look.Lighting.ShadowSoftness = math.max(look.Lighting.ShadowSoftness, 0.55)
-		look.Atmosphere.Haze = look.Atmosphere.Haze + 0.35
+		-- Joevan setFakeSSAO (FUNCTION #239 pc 30-73) writes a fixed "ambient
+		-- occlusion" lighting state, not a delta. Values are literal from the
+		-- disassembly.
+		look.Lighting.Brightness = 1.7
+		look.Lighting.EnvironmentDiffuseScale = 0.6
+		look.Lighting.EnvironmentSpecularScale = 0.5
+		look.Lighting.ShadowSoftness = 1.0
+		look.Lighting.ClockTime = 14.3
+		look.Lighting.GeographicLatitude = 32
+		look.Lighting.ExposureCompensation = 0
+		look.Lighting.Ambient = Color3.fromRGB(77, 75, 75)
+		look.Lighting.OutdoorAmbient = Color3.fromRGB(64, 70, 74)
 	end
 
 	fx.bokeh = function(look)
+		-- Joevan setBokehIntensity (FUNCTION #193) and the dynamic-DOF pass
+		-- (FUNCTION #192): FarIntensity = bokehIntensity, NearIntensity =
+		-- bokehIntensity * 0.5, InFocusRadius = 15, FocusDistance = camera to
+		-- HumanoidRootPart distance. With no character the preset's FocusDistance
+		-- is kept.
 		local intensity = math.clamp(state.sliders.bokehIntensity, 0, 1)
-		local focus = state.sliders.bokehFocus
 		look.DepthOfField.FarIntensity = intensity
-		look.DepthOfField.FocusDistance = focus
-		look.DepthOfField.InFocusRadius = math.max(4, focus * 0.5)
-		look.DepthOfField.NearIntensity = math.max(0.03, intensity * 0.15)
+		look.DepthOfField.NearIntensity = intensity * 0.5
+		look.DepthOfField.InFocusRadius = 15
+		local character = player.Character
+		local root = character and character:FindFirstChild("HumanoidRootPart")
+		local camera = Workspace.CurrentCamera
+		if root and camera then
+			local ok, distance = pcall(function()
+				return (camera.CFrame.Position - root.Position).Magnitude
+			end)
+			if ok and type(distance) == "number" then
+				look.DepthOfField.FocusDistance = distance
+			end
+		end
 	end
 
 	fx.vhs = function(look)
@@ -3921,10 +4348,9 @@ __modules["Effects"] = function()
 	end
 
 	fx.reShade = function(look)
-		local intensity = math.clamp(state.sliders.reShadeIntensity, 0, 1)
-		look.ColorCorrection.Contrast = look.ColorCorrection.Contrast + 0.1 + intensity * 0.16
-		look.ColorCorrection.Saturation = look.ColorCorrection.Saturation + 0.04 + intensity * 0.1
-		look.Bloom.Intensity = look.Bloom.Intensity + intensity * 0.15
+		-- Joevan setReShadeOverlay (FUNCTION #211) is a GUI-only filmic gradient
+		-- overlay (Frame + UIGradient, BackgroundTransparency 0.85). It does not
+		-- touch ColorCorrection or Bloom. updateReShade() already draws the overlay.
 	end
 
 	fx.disco = function(look)
@@ -3978,13 +4404,6 @@ __modules["Effects"] = function()
 			end
 		end
 
-		-- Cel shading owns shadow flattening. Keep it authoritative even when the
-		-- standalone Global Shadows dropdown says "On".
-		if state.toggles.celShading then
-			look.Lighting.GlobalShadows = false
-			look.Lighting.ShadowSoftness = 0
-		end
-
 		if state.sliders.saturation ~= nil then
 			local fxDelta = look.ColorCorrection.Saturation - baseSaturation
 			look.ColorCorrection.Saturation = math.clamp(state.sliders.saturation + fxDelta, -1, 1)
@@ -3995,9 +4414,26 @@ __modules["Effects"] = function()
 		end
 
 		local tint = sunTints[state.dropdowns.sunTint]
-		if tint then
+		-- "Neutral" means "leave the preset's ColorShift alone". Applying the black
+		-- Neutral table here used to erase every preset's ColorShift_Top/Bottom
+		-- (Joevan writes those literal values from the preset).
+		if tint and state.dropdowns.sunTint ~= "Neutral" then
 			look.Lighting.ColorShift_Top = tint.top
 			look.Lighting.ColorShift_Bottom = tint.bottom
+		end
+
+		-- P2 Smart Atmosphere: Joevan's non-premium generator fallback
+		-- (FUNCTION #1209 pc 509-568) with GraphicStates defaults atmosDensity
+		-- 0.28 (pc 6857) and atmosHaze 0.8 (pc 6862). Off = preset values untouched.
+		if state.toggles.smartAtmosphere then
+			local density = tonumber(state.atmosDensity) or 0.28
+			local haze = tonumber(state.atmosHaze) or 0.8
+			look.Atmosphere.Density = math.clamp(density, 0, 1)
+			look.Atmosphere.Offset = 0.2
+			look.Atmosphere.Color = Color3.fromRGB(190, 215, 245)
+			look.Atmosphere.Decay = Color3.fromRGB(110, 130, 160)
+			look.Atmosphere.Glare = 0.25
+			look.Atmosphere.Haze = math.clamp(haze, 0, 10)
 		end
 
 		writeLook(look)
@@ -4009,6 +4445,21 @@ __modules["Effects"] = function()
 		local data = Config.Skyboxes[state.skyIndex]
 		Effects.applySky(data.Name)
 	end
+
+	Effects._tickSkyAnimation = function(deltaTime)
+		if not state.toggles.skyAnimation then
+			skyTimer = 0
+			return false
+		end
+		skyTimer = skyTimer + deltaTime
+		if skyTimer >= math.max(state.sliders.skySpeed or 7, 0.05) then
+			skyTimer = 0
+			advanceSky()
+			return true
+		end
+		return false
+	end
+
 
 	local featureColors = {
 		White = Color3.fromRGB(255, 255, 255),
@@ -5400,6 +5851,9 @@ __modules["Effects"] = function()
 			or name == "rtxWrapObjects" or name == "rtxWrapTerrain"
 			or name == "bananoWrapObjects" or name == "bananoWrapTerrain" then
 			syncReflectionFloors()
+			if state.sliders.textureDetail < 0.999 then
+				Effects._applyTextureDetail()
+			end
 		elseif name == "celShading" then
 			refreshCelHighlights()
 		elseif name == "neon" then
@@ -5559,6 +6013,7 @@ __modules["Effects"] = function()
 			or name == "evadeLighting"
 			or name == "disco"
 			or name == "discoBloom"
+			or name == "smartAtmosphere"
 			or name == "rainbow"
 			or name == "policeFlash" then
 			Effects.recompute()
@@ -5617,7 +6072,11 @@ __modules["Effects"] = function()
 		elseif name == "sunRaysSpread" then
 			state.base.SunRays.Spread = value
 		elseif name == "textureDetail" then
-			refreshGlossy()
+			if state.sliders.textureDetail >= 0.999 then
+				Effects._clearTextureDetail()
+			else
+				Effects._applyTextureDetail()
+			end
 			return
 		elseif name == "fov" then
 			local camera = Workspace.CurrentCamera
@@ -5634,7 +6093,7 @@ __modules["Effects"] = function()
 		elseif name == "rainIntensity" then
 			updateRain()
 			return
-		elseif name == "cloudCover" then
+		elseif name == "cloudCover" or name == "cloudDensity" then
 			syncClouds()
 			return
 		elseif name == "glossyReflectance" or name == "ssrDetail" or name == "ssrOpacity"
@@ -5987,15 +6446,219 @@ __modules["Effects"] = function()
 		end
 		return nil, position, "unknown share code tag"
 	end
+
+	-- Minimal JSON codec for Joevan JOEVAN# payloads. It intentionally supports
+	-- only JSON data (objects, arrays, strings, numbers, booleans, null) plus
+	-- Color3 objects; that is exactly what share codes contain.
+	local function jsonEscape(text)
+		text = tostring(text)
+		text = string.gsub(text, "\\", "\\\\")
+		text = string.gsub(text, '"', '\\"')
+		text = string.gsub(text, "\n", "\\n")
+		text = string.gsub(text, "\r", "\\r")
+		text = string.gsub(text, "\t", "\\t")
+		return '"' .. text .. '"'
+	end
+
+	local function jsonIsArray(value)
+		local count = 0
+		for key in pairs(value) do
+			if type(key) ~= "number" then
+				return false
+			end
+			count = count + 1
+		end
+		if count == 0 then
+			return false
+		end
+		for index = 1, count do
+			if value[index] == nil then
+				return false
+			end
+		end
+		return true
+	end
+
+	function ShareCode.jsonEncode(value)
+		local kind = type(value)
+		if value == nil then
+			return "null"
+		elseif kind == "boolean" then
+			return value and "true" or "false"
+		elseif kind == "number" then
+			if value ~= value or value == math.huge or value == -math.huge then
+				return "0"
+			end
+			return string.format("%.17g", value)
+		elseif kind == "string" then
+			return jsonEscape(value)
+		elseif ShareCode.isColor3(value) then
+			return string.format(
+				'{"__type":"Color3","r":%d,"g":%d,"b":%d}',
+				math.floor(value.R * 255 + 0.5),
+				math.floor(value.G * 255 + 0.5),
+				math.floor(value.B * 255 + 0.5)
+			)
+		elseif kind == "table" then
+			local out = {}
+			if jsonIsArray(value) then
+				for index = 1, #value do
+					out[#out + 1] = ShareCode.jsonEncode(value[index])
+				end
+				return "[" .. table.concat(out, ",") .. "]"
+			end
+			local keys = {}
+			for key in pairs(value) do
+				keys[#keys + 1] = tostring(key)
+			end
+			table.sort(keys)
+			for _, key in ipairs(keys) do
+				out[#out + 1] = jsonEscape(key) .. ":" .. ShareCode.jsonEncode(value[key])
+			end
+			return "{" .. table.concat(out, ",") .. "}"
+		end
+		error("unsupported JSON value: " .. kind)
+	end
+
+	function ShareCode.jsonDecode(text)
+		text = tostring(text or "")
+		local position = 1
+		local parseValue
+
+		local function skipWhitespace()
+			while true do
+				local ch = string.sub(text, position, position)
+				if ch == " " or ch == "\t" or ch == "\r" or ch == "\n" then
+					position = position + 1
+				else
+					break
+				end
+			end
+		end
+
+		local function parseString()
+			position = position + 1
+			local out = {}
+			while position <= #text do
+				local ch = string.sub(text, position, position)
+				if ch == '"' then
+					position = position + 1
+					return table.concat(out)
+				elseif ch == "\\" then
+					local esc = string.sub(text, position + 1, position + 1)
+					position = position + 2
+					if esc == "n" then out[#out + 1] = "\n"
+					elseif esc == "r" then out[#out + 1] = "\r"
+					elseif esc == "t" then out[#out + 1] = "\t"
+					elseif esc == "b" then out[#out + 1] = "\b"
+					elseif esc == "f" then out[#out + 1] = "\f"
+					elseif esc == "u" then
+						local code = tonumber(string.sub(text, position, position + 3), 16)
+						position = position + 4
+						out[#out + 1] = (code and code < 128) and string.char(code) or "?"
+					else out[#out + 1] = esc end
+				else
+					out[#out + 1] = ch
+					position = position + 1
+				end
+			end
+			error("unterminated JSON string")
+		end
+
+		local function parseNumber()
+			local start = position
+			while position <= #text do
+				local ch = string.sub(text, position, position)
+				if string.find("+-0123456789.eE", ch, 1, true) then
+					position = position + 1
+				else
+					break
+				end
+			end
+			return tonumber(string.sub(text, start, position - 1))
+		end
+
+		local function parseObject()
+			position = position + 1
+			local result = {}
+			skipWhitespace()
+			if string.sub(text, position, position) == "}" then
+				position = position + 1
+				return result
+			end
+			while true do
+				skipWhitespace()
+				local key = parseString()
+				skipWhitespace()
+				position = position + 1
+				result[key] = parseValue()
+				skipWhitespace()
+				local ch = string.sub(text, position, position)
+				position = position + 1
+				if ch == "}" then
+					return result
+				end
+			end
+		end
+
+		local function parseArray()
+			position = position + 1
+			local result = {}
+			skipWhitespace()
+			if string.sub(text, position, position) == "]" then
+				position = position + 1
+				return result
+			end
+			while true do
+				result[#result + 1] = parseValue()
+				skipWhitespace()
+				local ch = string.sub(text, position, position)
+				position = position + 1
+				if ch == "]" then
+					return result
+				end
+			end
+		end
+
+		parseValue = function()
+			skipWhitespace()
+			local ch = string.sub(text, position, position)
+			if ch == "{" then
+				local object = parseObject()
+				if object.__type == "Color3" then
+					return Color3.fromRGB(object.r or 0, object.g or 0, object.b or 0)
+				end
+				return object
+			elseif ch == "[" then
+				return parseArray()
+			elseif ch == '"' then
+				return parseString()
+			elseif string.sub(text, position, position + 3) == "true" then
+				position = position + 4
+				return true
+			elseif string.sub(text, position, position + 4) == "false" then
+				position = position + 5
+				return false
+			elseif string.sub(text, position, position + 3) == "null" then
+				position = position + 4
+				return nil
+			end
+			return parseNumber()
+		end
+
+		local value = parseValue()
+		return value
+	end
+
 	return ShareCode
 	end)()
 
-	function Effects.exportPresetCode()
+	function Effects._buildShareSnapshot()
 		local exportToggles = copy(state.toggles)
 		-- Tools, not part of a visual look, must not be enabled by pasting a code.
 		exportToggles.freecam = nil
 		exportToggles.antiAFK = nil
-		local snapshot = {
+		return {
 			v = 1,
 			base = state.base,
 			toggles = exportToggles,
@@ -6006,8 +6669,29 @@ __modules["Effects"] = function()
 			customSky = state.customSky,
 			skyTextString = state.skyTextString,
 			presetName = state.presetName,
+			discoColorizeLamps = state.discoColorizeLamps == true,
 			liteMode = state.liteMode == true,
 		}
+	end
+
+	function Effects.exportPresetCode(format)
+		local snapshot = Effects._buildShareSnapshot()
+		if format == "sv1" or format == "SV1" then
+			return Effects.exportLegacyCode()
+		end
+		-- Joevan V15: "JOEVAN#" .. base64(JSONEncode(captureCurrentPresetState())).
+		local ok, encoded = pcall(function()
+			return Effects._share.base64Encode(Effects._share.jsonEncode(snapshot))
+		end)
+		if not ok then
+			warn("[ShaderVelard] share code export failed: " .. tostring(encoded))
+			return nil
+		end
+		return "JOEVAN#" .. encoded
+	end
+
+	function Effects.exportLegacyCode()
+		local snapshot = Effects._buildShareSnapshot()
 		local ok, encoded = pcall(function()
 			local out = {}
 			Effects._share.serializeValue(snapshot, out)
@@ -6038,9 +6722,34 @@ __modules["Effects"] = function()
 
 	function Effects.importPresetCode(code)
 		code = string.gsub(tostring(code or ""), "%s+", "")
+		local joevanPrefix = "JOEVAN#"
+		if string.sub(code, 1, #joevanPrefix) == joevanPrefix then
+			local raw, decodeError = Effects._share.base64Decode(string.sub(code, #joevanPrefix + 1))
+			if not raw then
+				return false, decodeError
+			end
+			local ok, payload = pcall(Effects._share.jsonDecode, raw)
+			if not ok or type(payload) ~= "table" then
+				return false, "Corrupted Base64 payload in share code!"
+			end
+			-- Our exporter writes the full remake snapshot, which is also valid
+			-- Joevan JSON. Route it through the existing SV1 apply path.
+			if payload.base or payload.toggles or payload.sliders then
+				local okEncode, encoded = pcall(function()
+					local out = {}
+					Effects._share.serializeValue(payload, out)
+					return Effects._share.base64Encode(table.concat(out))
+				end)
+				if not okEncode then
+					return false, "Corrupted Base64 payload in share code!"
+				end
+				return Effects.importPresetCode(Effects._share.prefix .. encoded)
+			end
+			return Effects.applyJoevanPresetObject(payload)
+		end
 		local prefix = Effects._share.prefix
 		if string.sub(code, 1, #prefix) ~= prefix then
-			return false, "Invalid share code (missing SV1 prefix)"
+			return false, "Invalid share code (expected JOEVAN# or SV1: prefix)"
 		end
 
 		local raw, decodeError = Effects._share.base64Decode(string.sub(code, #prefix + 1))
@@ -6086,6 +6795,10 @@ __modules["Effects"] = function()
 						state.dropdowns[key] = value
 					end
 				end
+			end
+
+			if type(snapshot.discoColorizeLamps) == "boolean" then
+				state.discoColorizeLamps = snapshot.discoColorizeLamps
 			end
 
 			state.customSky = { Bk = "", Dn = "", Ft = "", Lf = "", Rt = "", Up = "" }
@@ -6315,12 +7028,11 @@ __modules["Effects"] = function()
 		return Effects._presetStore.deleteAll()
 	end
 
-	function Effects.applyPreset(name)
-		local preset = Config.findPreset(name)
-		if not preset then
-			return
+	function Effects._applyPresetData(preset)
+		if type(preset) ~= "table" then
+			return false
 		end
-
+		preset.Name = preset.Name or preset.Key or "Imported"
 		local look = copy(Config.NeutralLook)
 		merge(look, preset.Look)
 		state.base = look
@@ -6332,10 +7044,11 @@ __modules["Effects"] = function()
 		local keepKorblox = state.toggles.korblox == true
 		local keepHeadless = state.toggles.headless == true
 
+		-- Joevan applyPreset starts with resetAllEffects(true) (FUNCTION #400,
+		-- pc 0-2), which clears every effect toggle including the RTX/Banano wrap
+		-- toggles. Only the remake's session utilities/character cosmetics are kept.
 		for key in pairs(state.toggles) do
-			if key ~= "rtxWrapObjects" and key ~= "rtxWrapTerrain"
-				and key ~= "bananoWrapObjects" and key ~= "bananoWrapTerrain"
-				and key ~= "freecam" and key ~= "antiAFK" then
+			if key ~= "freecam" and key ~= "antiAFK" then
 				state.toggles[key] = false
 			end
 		end
@@ -6376,6 +7089,10 @@ __modules["Effects"] = function()
 				state.sliders[key] = value
 			end
 		end
+		if preset.GlossyIntensity ~= nil then
+			state.sliders.glossyIntensity = preset.GlossyIntensity
+		end
+		state.discoColorizeLamps = preset.DiscoColorizeLamps == true
 		if preset.Dropdowns then
 			for key, value in pairs(preset.Dropdowns) do
 				state.dropdowns[key] = value
@@ -6402,12 +7119,14 @@ __modules["Effects"] = function()
 		state.toggles.headless = keepHeadless
 
 		if preset.SkyFaces then
-			if preset.SkyName then
-				-- Exact same six textures as a built-in skybox: keep the readable name.
-				Effects.applySky(preset.SkyName)
-			else
-				Effects.applyCustomSky(preset.SkyFaces, "Preset Sky")
-			end
+			-- Match Joevan's setSkybox(preset.Key, preset.Skybox): always write the
+			-- six raw faces. SkyName is display metadata only.
+			Effects.applyCustomSky(preset.SkyFaces, preset.SkyName or "Preset Sky", {
+				StarCount = preset.StarCount,
+				CelestialBodiesShown = preset.CelestialBodiesShown,
+				SunTextureId = preset.SunTextureId,
+				MoonTextureId = preset.MoonTextureId,
+			})
 		elseif preset.Sky then
 			Effects.applySky(preset.Sky)
 		else
@@ -6421,10 +7140,77 @@ __modules["Effects"] = function()
 			Effects.recompute()
 		end)
 		if not applied then
-			warn("[ShaderVelard] preset '" .. tostring(name) .. "' failed: " .. tostring(applyError))
+			warn("[ShaderVelard] preset '" .. tostring(preset.Name) .. "' failed: " .. tostring(applyError))
 		end
 		notifyChanged()
 		setStatus("Applied preset: " .. preset.Name)
+		return true
+	end
+
+	function Effects.applyPreset(name)
+		local preset = Config.findPreset(name)
+		if not preset then
+			return
+		end
+		return Effects._applyPresetData(preset)
+	end
+
+	-- Convert a decoded Joevan share-code object into the remake's preset shape.
+	-- Joevan's encoder writes the active preset fields (Lighting, Material,
+	-- GlossyIntensity, Skybox, SSR, ...), not the remake's snapshot keys.
+	function Effects.applyJoevanPresetObject(source)
+		if type(source) ~= "table" then
+			return false, "Share code payload is not a preset table"
+		end
+		local preset = {
+			Key = source.Key or "Imported",
+			Name = source.Name or source.Key or "Imported Preset",
+			Desc = source.Desc,
+			AccentColor = source.AccentColor,
+			Material = source.Material,
+			Reflectance = source.Reflectance,
+			GlossyIntensity = source.GlossyIntensity,
+			DiscoColorizeLamps = source.DiscoColorizeLamps == true,
+			Look = {},
+			Toggles = {},
+			Sliders = {},
+			Dropdowns = {},
+		}
+		for _, key in ipairs({ "Lighting", "Atmosphere", "Bloom", "ColorCorrection", "DepthOfField", "SunRays" }) do
+			if type(source[key]) == "table" then
+				preset.Look[key] = source[key]
+			end
+		end
+		if type(source.Look) == "table" then
+			for key, value in pairs(source.Look) do
+				preset.Look[key] = value
+			end
+		end
+		if type(source.Toggles) == "table" then preset.Toggles = copy(source.Toggles) end
+		if type(source.Sliders) == "table" then preset.Sliders = copy(source.Sliders) end
+		if type(source.Dropdowns) == "table" then preset.Dropdowns = copy(source.Dropdowns) end
+		-- Map the Joevan boolean fields used by hand-written/spoofed codes.
+		if source.SSR == true then preset.Toggles.ssr = true end
+		if source.Rain == true then preset.Toggles.rain = true end
+		if source.AnimatedSkybox == true then preset.Toggles.skyAnimation = true end
+		if source.Chromatic == true then preset.Toggles.chromatic = true end
+		if source.FakeSSAO == true then preset.Toggles.fakeSSAO = true end
+		if source.ReShade == true then preset.Toggles.reShade = true end
+		if source.LensFlare == true then preset.Toggles.lensFlare = true end
+		if source.DiscoLamp == true then preset.Toggles.disco = true end
+		if source.DiscoMode then preset.Dropdowns.discoMode = source.DiscoMode end
+		if source.DiscoIntensity then preset.Sliders.discoIntensity = source.DiscoIntensity end
+		if source.DiscoSpeed then preset.Sliders.discoSpeed = source.DiscoSpeed end
+		if type(source.SkyFaces) == "table" then preset.SkyFaces = source.SkyFaces end
+		if source.SkyName then preset.SkyName = source.SkyName end
+		if type(source.Skybox) == "table" then
+			preset.SkyFaces = {}
+			for _, key in ipairs({ "Bk", "Dn", "Ft", "Lf", "Rt", "Up" }) do
+				preset.SkyFaces[key] = source.Skybox["Skybox" .. key] or source.Skybox[key]
+			end
+			preset.SkyName = source.ActiveSkyboxName
+		end
+		return Effects._applyPresetData(preset)
 	end
 
 	function Effects.resetAll()
@@ -6450,6 +7236,9 @@ __modules["Effects"] = function()
 			discoBloom = false,
 			discoAura = false,
 			skyAnimation = false,
+			-- P2 Smart Atmosphere (non-premium Joevan toggle, MAIN pc 9082-9096).
+			-- Default OFF so preset parity is unaffected.
+			smartAtmosphere = false,
 			bokeh = false,
 			motionBlur = false,
 			vhs = false,
@@ -6485,6 +7274,7 @@ __modules["Effects"] = function()
 		end
 
 		clearGlossy()
+		Effects._clearTextureDetail()
 		clearCelHighlights()
 		clearNeon()
 		clearDisco()
@@ -6536,6 +7326,14 @@ __modules["Effects"] = function()
 			end
 		end
 
+		-- ColorCorrection.Enabled is the one post property that is not part of the
+		-- preset Look tables (writeLook forces it on). Restore the game's original
+		-- value explicitly so a reset can never leave it stuck at true.
+		local ccEntry = posts.ColorCorrection
+		if ccEntry and not ccEntry.created and ccEntry.instance and ccEntry.props.Enabled ~= nil then
+			safeSet(ccEntry.instance, "Enabled", ccEntry.props.Enabled)
+		end
+
 		if skyInstance then
 			if skyWasCreated then
 				skyInstance:Destroy()
@@ -6556,6 +7354,7 @@ __modules["Effects"] = function()
 		state.base = copy(initialBase)
 		state.sliders = copy(initialSliders)
 		state.dropdowns = copy(initialDropdowns)
+		state.discoColorizeLamps = false
 		state.presetName = "None"
 		state.skyName = "Default"
 		state.skyIndex = 1
@@ -6667,13 +7466,7 @@ __modules["Effects"] = function()
 			Effects._character.updateFreecam(deltaTime)
 		end
 
-		if state.toggles.skyAnimation then
-			skyTimer = skyTimer + deltaTime
-			if skyTimer >= state.sliders.skySpeed then
-				skyTimer = 0
-				advanceSky()
-			end
-		end
+		Effects._tickSkyAnimation(deltaTime)
 
 		if state.toggles.korblox or state.toggles.headless then
 			cosmeticTimer = cosmeticTimer + deltaTime
@@ -6745,6 +7538,8 @@ __modules["Effects"] = function()
 							hue = 0.55 + math.sin(clock * 2 + index) * 0.05
 						elseif mode == "Strobe" then
 							hue = (index % 2 == 0) and 0 or 0.66
+						elseif mode == "Neon Cyberpunk" then
+							hue = (index % 2 == 0) and 0.5 or 0.85
 						else
 							hue = (clock * 0.18 * state.sliders.discoSpeed + index / 3) % 1
 						end
@@ -6754,6 +7549,8 @@ __modules["Effects"] = function()
 					end
 				end
 			end
+
+			Effects._colorizeDiscoLamps(intensity, mode)
 
 			if state.toggles.discoAura then
 				local character = player.Character
@@ -6779,8 +7576,10 @@ __modules["Effects"] = function()
 		if state.toggles.clouds then
 			local clouds = terrain:FindFirstChildOfClass("Clouds")
 			if clouds then
-				local speed = state.sliders.cloudSpeed
-				local cover = math.clamp(state.sliders.cloudCover + math.sin(clock * 0.07 * speed) * 0.12, 0.05, 1)
+					-- Joevan MovingClouds tick (FUNCTION #546 pc 32-54):
+				-- Cover = clamp(_cloudCover + sin(os.clock()*0.3)*0.04, 0.1, 0.95).
+				-- CloudSpeed drives the wind angle, not the cover amplitude/frequency.
+				local cover = math.clamp(state.sliders.cloudCover + math.sin(clock * 0.3) * 0.04, 0.1, 0.95)
 				safeSet(clouds, "Cover", cover)
 			end
 		end
@@ -8795,6 +9594,7 @@ __modules["UI"] = function()
 	addSlider(graphicsTab, "fogHaze", "Atmosphere Haze", 0, 10, 0.05)
 	addSlider(graphicsTab, "fogGlare", "Atmosphere Glare", 0, 5, 0.05)
 	addSlider(graphicsTab, "fogDecay", "Atmosphere Decay (grey)", 0, 255, 1)
+	addToggle(graphicsTab, "smartAtmosphere", "Smart Atmosphere", "Generates atmospheric fog and horizon gradients matching the sky.")
 
 	addSection(graphicsTab, "Post Processing")
 	addSlider(graphicsTab, "bloom", "Bloom Intensity", 0, 5, 0.05)
@@ -9331,6 +10131,7 @@ __modules["UI"] = function()
 	addSlider(advanceTab, "rainIntensity", "Rain Intensity", 0, 100, 1, "%")
 	addToggle(advanceTab, "clouds", "Clouds", "Terrain clouds with animated coverage.")
 	addSlider(advanceTab, "cloudCover", "Cloud Cover", 0, 1, 0.01)
+	addSlider(advanceTab, "cloudDensity", "Cloud Density", 0, 1, 0.01)
 	addSlider(advanceTab, "cloudSpeed", "Cloud Speed", 0, 20, 0.5)
 	addToggle(advanceTab, "lightning", "Sky Lightning", "Random brightness flashes.")
 	addSlider(advanceTab, "lightningFrequency", "Lightning Frequency", 0.2, 3, 0.05)
@@ -9355,7 +10156,7 @@ __modules["UI"] = function()
 	addToggle(advanceTab, "disco", "Disco Lights", "Moving colored point lights around the camera.")
 	addToggle(advanceTab, "discoBloom", "Disco Bloom Pulse", "Pulsing bloom synced to the disco beat.")
 	addToggle(advanceTab, "discoAura", "Personal Disco Aura", "Attach a colorful spotlight to your character.")
-	addDropdown(advanceTab, "discoMode", "Disco Mode", { "Rainbow Wave", "Warm Pulse", "Cool Pulse", "Strobe" }, Effects.state.dropdowns.discoMode, function(value)
+	addDropdown(advanceTab, "discoMode", "Disco Mode", { "Rainbow Wave", "Warm Pulse", "Cool Pulse", "Strobe", "Neon Cyberpunk" }, Effects.state.dropdowns.discoMode, function(value)
 		Effects.setDropdown("discoMode", value)
 	end)
 	addSlider(advanceTab, "discoIntensity", "Disco Intensity", 0, 6, 0.1)
