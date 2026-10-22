@@ -2805,6 +2805,18 @@ __modules["Effects"] = function()
 	local overlay = Instance.new("ScreenGui")
 	overlay.Name = "ShaderVelardOverlay"
 	overlay.IgnoreGuiInset = true
+	-- Mobile devices reserve a safe area for notches/cutouts. Without these,
+	-- full-screen shader frames (vignette, chromatic, letterbox, ReShade, VHS,
+	-- rain, snow) stop short of the physical screen edge and look like a border.
+	pcall(function()
+		overlay.ScreenInsets = Enum.ScreenInsets.None
+	end)
+	pcall(function()
+		overlay.ClipToDeviceSafeArea = false
+	end)
+	pcall(function()
+		overlay.SafeAreaCompatibility = Enum.SafeAreaCompatibility.FullscreenExtension
+	end)
 	overlay.ResetOnSpawn = false
 	overlay.DisplayOrder = 60
 	overlay.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
@@ -3635,6 +3647,25 @@ __modules["Effects"] = function()
 		return true
 	end
 
+	function Effects._isCharacterPart(part)
+		local node = part
+		while node do
+			if type(node) == "table" and type(node.IsA) == "function" then
+				local hit = false
+				pcall(function()
+					hit = (node:IsA("Model") and node:FindFirstChildOfClass("Humanoid") ~= nil)
+						or node:IsA("Accessory")
+						or node:IsA("Accoutrement")
+				end)
+				if hit then
+					return true
+				end
+			end
+			node = node.Parent
+		end
+		return false
+	end
+
 	local function collectGlossyPart(part, material, reflectance, origin, radius)
 		if glossySaved[part] then
 			Effects._glossyOverlayImpl.update(glossySaved[part], material, reflectance)
@@ -3645,23 +3676,8 @@ __modules["Effects"] = function()
 		end
 		-- Joevan's glossy pass only wraps the static world. Cloning the player or
 		-- another character created a translucent "box" around the avatar, so
-		-- character parts (including accessories) are never wrapped here.
-		local characterPart = false
-		local node = part
-		while node do
-			if type(node) == "table" and type(node.IsA) == "function" then
-				local isRig = false
-				pcall(function()
-					isRig = node:IsA("Model") and node:FindFirstChildOfClass("Humanoid") ~= nil
-				end)
-				if isRig then
-					characterPart = true
-					break
-				end
-			end
-			node = node.Parent
-		end
-		if characterPart then
+		-- character parts (including accessories/hats) are never wrapped here.
+		if Effects._isCharacterPart(part) then
 			return
 		end
 		local transparency = tonumber(part.Transparency) or 0
@@ -3726,6 +3742,28 @@ __modules["Effects"] = function()
 			clearGlossy()
 			restoreTerrain()
 			return
+		end
+
+		-- A character can stream in after the cache was built (or an accessory can
+		-- be added before its character model). Release any overlay that ended up
+		-- on a character so no translucent box is left around the head or body.
+		for part, props in pairs(glossySaved) do
+			if Effects._isCharacterPart(part) then
+				if props.overlay and props.overlay.Parent then
+					props.overlay:Destroy()
+				end
+				if part and part.Parent then
+					pcall(function()
+						part.Material = props.Material
+						part.Reflectance = props.Reflectance
+						part.Transparency = props.Transparency
+						if props.MaterialVariant ~= nil then
+							part.MaterialVariant = props.MaterialVariant
+						end
+					end)
+				end
+				glossySaved[part] = nil
+			end
 		end
 
 		local material, reflectance, origin = glossyPass()
@@ -5800,6 +5838,21 @@ __modules["Effects"] = function()
 			end
 		end)
 		pcall(applyCosmetics)
+		-- Remove Preset_Overlay clones left on the new character by an older run
+		-- (accessories can stream in after the initial Workspace sweep).
+		pcall(function()
+			local currentCharacter = player.Character
+			if currentCharacter then
+				for _, descendant in ipairs(currentCharacter:GetDescendants()) do
+					if descendant.Name == "Preset_Overlay" then
+						descendant:Destroy()
+					end
+				end
+			end
+		end)
+		-- Refresh the glossy pass a moment after spawn: some accessories are
+		-- parented in stages, so this removes any overlay created too early.
+		pcall(syncReflectionFloors)
 	end)
 
 	local function syncAllWorld()
