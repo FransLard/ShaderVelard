@@ -11,9 +11,150 @@ __     _______ _        _    ____  ____
 
 --]]
 
+
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local lp = Players.LocalPlayer
+local pg = lp:WaitForChild("PlayerGui")
+
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "ShaderVelardLoadingBar"
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.DisplayOrder = 999
+gui.Parent = pg
+
+local overlay = Instance.new("Frame")
+overlay.Size = UDim2.new(1, 0, 1, 0)
+overlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+overlay.BackgroundTransparency = 0.3
+overlay.BorderSizePixel = 0
+overlay.Parent = gui
+
+local box = Instance.new("Frame")
+box.AnchorPoint = Vector2.new(0.5, 0.5)
+box.Position = UDim2.new(0.5, 0, 0.5, 0)
+box.Size = UDim2.new(0, 460, 0, 150)
+box.BackgroundColor3 = Color3.fromRGB(14, 14, 14)
+box.BorderSizePixel = 0
+box.Parent = overlay
+Instance.new("UICorner", box).CornerRadius = UDim.new(0, 10)
+
+local stroke = Instance.new("UIStroke")
+stroke.Color = Color3.fromRGB(60, 60, 60)
+stroke.Thickness = 1
+stroke.Transparency = 0.2
+stroke.Parent = box
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -40, 0, 24)
+title.Position = UDim2.new(0, 20, 0, 20)
+title.BackgroundTransparency = 1
+title.Text = "SHADERVELARD"
+title.TextColor3 = Color3.fromRGB(245, 245, 245)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 18
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = box
+
+local divider = Instance.new("Frame")
+divider.Size = UDim2.new(1, -40, 0, 1)
+divider.Position = UDim2.new(0, 20, 0, 52)
+divider.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+divider.BorderSizePixel = 0
+divider.Parent = box
+
+local status = Instance.new("TextLabel")
+status.Size = UDim2.new(1, -40, 0, 16)
+status.Position = UDim2.new(0, 20, 0, 62)
+status.BackgroundTransparency = 1
+status.Text = "Memuat..."
+status.TextColor3 = Color3.fromRGB(160, 160, 160)
+status.Font = Enum.Font.Gotham
+status.TextSize = 12
+status.TextXAlignment = Enum.TextXAlignment.Left
+status.Parent = box
+
+local barBg = Instance.new("Frame")
+barBg.Size = UDim2.new(1, -40, 0, 8)
+barBg.Position = UDim2.new(0, 20, 0, 88)
+barBg.BackgroundColor3 = Color3.fromRGB(38, 38, 38)
+barBg.BorderSizePixel = 0
+barBg.ClipsDescendants = true
+barBg.Parent = box
+Instance.new("UICorner", barBg).CornerRadius = UDim.new(1, 0)
+
+local barFill = Instance.new("Frame")
+barFill.Size = UDim2.new(0, 0, 1, 0)
+barFill.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
+barFill.BorderSizePixel = 0
+barFill.Parent = barBg
+Instance.new("UICorner", barFill).CornerRadius = UDim.new(1, 0)
+
+local pct = Instance.new("TextLabel")
+pct.Size = UDim2.new(0, 100, 0, 16)
+pct.Position = UDim2.new(0, 20, 0, 104)
+pct.BackgroundTransparency = 1
+pct.Text = "0%"
+pct.TextColor3 = Color3.fromRGB(200, 200, 200)
+pct.Font = Enum.Font.GothamMedium
+pct.TextSize = 12
+pct.TextXAlignment = Enum.TextXAlignment.Left
+pct.Parent = box
+
+local brand = Instance.new("TextLabel")
+brand.Size = UDim2.new(0, 100, 0, 16)
+brand.Position = UDim2.new(1, -120, 0, 104)
+brand.BackgroundTransparency = 1
+brand.Text = "shadervelard"
+brand.TextColor3 = Color3.fromRGB(110, 110, 110)
+brand.Font = Enum.Font.Gotham
+brand.TextSize = 11
+brand.TextXAlignment = Enum.TextXAlignment.Right
+brand.Parent = box
+
+
+local DURATION = 5
+TweenService:Create(
+    barFill,
+    TweenInfo.new(DURATION, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+    { Size = UDim2.new(1, 0, 1, 0) }
+):Play()
+
+local t0 = tick()
+task.spawn(function()
+    while true do
+        local p = math.clamp(math.floor(((tick() - t0) / DURATION) * 100), 0, 100)
+        pct.Text = p .. "%"
+        if p >= 100 then break end
+        task.wait(0.03)
+    end
+end)
+
+task.wait(DURATION)
+pct.Text = "100%"
+status.Text = "Memuat script..."
+
+
+local fi = TweenInfo.new(0.25)
+TweenService:Create(overlay, fi, { BackgroundTransparency = 1 }):Play()
+TweenService:Create(box, fi, { BackgroundTransparency = 1 }):Play()
+TweenService:Create(stroke, fi, { Transparency = 1 }):Play()
+TweenService:Create(title, fi, { TextTransparency = 1 }):Play()
+TweenService:Create(divider, fi, { BackgroundTransparency = 1 }):Play()
+TweenService:Create(status, fi, { TextTransparency = 1 }):Play()
+TweenService:Create(barBg, fi, { BackgroundTransparency = 1 }):Play()
+TweenService:Create(pct, fi, { TextTransparency = 1 }):Play()
+TweenService:Create(brand, fi, { TextTransparency = 1 }):Play()
+task.wait(0.3)
+gui:Destroy()
+
+
 game:GetService("StarterGui"):SetCore("SendNotification",{
-	Title = "VelardShader", 
-	Text = "Please Wait", 
-	Icon = ""
+    Title = "VelardShader",
+    Text = "Please Wait",
+    Icon = ""
 })
+
 loadstring(game:HttpGet("https://shadervelard-auth.shadervelard.workers.dev/load"))()
