@@ -17,7 +17,6 @@ if _G.__SHADERVELARD then
 end
 _G.__SHADERVELARD = true
 
--- Guard tambahan pakai getgenv (lebih persisten antar loadstring)
 if typeof(getgenv) == "function" then
     local g = getgenv()
     if g.__SHADERVELARD_LOADED then
@@ -26,12 +25,13 @@ if typeof(getgenv) == "function" then
     g.__SHADERVELARD_LOADED = true
 end
 
-local latest = "https://raw.githubusercontent.com/FransLard/ShaderVelard/refs/heads/main/ShaderVelard.lua"
+local latest = "https://shadervelard-auth.shadervelard.workers.dev/load"
+
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
 local lp = Players.LocalPlayer
 
--- ==== SCREEN GUI ====
+-- ==== GUI ====
 local gui = Instance.new("ScreenGui")
 gui.Name = "ShaderVelardLoader"
 gui.ResetOnSpawn = false
@@ -172,16 +172,31 @@ end)
 task.wait(0.3)
 gui:Destroy()
 
--- ==== REDIRECT SEKALI (TANPA fallback auth!) ====
-local ok, err = pcall(function()
-    loadstring(game:HttpGet(latest))()
+-- ==== REDIRECT KE AUTH WORKER (dengan debug) ====
+warn("[SV] Memuat: " .. latest)
+
+local body, err = pcall(function()
+    return game:HttpGet(latest)
+end)
+
+if not body then
+    warn("[SV] HttpGet GAGAL: " .. tostring(err))
+    _G.__SHADERVELARD = false
+    if typeof(getgenv) == "function" then getgenv().__SHADERVELARD_LOADED = false end
+    return
+end
+
+warn("[SV] HttpGet OK, " .. #tostring(body) .. " byte")
+warn("[SV] Preview: " .. tostring(body):sub(1, 200))
+
+local ok, err2 = pcall(function()
+    loadstring(tostring(body))()
 end)
 
 if not ok then
-    warn("[ShaderVelard] Gagal load versi terbaru: " .. tostring(err))
-    -- reset guard supaya bisa retry manual
+    warn("[SV] Loadstring GAGAL: " .. tostring(err2))
     _G.__SHADERVELARD = false
-    if typeof(getgenv) == "function" then
-        getgenv().__SHADERVELARD_LOADED = false
-    end
+    if typeof(getgenv) == "function" then getgenv().__SHADERVELARD_LOADED = false end
+else
+    warn("[SV] Auth worker BERHASIL dijalankan")
 end
