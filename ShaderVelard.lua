@@ -6182,10 +6182,14 @@ __modules["Effects"] = function()
 
 	local function applyHeadlessHead(rig)
 		local head = rig:FindFirstChild("Head")
-		if not head or not head:IsA("BasePart") or head:IsA("MeshPart") then
-			return
+		if not head or not head:IsA("BasePart") then
+			return false
 		end
 
+		-- R6 heads are plain Parts with a SpecialMesh, so the "headless" mesh is
+		-- swapped in. R15 (and Rthro) heads are MeshParts with no SpecialMesh;
+		-- those must simply be hidden. The old code bailed out for MeshParts,
+		-- which is why Headless worked on R6 but never on R15.
 		local specialMesh = head:FindFirstChildOfClass("SpecialMesh")
 		if specialMesh then
 			if cosmeticCache.headMesh[specialMesh] == nil then
@@ -6200,9 +6204,10 @@ __modules["Effects"] = function()
 			setAttr(head, "ShaderVelardHeadTransparency", head.Transparency)
 		end
 		head.Transparency = 1
-
+		-- Some R15 games keep the face on a separate decal/texture instead of
+		-- baking it into the head mesh; hide those too.
 		for _, child in ipairs(head:GetChildren()) do
-			if child:IsA("Decal") then
+			if child:IsA("Decal") or child:IsA("Texture") then
 				if cosmeticCache.decalTransparency[child] == nil then
 					cosmeticCache.decalTransparency[child] = child.Transparency
 					setAttr(child, "ShaderVelardHeadlessDecal", child.Transparency)
@@ -6210,12 +6215,14 @@ __modules["Effects"] = function()
 				child.Transparency = 1
 			end
 		end
+
+		return true
 	end
 
 	local function clearHeadlessHead(rig)
 		local head = rig:FindFirstChild("Head")
 		if not head then
-			return
+			return false
 		end
 
 		local headTransparency = cosmeticCache.headTransparency[head]
@@ -6245,7 +6252,7 @@ __modules["Effects"] = function()
 		end
 
 		for _, child in ipairs(head:GetChildren()) do
-			if child:IsA("Decal") then
+			if child:IsA("Decal") or child:IsA("Texture") then
 				local decalTransparency = cosmeticCache.decalTransparency[child]
 				if decalTransparency == nil then
 					local stored = getAttr(child, "ShaderVelardHeadlessDecal")
@@ -6260,6 +6267,8 @@ __modules["Effects"] = function()
 				end
 			end
 		end
+
+		return true
 	end
 
 	local function applyKorblox()
@@ -6288,15 +6297,25 @@ __modules["Effects"] = function()
 	end
 
 	local function applyHeadless()
+		local applied = 0
 		for _, rig in ipairs(collectCosmeticRigs()) do
-			pcall(applyHeadlessHead, rig)
+			local ok, result = pcall(applyHeadlessHead, rig)
+			if ok and result then
+				applied = applied + 1
+			end
 		end
+		return applied
 	end
 
 	local function clearHeadless()
+		local restored = 0
 		for _, rig in ipairs(collectCosmeticRigs()) do
-			pcall(clearHeadlessHead, rig)
+			local ok, result = pcall(clearHeadlessHead, rig)
+			if ok and result then
+				restored = restored + 1
+			end
 		end
+		return restored
 	end
 
 	local function applyCosmetics()
@@ -8975,11 +8994,16 @@ __modules["UI"] = function()
 	local showConfirm
 	local showNotification
 
+	local applyMouseBehavior
+
 	function setWindowVisible(visible)
 		window.Visible = visible
 		if floating then
 			floating.Visible = (not visible) and interfaceState.floatingButton
 		end
+		-- Drive the cursor state from the same function that shows/hides the
+		-- window instead of relying on the Visible property signal.
+		applyMouseBehavior(visible)
 	end
 
 	local function applyIconStyle()
@@ -9009,26 +9033,51 @@ __modules["UI"] = function()
 	end
 
 	-- Keep gameplay camera mouse-look working: the cursor is released only while
-	-- the menu is open. When the menu closes the mouse is locked back to the game
-	-- so the camera turns with mouse movement instead of requiring right-click.
-	local originalMouseState = {
-		behavior = UserInputService.MouseBehavior,
-		icon = UserInputService.MouseIconEnabled,
-	}
+	-- the menu is open. When the menu closes the game's own mouse state (captured
+	-- the first time the menu opened) is restored. The old code forced
+	-- MouseBehavior = LockCenter on close, which left the cursor pinned to the
+	-- middle of the screen with MouseIconEnabled = true, so the player could not
+	-- move the cursor or click anything until they rejoined.
+	local mouseSnapshot = nil
 
-	local function applyMouseBehavior(menuOpen)
+	local function rememberMouseState()
+		if isMobile or mouseSnapshot ~= nil then
+			return
+		end
+		pcall(function()
+			mouseSnapshot = {
+				behavior = UserInputService.MouseBehavior,
+				icon = UserInputService.MouseIconEnabled,
+			}
+		end)
+	end
+
+	applyMouseBehavior = function(menuOpen)
 		if isMobile then
 			return
 		end
-		local unlocked = menuOpen == true
+		rememberMouseState()
+		if menuOpen == true then
+			-- Menu is open: release the cursor so the UI can be clicked.
+			pcall(function()
+				UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+				UserInputService.MouseIconEnabled = true
+			end)
+			return
+		end
+		-- Menu closed: restore whatever the game used before we touched it. A
+		-- LockCenter left behind by an older build is treated as Default so a
+		-- stale session can never trap the cursor in the middle again.
+		local behavior = mouseSnapshot and mouseSnapshot.behavior or Enum.MouseBehavior.Default
+		if behavior == Enum.MouseBehavior.LockCenter then
+			behavior = Enum.MouseBehavior.Default
+		end
+		local icon = mouseSnapshot == nil or mouseSnapshot.icon ~= false
 		pcall(function()
-			UserInputService.MouseBehavior = unlocked and Enum.MouseBehavior.Default or Enum.MouseBehavior.LockCenter
+			UserInputService.MouseBehavior = behavior
+			UserInputService.MouseIconEnabled = icon
 		end)
-		pcall(function()
-			-- Keep the cursor visible so it does not seem to vanish when the menu
-			-- closes. Camera mouse-look still works because the pointer is locked.
-			UserInputService.MouseIconEnabled = true
-		end)
+		mouseSnapshot = nil
 	end
 
 	local function addSection(parent, text)
@@ -10911,21 +10960,6 @@ __modules["UI"] = function()
 		successMessage = "Headless is now permanently enabled. Rejoin the game to disable it.",
 	})
 
-	addSection(characterTab, "Angel Aura")
-	addToggle(characterTab, "angelAura", "Angel Aura", "Glowing particle aura around your character.")
-	addDropdown(characterTab, "auraColor", "Aura Color", { "Gold", "White", "Cyan", "Pink", "Purple", "Red", "Green", "Blue", "Rainbow" }, Effects.state.dropdowns.auraColor, function(value)
-		Effects.setDropdown("auraColor", value)
-	end)
-	addSlider(characterTab, "auraSize", "Aura Size", 0.5, 10, 0.1)
-	addSlider(characterTab, "auraSpeed", "Aura Speed", 0.2, 3, 0.05)
-
-	addSection(characterTab, "Motion Trail")
-	addToggle(characterTab, "motionTrail", "Motion Trail", "Light ribbon following your character.")
-	addDropdown(characterTab, "trailColor", "Trail Color", { "Cyan", "White", "Gold", "Pink", "Purple", "Red", "Green", "Blue", "Rainbow" }, Effects.state.dropdowns.trailColor, function(value)
-		Effects.setDropdown("trailColor", value)
-	end)
-	addSlider(characterTab, "trailLifetime", "Trail Lifetime", 0.1, 3, 0.05, "s")
-
 	-- ============================================================
 	-- VISUAL ACCESSORY CATALOG (ported from DZ Delux Zephyr)
 	-- ============================================================
@@ -11602,6 +11636,21 @@ __modules["UI"] = function()
 		rebuildCards()
 	end
 
+	addSection(characterTab, "Angel Aura")
+	addToggle(characterTab, "angelAura", "Angel Aura", "Glowing particle aura around your character.")
+	addDropdown(characterTab, "auraColor", "Aura Color", { "Gold", "White", "Cyan", "Pink", "Purple", "Red", "Green", "Blue", "Rainbow" }, Effects.state.dropdowns.auraColor, function(value)
+		Effects.setDropdown("auraColor", value)
+	end)
+	addSlider(characterTab, "auraSize", "Aura Size", 0.5, 10, 0.1)
+	addSlider(characterTab, "auraSpeed", "Aura Speed", 0.2, 3, 0.05)
+
+	addSection(characterTab, "Motion Trail")
+	addToggle(characterTab, "motionTrail", "Motion Trail", "Light ribbon following your character.")
+	addDropdown(characterTab, "trailColor", "Trail Color", { "Cyan", "White", "Gold", "Pink", "Purple", "Red", "Green", "Blue", "Rainbow" }, Effects.state.dropdowns.trailColor, function(value)
+		Effects.setDropdown("trailColor", value)
+	end)
+	addSlider(characterTab, "trailLifetime", "Trail Lifetime", 0.1, 3, 0.05, "s")
+
 	addSection(characterTab, "Accessory Visibility")
 	local function accessoryOptions()
 		local names = { "All Accessories" }
@@ -11984,16 +12033,8 @@ __modules["UI"] = function()
 	-- Re-read the real Effects state whenever the window is reopened, so the
 	-- toggles cannot stay visually off while the effect is actually running.
 	window:GetPropertyChangedSignal("Visible"):Connect(function()
-		if window.Visible then
-			-- Menu is open: release the cursor so the UI can be clicked.
-			applyMouseBehavior(true)
-			if not UI._destroyed then
-				refresh()
-			end
-		else
-			-- Back to gameplay: lock the mouse so the camera follows mouse
-			-- movement without needing a right-click.
-			applyMouseBehavior(false)
+		if window.Visible and not UI._destroyed then
+			refresh()
 		end
 	end)
 
@@ -12041,8 +12082,9 @@ __modules["UI"] = function()
 		Effects.onNotify = nil
 		Effects.onSkyChanged = nil
 		pcall(function()
-			UserInputService.MouseBehavior = originalMouseState.behavior
-			UserInputService.MouseIconEnabled = originalMouseState.icon
+			if mouseSnapshot ~= nil then
+				applyMouseBehavior(false)
+			end
 		end)
 		if hudConnection then
 			hudConnection:Disconnect()
@@ -12058,7 +12100,6 @@ __modules["UI"] = function()
 	applyIconStyle()
 	applyGuiStyle()
 	setWindowVisible(true)
-	applyMouseBehavior(true)
 	statusLabel.Text = "Ready - client-side only, no key required"
 	refresh()
 	if isMobile then
