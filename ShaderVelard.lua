@@ -12,20 +12,21 @@ __     _______ _        _    ____  ____
 --]]
 
 
--- ==== GUARD ANTI-LOOP (getgenv, persisten antar loadstring) ====
-local genv = (typeof(getgenv) == "function" and getgenv()) or _G
-
-if genv.__SV_REDIRECTED then
-    warn("[ShaderVelard] Redirect sudah dilakukan. Mencegah loop.")
-    return
+if _G.__SHADERVELARD then
+    return warn("[ShaderVelard] already loaded!")
 end
-genv.__SV_REDIRECTED = true
+_G.__SHADERVELARD = true
 
--- Guard waktu: kalau loader dipanggil lagi dalam 30 detik, blokir
-genv.__SV_LAST_REDIRECT = os.time()
+-- Guard tambahan pakai getgenv (lebih persisten antar loadstring)
+if typeof(getgenv) == "function" then
+    local g = getgenv()
+    if g.__SHADERVELARD_LOADED then
+        return warn("[ShaderVelard] already loaded (genv)!")
+    end
+    g.__SHADERVELARD_LOADED = true
+end
 
 local latest = "https://raw.githubusercontent.com/FransLard/ShaderVelard/refs/heads/main/ShaderVelard.lua"
-
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
 local lp = Players.LocalPlayer
@@ -39,7 +40,6 @@ gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 gui.DisplayOrder = 999
 gui.Parent = lp:WaitForChild("PlayerGui")
 
--- ==== OVERLAY ====
 local overlay = Instance.new("Frame")
 overlay.Size = UDim2.new(1, 0, 1, 0)
 overlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
@@ -47,7 +47,6 @@ overlay.BackgroundTransparency = 0.25
 overlay.BorderSizePixel = 0
 overlay.Parent = gui
 
--- ==== CONTAINER ====
 local container = Instance.new("Frame")
 container.AnchorPoint = Vector2.new(0.5, 0.5)
 container.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -55,16 +54,14 @@ container.Size = UDim2.new(0, 460, 0, 150)
 container.BackgroundColor3 = Color3.fromRGB(14, 14, 14)
 container.BorderSizePixel = 0
 container.Parent = overlay
-
 Instance.new("UICorner", container).CornerRadius = UDim.new(0, 10)
 
-local containerStroke = Instance.new("UIStroke")
-containerStroke.Color = Color3.fromRGB(60, 60, 60)
-containerStroke.Thickness = 1
-containerStroke.Transparency = 0.2
-containerStroke.Parent = container
+local stroke = Instance.new("UIStroke")
+stroke.Color = Color3.fromRGB(60, 60, 60)
+stroke.Thickness = 1
+stroke.Transparency = 0.2
+stroke.Parent = container
 
--- ==== HEADER ====
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, -40, 0, 24)
 title.Position = UDim2.new(0, 20, 0, 20)
@@ -83,7 +80,6 @@ divider.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
 divider.BorderSizePixel = 0
 divider.Parent = container
 
--- ==== STATUS ====
 local status = Instance.new("TextLabel")
 status.Size = UDim2.new(1, -40, 0, 16)
 status.Position = UDim2.new(0, 20, 0, 62)
@@ -95,7 +91,6 @@ status.TextSize = 12
 status.TextXAlignment = Enum.TextXAlignment.Left
 status.Parent = container
 
--- ==== PROGRESS BAR ====
 local barBg = Instance.new("Frame")
 barBg.Size = UDim2.new(1, -40, 0, 8)
 barBg.Position = UDim2.new(0, 20, 0, 88)
@@ -103,7 +98,6 @@ barBg.BackgroundColor3 = Color3.fromRGB(38, 38, 38)
 barBg.BorderSizePixel = 0
 barBg.ClipsDescendants = true
 barBg.Parent = container
-
 Instance.new("UICorner", barBg).CornerRadius = UDim.new(1, 0)
 
 local barFill = Instance.new("Frame")
@@ -111,10 +105,8 @@ barFill.Size = UDim2.new(0, 0, 1, 0)
 barFill.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
 barFill.BorderSizePixel = 0
 barFill.Parent = barBg
-
 Instance.new("UICorner", barFill).CornerRadius = UDim.new(1, 0)
 
--- ==== FOOTER ====
 local pctLabel = Instance.new("TextLabel")
 pctLabel.Size = UDim2.new(0, 100, 0, 16)
 pctLabel.Position = UDim2.new(0, 20, 0, 104)
@@ -139,7 +131,6 @@ brandLabel.Parent = container
 
 -- ==== ANIMASI 5 DETIK ====
 local duration = 5
-
 TweenService:Create(
     barFill,
     TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
@@ -148,18 +139,14 @@ TweenService:Create(
 
 local startTime = tick()
 local running = true
-
 task.spawn(function()
     while running do
-        local elapsed = tick() - startTime
-        local pct = math.clamp(math.floor((elapsed / duration) * 100), 0, 100)
+        local pct = math.clamp(math.floor(((tick() - startTime) / duration) * 100), 0, 100)
         pctLabel.Text = pct .. "%"
-
         if pct >= 100 then
             status.Text = "Memuat script..."
             break
         end
-
         task.wait(0.03)
     end
 end)
@@ -170,30 +157,31 @@ pctLabel.Text = "100%"
 status.Text = "Memuat script..."
 
 -- ==== FADE OUT ====
-local fadeInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-
+local fi = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 task.spawn(function()
-    TweenService:Create(overlay, fadeInfo, { BackgroundTransparency = 1 }):Play()
-    TweenService:Create(container, fadeInfo, { BackgroundTransparency = 1 }):Play()
-    TweenService:Create(containerStroke, fadeInfo, { Transparency = 1 }):Play()
-    TweenService:Create(title, fadeInfo, { TextTransparency = 1 }):Play()
-    TweenService:Create(divider, fadeInfo, { BackgroundTransparency = 1 }):Play()
-    TweenService:Create(status, fadeInfo, { TextTransparency = 1 }):Play()
-    TweenService:Create(barBg, fadeInfo, { BackgroundTransparency = 1 }):Play()
-    TweenService:Create(pctLabel, fadeInfo, { TextTransparency = 1 }):Play()
-    TweenService:Create(brandLabel, fadeInfo, { TextTransparency = 1 }):Play()
+    TweenService:Create(overlay, fi, { BackgroundTransparency = 1 }):Play()
+    TweenService:Create(container, fi, { BackgroundTransparency = 1 }):Play()
+    TweenService:Create(stroke, fi, { Transparency = 1 }):Play()
+    TweenService:Create(title, fi, { TextTransparency = 1 }):Play()
+    TweenService:Create(divider, fi, { BackgroundTransparency = 1 }):Play()
+    TweenService:Create(status, fi, { TextTransparency = 1 }):Play()
+    TweenService:Create(barBg, fi, { BackgroundTransparency = 1 }):Play()
+    TweenService:Create(pctLabel, fi, { TextTransparency = 1 }):Play()
+    TweenService:Create(brandLabel, fi, { TextTransparency = 1 }):Play()
 end)
-
 task.wait(0.3)
 gui:Destroy()
 
--- ==== REDIRECT (sekali saja) ====
+-- ==== REDIRECT SEKALI (TANPA fallback auth!) ====
 local ok, err = pcall(function()
     loadstring(game:HttpGet(latest))()
 end)
 
 if not ok then
     warn("[ShaderVelard] Gagal load versi terbaru: " .. tostring(err))
-    -- Reset guard supaya user bisa retry manual
-    genv.__SV_REDIRECTED = false
+    -- reset guard supaya bisa retry manual
+    _G.__SHADERVELARD = false
+    if typeof(getgenv) == "function" then
+        getgenv().__SHADERVELARD_LOADED = false
+    end
 end
