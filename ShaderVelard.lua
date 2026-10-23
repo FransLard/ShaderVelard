@@ -4861,6 +4861,44 @@ __modules["Effects"] = function()
 		return character:FindFirstChildWhichIsA("BasePart", true)
 	end
 
+	-- Mirrors the original menu's character lookup (_bg in character.txt): the
+	-- game may keep the visible rig in Workspace.Rigs / Workspace.Players /
+	-- Workspace.PlayerCache / Workspace.Game.Players instead of
+	-- player.Character. Those rigs are preferred there because they always expose
+	-- a Head, which is what makes the original menu attach accessories instantly.
+	local function getAccessoryCharacter()
+		local list = {}
+		local seen = {}
+		local function add(model)
+			if model
+				and not seen[model]
+				and model:IsA("Model")
+				and model.Parent
+				and model:FindFirstChild("Head") then
+				seen[model] = true
+				list[#list + 1] = model
+			end
+		end
+		local function addContainer(container)
+			if not container then
+				return
+			end
+			for _, child in ipairs(container:GetChildren()) do
+				if child.Name == player.Name then
+					add(child)
+				end
+			end
+		end
+		addContainer(workspace:FindFirstChild("Rigs"))
+		addContainer(workspace:FindFirstChild("Players"))
+		addContainer(workspace:FindFirstChild("PlayerCache"))
+		local gameFolder = workspace:FindFirstChild("Game")
+		addContainer(gameFolder and gameFolder:FindFirstChild("Players"))
+		add(player.Character)
+		add(workspace:FindFirstChild(player.Name))
+		return list[1] or player.Character
+	end
+
 	local function waitForCharacterHead(timeout)
 		local deadline = os.clock() + (timeout or 6)
 		repeat
@@ -5486,7 +5524,7 @@ __modules["Effects"] = function()
 		if item.tmpl then
 			return true
 		end
-		if item.failedAt and tick() - item.failedAt < 8 then
+		if item.failedAt and tick() - item.failedAt < 0.5 then
 			return false
 		end
 		local template = accessoryLoadTemplate(item.id)
@@ -5593,6 +5631,7 @@ __modules["Effects"] = function()
 		local model = Instance.new("Model")
 		model.Name = "SV_Accessory_" .. tostring(item.id)
 		handle.Parent = model
+		model.Parent = parent or character
 
 		local targetCFrame = part0.CFrame * c0 * c1:Inverse()
 		handle.CFrame = targetCFrame
@@ -5600,10 +5639,6 @@ __modules["Effects"] = function()
 			handle.Anchored = true
 		else
 			handle.Anchored = false
-			-- Build and configure the Weld while the model is still outside the
-			-- DataModel, then parent it. The joint is then enabled with its final
-			-- C0/C1 on the very first physics step, so the handle never has a frame
-			-- where it is unanchored and unwelded (which used to let it drift).
 			local weld = Instance.new("Weld")
 			weld.Name = "SV_AccessoryWeld"
 			weld.Part0 = part0
@@ -5612,7 +5647,6 @@ __modules["Effects"] = function()
 			weld.C1 = c1
 			weld.Parent = handle
 		end
-		model.Parent = parent or character
 		return model, part0, handleAttachment ~= nil
 	end
 
@@ -5621,7 +5655,7 @@ __modules["Effects"] = function()
 		if not item.worn then
 			return false
 		end
-		local character = getCharacter()
+		local character = getAccessoryCharacter()
 		if not character or not findHead(character) then
 			return false
 		end
@@ -5634,12 +5668,13 @@ __modules["Effects"] = function()
 		end
 		item.model = model
 		item.part0 = part0
+		item.character = character
 		item.usedAttachment = usedAttachment == true
 		return true
 	end
 
 	local function accessoryRefreshAll()
-		local character = getCharacter()
+		local character = getAccessoryCharacter()
 		if not character or not findHead(character) then
 			return false
 		end
@@ -5826,34 +5861,39 @@ __modules["Effects"] = function()
 		end
 		item.busy = true
 		task.spawn(function()
+			-- Load immediately and retry quickly if the asset request is rate
+			-- limited. The old 8 second failure cooldown made items look like they
+			-- did nothing when clicked twice in a row.
+			local loadDeadline = os.clock() + 10
 			local loaded = accessoryEnsureTemplate(item)
+			while not loaded and os.clock() < loadDeadline do
+				task.wait(0.15)
+				loaded = accessoryEnsureTemplate(item)
+			end
 			item.busy = false
 			if not loaded then
 				callback(false, "Failed to load " .. item.name .. " (not an accessory / unavailable).", item.id)
 				return
 			end
-			-- Wait for the avatar to finish loading instead of failing on the first
-			-- frame. Evade rebuilds the character in stages, so the Head often
-			-- appears a moment after the click.
-			local character = waitForCharacterHead(8)
 			item.worn = true
-			if character and accessoryAttach(item) then
+			-- Attach on the very same tick. No blocking wait for the avatar: the
+			-- original menu mounts the moment the head exists, so if it is not
+			-- there yet we retry every 100ms in the background instead of making
+			-- the user wait 8 seconds.
+			if accessoryAttach(item) then
 				callback(true, "Equipped: " .. item.name, item.id, true)
-			else
-				-- Keep the item marked as worn and poll briefly for the avatar.
-				-- The CharacterAdded handler and the periodic accessory refresh
-				-- also attach it, whichever happens first.
-				task.spawn(function()
-					local deadline = os.clock() + 20
-					while os.clock() < deadline and item.worn do
-						task.wait(0.5)
-						if getCharacter() and accessoryAttach(item) then
-							return
-						end
-					end
-				end)
-				callback(true, "Queued " .. item.name .. " - it will appear when your character finishes loading.", item.id, true)
+				return
 			end
+			callback(true, "Equipped: " .. item.name, item.id, true)
+			task.spawn(function()
+				local deadline = os.clock() + 30
+				while os.clock() < deadline and item.worn do
+					task.wait(0.1)
+					if accessoryAttach(item) then
+						return
+					end
+				end
+			end)
 		end)
 		return true
 	end
@@ -5962,7 +6002,7 @@ __modules["Effects"] = function()
 		refreshCatalogAccessories = Effects.refreshCatalogAccessories,
 		clearCatalogAccessories = Effects.clearCatalogAccessories,
 		reanchorAccessories = function()
-			local character = getCharacter()
+			local character = getAccessoryCharacter()
 			local head = findHead(character)
 			if not character or not head then
 				return
@@ -5972,11 +6012,13 @@ __modules["Effects"] = function()
 				if item and item.worn then
 					local handle = item.model and item.model:FindFirstChild("Handle")
 					local weld = handle and handle:FindFirstChild("SV_AccessoryWeld")
-					-- Anything still welded to the torso (older builds did that) or
-					-- missing its joint gets rebuilt on the current head.
+					-- Anything still welded to the torso (older builds did that),
+					-- mounted on a stale rig or missing its joint gets rebuilt on
+					-- the current head.
 					local needsRebuild = weld == nil
 						or weld.Part0 ~= head
 						or item.part0 ~= head
+						or item.character ~= character
 						or (item.usedAttachment ~= true and accessoryHasHeadMount(item, head))
 					if needsRebuild then
 						accessoryAttach(item)
