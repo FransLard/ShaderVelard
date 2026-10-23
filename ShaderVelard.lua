@@ -8879,16 +8879,16 @@ __modules["UI"] = function()
 	end
 
 	local isMobile = detectMobile()
-	local HEADER_H = isMobile and 40 or 46
-	local TABBAR_H = 38
-	local SIDEBAR_W = isMobile and 0 or 176
-	local STATUS_H = isMobile and 0 or 28
+	local HEADER_H = isMobile and 42 or 46
+	local SIDEBAR_W = isMobile and 108 or 176
+	local STATUS_H = isMobile and 24 or 28
 	local EDGE = isMobile and 8 or 12
-	local HEADER_BTN_Y = isMobile and 7 or 10
-	local TITLE_Y = isMobile and 8 or 11
+	local HEADER_BTN_Y = isMobile and 8 or 10
+	local TITLE_Y = isMobile and 9 or 11
 	local TITLE_SIZE = isMobile and 16 or 18
-	local VERSION_Y = isMobile and 24 or 28
+	local VERSION_Y = isMobile and 25 or 28
 	local VERSION_SIZE = isMobile and 9 or 10
+	local DEFAULT_MOBILE_SCALE = 0.9
 
 	local UI = {}
 	local selectTab
@@ -9030,7 +9030,7 @@ __modules["UI"] = function()
 
 	local window = make("Frame", {
 		Name = "Window",
-		Size = isMobile and UDim2.fromScale(0.82, 0.72) or UDim2.fromOffset(780, 580),
+		Size = isMobile and UDim2.fromScale(0.92, 0.86) or UDim2.fromOffset(780, 580),
 		Position = UDim2.fromScale(0.5, 0.5),
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		BackgroundColor3 = theme.Bg,
@@ -9132,78 +9132,48 @@ __modules["UI"] = function()
 	}, header)
 	addCorner(minimizeButton, 8)
 
-	local sidebar
-	local tabList
-	local tabListHorizontal = false
-	if isMobile then
-		local tabBar = make("Frame", {
-			Name = "TabBar",
-			Size = UDim2.new(1, 0, 0, TABBAR_H),
-			Position = UDim2.fromOffset(0, HEADER_H),
-			BackgroundColor3 = theme.BgSoft,
-			BorderSizePixel = 0,
-			ZIndex = 3,
-		}, window)
-		make("Frame", {
-			Name = "TabBarDivider",
-			Size = UDim2.new(1, 0, 0, 1),
-			Position = UDim2.new(0, 0, 1, -1),
-			BackgroundColor3 = theme.Stroke,
-			BorderSizePixel = 0,
-			ZIndex = 3,
-		}, tabBar)
+	local sidebar = make("Frame", {
+		Name = "Sidebar",
+		Size = UDim2.new(0, SIDEBAR_W, 1, -(HEADER_H + STATUS_H)),
+		Position = UDim2.fromOffset(0, HEADER_H),
+		BackgroundColor3 = theme.BgSoft,
+		BorderSizePixel = 0,
+		ZIndex = 3,
+	}, window)
+	make("Frame", {
+		Name = "Divider",
+		Size = UDim2.new(0, 1, 1, 0),
+		Position = UDim2.new(1, -1, 0, 0),
+		BackgroundColor3 = theme.Stroke,
+		BorderSizePixel = 0,
+		ZIndex = 3,
+	}, sidebar)
 
-		tabList = make("ScrollingFrame", {
-			Name = "TabList",
-			Size = UDim2.new(1, -8, 1, -8),
-			Position = UDim2.fromOffset(4, 4),
-			BackgroundTransparency = 1,
-			BorderSizePixel = 0,
-			ScrollBarThickness = 0,
-			ScrollingDirection = Enum.ScrollingDirection.X,
-			CanvasSize = UDim2.new(),
-			AutomaticCanvasSize = Enum.AutomaticSize.X,
-			ZIndex = 4,
-		}, tabBar)
-		tabListHorizontal = true
-	else
-		sidebar = make("Frame", {
-			Name = "Sidebar",
-			Size = UDim2.new(0, SIDEBAR_W, 1, -(HEADER_H + STATUS_H)),
-			Position = UDim2.fromOffset(0, HEADER_H),
-			BackgroundColor3 = theme.BgSoft,
-			BorderSizePixel = 0,
-			ZIndex = 3,
-		}, window)
-		make("Frame", {
-			Name = "Divider",
-			Size = UDim2.new(0, 1, 1, 0),
-			Position = UDim2.new(1, -1, 0, 0),
-			BackgroundColor3 = theme.Stroke,
-			BorderSizePixel = 0,
-			ZIndex = 3,
-		}, sidebar)
-
-		tabList = make("Frame", {
-			Name = "TabList",
-			Size = UDim2.new(1, -16, 1, -16),
-			Position = UDim2.fromOffset(8, 8),
-			BackgroundTransparency = 1,
-			ZIndex = 4,
-		}, sidebar)
-	end
+	local tabList = make("ScrollingFrame", {
+		Name = "TabList",
+		Size = UDim2.new(1, -12, 1, -16),
+		Position = UDim2.fromOffset(6, 8),
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		ScrollBarThickness = 2,
+		ScrollBarImageColor3 = theme.Muted,
+		ScrollBarImageTransparency = 0.4,
+		CanvasSize = UDim2.new(),
+		AutomaticCanvasSize = Enum.AutomaticSize.Y,
+		ScrollingDirection = Enum.ScrollingDirection.Y,
+		ZIndex = 4,
+	}, sidebar)
 
 	local tabLayout = Instance.new("UIListLayout")
-	tabLayout.Padding = UDim.new(0, isMobile and 6 or 5)
+	tabLayout.Padding = UDim.new(0, isMobile and 4 or 5)
 	tabLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	tabLayout.FillDirection = tabListHorizontal and Enum.FillDirection.Horizontal or Enum.FillDirection.Vertical
-	tabLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+	tabLayout.FillDirection = Enum.FillDirection.Vertical
 	tabLayout.Parent = tabList
 
-	local contentTop = isMobile and (HEADER_H + TABBAR_H) or HEADER_H
+	local contentTop = HEADER_H
 	local contentArea = make("Frame", {
 		Name = "Content",
-		Size = isMobile and UDim2.new(1, 0, 1, -(HEADER_H + TABBAR_H)) or UDim2.new(1, -SIDEBAR_W, 1, -(HEADER_H + STATUS_H)),
+		Size = UDim2.new(1, -SIDEBAR_W, 1, -(HEADER_H + STATUS_H)),
 		Position = UDim2.fromOffset(SIDEBAR_W, contentTop),
 		BackgroundTransparency = 1,
 		ZIndex = 3,
@@ -9215,7 +9185,6 @@ __modules["UI"] = function()
 		Position = UDim2.new(0, 0, 1, -STATUS_H),
 		BackgroundColor3 = theme.BgSoft,
 		BorderSizePixel = 0,
-		Visible = not isMobile,
 		ZIndex = 3,
 	}, window)
 	make("Frame", {
@@ -9230,7 +9199,7 @@ __modules["UI"] = function()
 	local statusDot = make("Frame", {
 		Name = "StatusDot",
 		Size = UDim2.fromOffset(6, 6),
-		Position = UDim2.fromOffset(14, 11),
+		Position = UDim2.fromOffset(14, (STATUS_H - 6) / 2),
 		BackgroundColor3 = theme.Success,
 		BorderSizePixel = 0,
 		ZIndex = 4,
@@ -9244,8 +9213,9 @@ __modules["UI"] = function()
 		TextSize = 10,
 		TextColor3 = theme.SubText,
 		TextXAlignment = Enum.TextXAlignment.Left,
+		TextTruncate = Enum.TextTruncate.AtEnd,
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(28, 6),
+		Position = UDim2.fromOffset(28, (STATUS_H - 16) / 2),
 		Size = UDim2.new(1, -180, 0, 16),
 		ZIndex = 4,
 	}, statusBar)
@@ -9257,8 +9227,9 @@ __modules["UI"] = function()
 		TextSize = 10,
 		TextColor3 = theme.Accent,
 		TextXAlignment = Enum.TextXAlignment.Right,
+		TextTruncate = Enum.TextTruncate.AtEnd,
 		BackgroundTransparency = 1,
-		Position = UDim2.new(1, -150, 0, 6),
+		Position = UDim2.new(1, -150, 0, (STATUS_H - 16) / 2),
 		Size = UDim2.fromOffset(136, 16),
 		ZIndex = 4,
 	}, statusBar)
@@ -9273,7 +9244,7 @@ __modules["UI"] = function()
 		iconOpacity = 1,
 		iconSize = 1,
 		guiOpacity = 1,
-		uiScale = 1,
+		uiScale = isMobile and DEFAULT_MOBILE_SCALE or 1,
 		hud = false,
 		keybinds = {
 			toggleUI = Enum.KeyCode.V,
@@ -9334,9 +9305,9 @@ __modules["UI"] = function()
 			return
 		end
 
-		local floatSize = math.max(28, math.floor(56 * scale + 0.5))
+		local floatSize = math.max(28, math.floor((isMobile and 46 or 56) * scale + 0.5))
 		floating.Size = UDim2.fromOffset(floatSize, floatSize)
-		floating.TextSize = math.max(12, math.floor(20 * scale + 0.5))
+		floating.TextSize = math.max(12, math.floor((isMobile and 17 or 20) * scale + 0.5))
 		floating.BackgroundTransparency = 1 - opacity
 		floating.TextTransparency = 1 - opacity
 		floatingCorner.CornerRadius = UDim.new(0, math.max(6, math.floor(12 * scale + 0.5)))
@@ -10396,46 +10367,33 @@ __modules["UI"] = function()
 			Name = "Tab_" .. name,
 			Text = label,
 			Font = fonts.Bold,
-			TextSize = 11,
+			TextSize = isMobile and 10 or 11,
 			TextColor3 = theme.SubText,
-			TextXAlignment = isMobile and Enum.TextXAlignment.Center or Enum.TextXAlignment.Left,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			TextTruncate = Enum.TextTruncate.AtEnd,
 			BackgroundColor3 = theme.BgSoft,
 			AutoButtonColor = false,
-			Size = isMobile and UDim2.fromOffset(0, 30) or UDim2.new(1, 0, 0, 34),
-			AutomaticSize = isMobile and Enum.AutomaticSize.X or Enum.AutomaticSize.None,
+			Size = UDim2.new(1, 0, 0, isMobile and 32 or 34),
 			BorderSizePixel = 0,
 			LayoutOrder = order,
 			ZIndex = 4,
 		}, tabList)
 		addCorner(button, 8)
 		local padding = Instance.new("UIPadding")
-		padding.PaddingLeft = UDim.new(0, 12)
-		padding.PaddingRight = UDim.new(0, isMobile and 12 or 0)
+		padding.PaddingLeft = UDim.new(0, isMobile and 10 or 12)
+		padding.PaddingRight = UDim.new(0, 8)
 		padding.Parent = button
 
-		local marker
-		if isMobile then
-			marker = make("Frame", {
-				Name = "Marker",
-				Size = UDim2.new(1, 0, 0, 2),
-				Position = UDim2.new(0, 0, 1, -2),
-				BackgroundColor3 = theme.Accent,
-				BorderSizePixel = 0,
-				Visible = false,
-				ZIndex = 5,
-			}, button)
-		else
-			marker = make("Frame", {
-				Name = "Marker",
-				Size = UDim2.new(0, 3, 0, 16),
-				Position = UDim2.fromOffset(0, 9),
-				BackgroundColor3 = theme.Accent,
-				BorderSizePixel = 0,
-				Visible = false,
-				ZIndex = 5,
-			}, button)
-			addCorner(marker, 2)
-		end
+		local marker = make("Frame", {
+			Name = "Marker",
+			Size = UDim2.new(0, 3, 0, 16),
+			Position = UDim2.fromOffset(0, (isMobile and 32 or 34) / 2 - 8),
+			BackgroundColor3 = theme.Accent,
+			BorderSizePixel = 0,
+			Visible = false,
+			ZIndex = 5,
+		}, button)
+		addCorner(marker, 2)
 
 		local scroll = make("ScrollingFrame", {
 			Name = "Scroll_" .. name,
@@ -10466,6 +10424,17 @@ __modules["UI"] = function()
 
 		button.Activated:Connect(function()
 			selectTab(name)
+		end)
+
+		button.MouseEnter:Connect(function()
+			if activeTab ~= name then
+				button.BackgroundColor3 = theme.CardHover
+			end
+		end)
+		button.MouseLeave:Connect(function()
+			if activeTab ~= name then
+				button.BackgroundColor3 = theme.BgSoft
+			end
 		end)
 
 		return scroll
@@ -10534,20 +10503,21 @@ __modules["UI"] = function()
 	end
 
 	-- ===== Tab tree =====
-	-- 9 tabs: Home, Graphics, Shaders, Presets, Skybox, Settings, SSR,
-	-- Advance, Character.
+	-- 9 tabs, grouped by workflow: start, look, render, character, system.
+	-- Home, Presets, Sky Theme, Graphic, Shaders, Character, SSR, Advance,
+	-- Settings.
 
 	local LightingService = game:GetService("Lighting")
 
 	local homeTab = createTab("home", "Home", 1)
-	local graphicsTab = createTab("graphics", "Graphics", 2)
-	local shadersTab = createTab("shaders", "Shaders", 3)
-	local presetsTab = createTab("presets", "Presets", 4)
-	local skyTab = createTab("sky", "Skybox", 5)
-	local settingsTab = createTab("settings", "Settings", 6)
+	local presetsTab = createTab("presets", "Presets", 2)
+	local skyTab = createTab("sky", "Sky Theme", 3)
+	local graphicsTab = createTab("graphics", "Graphic", 4)
+	local shadersTab = createTab("shaders", "Shaders", 5)
+	local characterTab = createTab("character", "Character", 6)
 	local ssrTab = createTab("ssr", "SSR", 7)
 	local advanceTab = createTab("advance", "Advance", 8)
-	local characterTab = createTab("character", "Character", 9)
+	local settingsTab = createTab("settings", "Settings", 9)
 
 	local function applyPresetWithGate(name)
 		Effects.applyPreset(name)
@@ -10606,74 +10576,308 @@ __modules["UI"] = function()
 	-- ============================================================
 	-- HOME
 	-- ============================================================
+	local versionTag = tostring(Config.Version or ""):gsub("^VelardShader%s*", "")
+
 	local homeHero = make("Frame", {
 		Name = "HomeHero",
-		Size = UDim2.new(1, 0, 0, 152),
+		Size = UDim2.new(1, 0, 0, isMobile and 130 or 124),
 		BackgroundColor3 = theme.Card,
 		BorderSizePixel = 0,
 		LayoutOrder = #homeTab:GetChildren(),
 	}, homeTab)
 	addCorner(homeHero, 12)
 	addStroke(homeHero, theme.Stroke, 1, 0.2)
+	addGradient(homeHero, ColorSequence.new({
+		ColorSequenceKeypoint.new(0, theme.CardHover),
+		ColorSequenceKeypoint.new(1, theme.Card),
+	}), 90)
 
 	make("TextLabel", {
-		Text = "VELARDSHADER",
+		Name = "Eyebrow",
+		Text = "CLIENT-SIDE VISUAL SUITE",
 		Font = fonts.Bold,
-		TextSize = 26,
+		TextSize = 9,
+		TextColor3 = theme.Muted,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(18, 14),
+		Size = UDim2.new(1, isMobile and -36 or -150, 0, 12),
+	}, homeHero)
+
+	make("TextLabel", {
+		Name = "Title",
+		Text = "VelardShader",
+		Font = fonts.Bold,
+		TextSize = 24,
 		TextColor3 = theme.Text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(18, 16),
-		Size = UDim2.new(1, -36, 0, 30),
-	}, homeHero)
-	make("TextLabel", {
-		Text = "All-in-one shader, lighting and character suite  /  " .. Config.Version,
-		Font = fonts.Medium,
-		TextSize = 10,
-		TextColor3 = theme.SubText,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(19, 48),
-		Size = UDim2.new(1, -38, 0, 16),
-	}, homeHero)
-	local homeStatusLabel = make("TextLabel", {
-		Text = "Presets: " .. tostring(#Config.Presets) .. "  |  Skyboxes: " .. tostring(#Config.Skyboxes) .. "  |  Free to use",
-		Font = fonts.Mono,
-		TextSize = 10,
-		TextColor3 = theme.Accent,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(19, 70),
-		Size = UDim2.new(1, -38, 0, 16),
-	}, homeHero)
-	make("TextLabel", {
-		Text = "VelardShader is a client-side visual suite for Roblox. Tune cinematic lighting, surface and screen shaders, skyboxes, weather, SSR and character effects, then save or share your own look. Everything runs locally: no key system, no remote loader and no telemetry.",
-		Font = fonts.Regular,
-		TextSize = 10,
-		TextColor3 = theme.Muted,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		TextWrapped = true,
-		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(19, 92),
-		Size = UDim2.new(1, -38, 0, 48),
+		Position = UDim2.fromOffset(17, 26),
+		Size = UDim2.new(1, isMobile and -36 or -150, 0, 32),
 	}, homeHero)
 
+	local heroVersion = make("Frame", {
+		Name = "VersionPill",
+		Size = UDim2.fromOffset(isMobile and 92 or 104, isMobile and 18 or 20),
+		Position = isMobile and UDim2.new(1, -16, 0, 100) or UDim2.new(1, -16, 0, 14),
+		AnchorPoint = Vector2.new(1, 0),
+		BackgroundColor3 = theme.BgSoft,
+		BorderSizePixel = 0,
+		ZIndex = 4,
+	}, homeHero)
+	addCorner(heroVersion, 6)
+	addStroke(heroVersion, theme.Stroke, 1, 0.3)
+	make("TextLabel", {
+		Name = "VersionLabel",
+		Text = "v" .. versionTag,
+		Font = fonts.Mono,
+		TextSize = 9,
+		TextColor3 = theme.SubText,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		ZIndex = 5,
+	}, heroVersion)
+
+	make("TextLabel", {
+		Name = "Tagline",
+		Text = "Lighting, shaders, sky themes and character effects in one place.",
+		Font = fonts.Medium,
+		TextSize = 11,
+		TextColor3 = theme.SubText,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextWrapped = isMobile,
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(18, 60),
+		Size = UDim2.new(1, -36, 0, isMobile and 30 or 16),
+	}, homeHero)
+
+	make("Frame", {
+		Name = "Divider",
+		Size = UDim2.new(1, -36, 0, 1),
+		Position = UDim2.fromOffset(18, isMobile and 94 or 84),
+		BackgroundColor3 = theme.Stroke,
+		BorderSizePixel = 0,
+		BackgroundTransparency = 0.35,
+	}, homeHero)
+
+	make("TextLabel", {
+		Name = "Footer",
+		Text = isMobile
+			and "Client-side only"
+			or "Runs fully on your client  ·  no key system  ·  no telemetry",
+		Font = fonts.Mono,
+		TextSize = 9,
+		TextColor3 = theme.Muted,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(18, isMobile and 102 or 93),
+		Size = UDim2.new(1, isMobile and -124 or -36, 0, 14),
+	}, homeHero)
+
+	-- Stat strip -------------------------------------------------
+	local homeStats = make("Frame", {
+		Name = "HomeStats",
+		Size = UDim2.new(1, 0, 0, 62),
+		BackgroundTransparency = 1,
+		LayoutOrder = #homeTab:GetChildren(),
+	}, homeTab)
+	local statsLayout = Instance.new("UIListLayout")
+	statsLayout.FillDirection = Enum.FillDirection.Horizontal
+	statsLayout.Padding = UDim.new(0, 6)
+	statsLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	statsLayout.Parent = homeStats
+
+	local function homeStat(order, value, label)
+		local card = make("Frame", {
+			Name = "Stat_" .. label,
+			Size = UDim2.new(1 / 3, -4, 1, 0),
+			BackgroundColor3 = theme.Card,
+			BorderSizePixel = 0,
+			LayoutOrder = order,
+		}, homeStats)
+		addCorner(card, 10)
+		addStroke(card, theme.Stroke, 1, 0.25)
+		make("TextLabel", {
+			Text = tostring(value),
+			Font = fonts.Bold,
+			TextSize = 18,
+			TextColor3 = theme.Text,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			BackgroundTransparency = 1,
+			Position = UDim2.fromOffset(12, 8),
+			Size = UDim2.new(1, -24, 0, 22),
+		}, card)
+		make("TextLabel", {
+			Text = label,
+			Font = fonts.Bold,
+			TextSize = 8,
+			TextColor3 = theme.Muted,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			BackgroundTransparency = 1,
+			Position = UDim2.fromOffset(12, 34),
+			Size = UDim2.new(1, -24, 0, 12),
+		}, card)
+		return card
+	end
+
+	homeStat(1, #Config.Presets, "PRESETS")
+	homeStat(2, #Config.Skyboxes, "SKY THEMES")
+	homeStat(3, 9, "MODULES")
+
+	-- Quick actions ----------------------------------------------
 	addSection(homeTab, "Quick Actions")
-	addButton(homeTab, "Reset All Effects", false, function()
-		Effects.resetAll()
-		showNotification("Reset", "All effects restored.", 4)
-	end)
-	addButton(homeTab, "Open Presets (" .. tostring(#Config.Presets) .. ")", false, function()
+
+	local function homeButton(parent, text, accent, widthScale, offset, order, callback)
+		local button = make("TextButton", {
+			Name = "HomeButton_" .. text,
+			Text = text,
+			Font = fonts.Bold,
+			TextSize = 12,
+			TextColor3 = accent and Color3.fromRGB(12, 12, 14) or theme.Text,
+			BackgroundColor3 = accent and theme.Accent or theme.Card,
+			AutoButtonColor = false,
+			Size = UDim2.new(widthScale, offset, 1, 0),
+			BorderSizePixel = 0,
+			LayoutOrder = order,
+		}, parent)
+		addCorner(button, 9)
+		addStroke(button, accent and theme.Accent or theme.Stroke, 1, accent and 0.3 or 0.25)
+		button.MouseEnter:Connect(function()
+			button.BackgroundColor3 = accent and Color3.fromRGB(222, 222, 226) or theme.CardHover
+		end)
+		button.MouseLeave:Connect(function()
+			button.BackgroundColor3 = accent and theme.Accent or theme.Card
+		end)
+		button.Activated:Connect(callback)
+		return button
+	end
+
+	local primaryRow = make("Frame", {
+		Name = "PrimaryActions",
+		Size = UDim2.new(1, 0, 0, 38),
+		BackgroundTransparency = 1,
+		LayoutOrder = #homeTab:GetChildren(),
+	}, homeTab)
+	homeButton(primaryRow, "Browse Presets", true, 1, 0, 1, function()
 		selectTab("presets")
 	end)
 
-	addSection(homeTab, "About VelardShader")
-	infoLabel(homeTab, "VelardShader combines professional lighting controls, post-processing, reflective surface shaders, sky and weather tools, SSR, preset sharing and a character effects suite in one clean menu. Changes stay on your client and restore cleanly with Reset All Effects.", 50)
+	local secondaryRow = make("Frame", {
+		Name = "SecondaryActions",
+		Size = UDim2.new(1, 0, 0, 34),
+		BackgroundTransparency = 1,
+		LayoutOrder = #homeTab:GetChildren(),
+	}, homeTab)
+	local secondaryLayout = Instance.new("UIListLayout")
+	secondaryLayout.FillDirection = Enum.FillDirection.Horizontal
+	secondaryLayout.Padding = UDim.new(0, 6)
+	secondaryLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	secondaryLayout.Parent = secondaryRow
 
+	homeButton(secondaryRow, "Sky Theme", false, 0.5, -3, 1, function()
+		selectTab("sky")
+	end)
+	homeButton(secondaryRow, "Reset All Effects", false, 0.5, -3, 2, function()
+		Effects.resetAll()
+		showNotification("Reset", "All effects restored.", 4)
+	end)
+
+	-- Current look -----------------------------------------------
+	addSection(homeTab, "Current Look")
+	local homeLook = make("Frame", {
+		Name = "CurrentLook",
+		Size = UDim2.new(1, 0, 0, 58),
+		BackgroundColor3 = theme.Card,
+		BorderSizePixel = 0,
+		LayoutOrder = #homeTab:GetChildren(),
+	}, homeTab)
+	addCorner(homeLook, 10)
+	addStroke(homeLook, theme.Stroke, 1, 0.25)
+
+	local function lookColumn(parent, xScale, xOffset, title)
+		make("TextLabel", {
+			Text = title,
+			Font = fonts.Bold,
+			TextSize = 8,
+			TextColor3 = theme.Muted,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			BackgroundTransparency = 1,
+			Position = UDim2.new(xScale, xOffset, 0, 10),
+			Size = UDim2.new(0.5, -18, 0, 10),
+		}, parent)
+		return make("TextLabel", {
+			Text = "-",
+			Font = fonts.Bold,
+			TextSize = 12,
+			TextColor3 = theme.Text,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			TextTruncate = Enum.TextTruncate.AtEnd,
+			BackgroundTransparency = 1,
+			Position = UDim2.new(xScale, xOffset, 0, 24),
+			Size = UDim2.new(0.5, -18, 0, 18),
+		}, parent)
+	end
+
+	local homePresetValue = lookColumn(homeLook, 0, 12, "PRESET")
+	local homeSkyValue = lookColumn(homeLook, 0.5, 10, "SKY THEME")
+	make("Frame", {
+		Name = "ColumnDivider",
+		Size = UDim2.new(0, 1, 0, 38),
+		Position = UDim2.new(0.5, 0, 0, 10),
+		BackgroundColor3 = theme.Stroke,
+		BorderSizePixel = 0,
+		BackgroundTransparency = 0.3,
+	}, homeLook)
+
+	-- About ------------------------------------------------------
+	addSection(homeTab, "About")
+	local homeAbout = make("Frame", {
+		Name = "HomeAbout",
+		Size = UDim2.new(1, 0, 0, 72),
+		BackgroundColor3 = theme.Card,
+		BorderSizePixel = 0,
+		LayoutOrder = #homeTab:GetChildren(),
+	}, homeTab)
+	addCorner(homeAbout, 10)
+	addStroke(homeAbout, theme.Stroke, 1, 0.25)
+	make("TextLabel", {
+		Text = "Tune cinematic lighting, post-processing, surface shaders, sky themes, SSR and character effects. Save or share the result as a preset, and restore everything with one reset.",
+		Font = fonts.Regular,
+		TextSize = 10,
+		TextColor3 = theme.SubText,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextYAlignment = Enum.TextYAlignment.Top,
+		TextWrapped = true,
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(14, 10),
+		Size = UDim2.new(1, -28, 0, 52),
+	}, homeAbout)
+
+	-- Hotkeys ----------------------------------------------------
 	addSection(homeTab, "Hotkeys")
-	infoLabel(homeTab, isMobile
-		and "Tap the floating V button to open or close the menu."
-		or "V = menu   |   9 = reset   |   H = HUD   |   8 = freecam   |   P = next preset   |   K = next skybox", 26)
+	local homeHotkeys = make("Frame", {
+		Name = "HomeHotkeys",
+		Size = UDim2.new(1, 0, 0, 46),
+		BackgroundColor3 = theme.Card,
+		BorderSizePixel = 0,
+		LayoutOrder = #homeTab:GetChildren(),
+	}, homeTab)
+	addCorner(homeHotkeys, 10)
+	addStroke(homeHotkeys, theme.Stroke, 1, 0.25)
+	make("TextLabel", {
+		Text = isMobile
+			and "Tap the V button to open or close the menu."
+			or "V menu    9 reset    H HUD    8 freecam    P next preset    K next sky",
+		Font = fonts.Mono,
+		TextSize = 9,
+		TextColor3 = theme.SubText,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextWrapped = true,
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(14, 9),
+		Size = UDim2.new(1, -28, 0, 28),
+	}, homeHotkeys)
 
 	-- ============================================================
 	-- GRAPHICS
@@ -11097,8 +11301,8 @@ __modules["UI"] = function()
 	end)
 
 	addSection(settingsTab, "Info")
-	infoLabel(settingsTab, "ShaderVelard " .. Config.Version
-		.. "\n9-tab ShaderVelard layout.\n"
+	infoLabel(settingsTab, Config.Version
+		.. "\nLeft navigation, 9 modules.\n"
 		.. (isMobile and "Toggle UI: tap the V icon" or "Toggle UI: V"), 52)
 
 	addSection(settingsTab, "Interface")
@@ -11206,7 +11410,7 @@ __modules["UI"] = function()
 	-- ============================================================
 	addSection(advanceTab, "Advanced Lighting")
 	addSlider(advanceTab, "textureDetail", "Texture Detail", 0, 1, 0.01)
-	infoLabel(advanceTab, "Texture Detail re-runs the glossy/material pass with the new fidelity value. Sun Rays controls remain in the Graphics tab.", 32)
+	infoLabel(advanceTab, "Texture Detail re-runs the glossy/material pass with the new fidelity value. Sun Rays controls remain in the Graphic tab.", 32)
 
 	addSection(advanceTab, "RTX / Banano Wrapping")
 	addToggle(advanceTab, "rtxWrapObjects", "RTX - Wrap All Objects & Meshes", "When on, RTX reflection wraps the whole workspace instead of only the configured radius.")
@@ -12307,7 +12511,7 @@ __modules["UI"] = function()
 			return
 		end
 		if isMobile then
-			windowScale.Scale = math.clamp(interfaceState.uiScale or 1, 0.6, 1)
+			windowScale.Scale = math.clamp(interfaceState.uiScale or DEFAULT_MOBILE_SCALE, 0.5, 1.2)
 			return
 		end
 		local viewport = camera.ViewportSize
@@ -12336,6 +12540,12 @@ __modules["UI"] = function()
 		end
 
 		presetLabel.Text = "Preset: " .. Effects.state.presetName
+		if homePresetValue then
+			homePresetValue.Text = Effects.state.presetName or "None"
+		end
+		if homeSkyValue then
+			homeSkyValue.Text = Effects.state.skyName or "Default"
+		end
 		for _, entry in ipairs(presetCardEntries) do
 			local active = Effects.state.presetName == entry.name
 			local highlight = entry.accentColor or theme.Accent
