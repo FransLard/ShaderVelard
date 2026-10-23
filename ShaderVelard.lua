@@ -4866,7 +4866,7 @@ __modules["Effects"] = function()
 	-- Workspace.PlayerCache / Workspace.Game.Players instead of
 	-- player.Character. Those rigs are preferred there because they always expose
 	-- a Head, which is what makes the original menu attach accessories instantly.
-	local function getAccessoryCharacter()
+	local function getAccessoryCharacters()
 		local list = {}
 		local seen = {}
 		local function add(model)
@@ -4896,7 +4896,14 @@ __modules["Effects"] = function()
 		addContainer(gameFolder and gameFolder:FindFirstChild("Players"))
 		add(player.Character)
 		add(workspace:FindFirstChild(player.Name))
-		return list[1] or player.Character
+		if #list == 0 and player.Character then
+			list[1] = player.Character
+		end
+		return list
+	end
+
+	local function getAccessoryCharacter()
+		return getAccessoryCharacters()[1]
 	end
 
 	local function waitForCharacterHead(timeout)
@@ -5537,7 +5544,33 @@ __modules["Effects"] = function()
 		return true
 	end
 
+	-- One worn item can be shown on several of the player's rigs at once (the
+	-- in-game character, the PlayerCache/preview rig used by the loadout screen,
+	-- Rigs, ...). The original menu keeps a copy per model and attaches to every
+	-- rig that becomes the preferred one; we keep them all so the accessory is
+	-- visible in the loadout preview as well as in-game.
+	local function accessoryMounts(item)
+		if type(item.mounts) ~= "table" then
+			item.mounts = setmetatable({}, { __mode = "k" })
+		end
+		return item.mounts
+	end
+
+	local function accessoryDestroyMount(mount)
+		if mount and mount.model then
+			pcall(function()
+				mount.model:Destroy()
+			end)
+		end
+	end
+
 	local function accessoryClearModel(item)
+		if item.mounts then
+			for character, mount in pairs(item.mounts) do
+				accessoryDestroyMount(mount)
+				item.mounts[character] = nil
+			end
+		end
 		if item.model then
 			pcall(function()
 				item.model:Destroy()
@@ -5545,6 +5578,8 @@ __modules["Effects"] = function()
 			item.model = nil
 		end
 		item.part0 = nil
+		item.character = nil
+		item.usedAttachment = nil
 	end
 
 	local function accessoryBuildModel(character, item, parent, anchored)
@@ -5650,43 +5685,6 @@ __modules["Effects"] = function()
 		return model, part0, handleAttachment ~= nil
 	end
 
-	local function accessoryAttach(item)
-		accessoryClearModel(item)
-		if not item.worn then
-			return false
-		end
-		local character = getAccessoryCharacter()
-		if not character or not findHead(character) then
-			return false
-		end
-		if not item.tmpl then
-			return false
-		end
-		local model, part0, usedAttachment = accessoryBuildModel(character, item, character, false)
-		if not model then
-			return false
-		end
-		item.model = model
-		item.part0 = part0
-		item.character = character
-		item.usedAttachment = usedAttachment == true
-		return true
-	end
-
-	local function accessoryRefreshAll()
-		local character = getAccessoryCharacter()
-		if not character or not findHead(character) then
-			return false
-		end
-		for _, id in ipairs(accessoryOrder) do
-			local item = accessoryItems[id]
-			if item and item.worn then
-				accessoryAttach(item)
-			end
-		end
-		return true
-	end
-
 	-- True when the head now exposes an attachment this accessory can snap to.
 	-- Used to upgrade an accessory that was mounted with the fallback (top of the
 	-- head) before the avatar's head attachments streamed in.
@@ -5700,6 +5698,91 @@ __modules["Effects"] = function()
 			end
 		end
 		return false
+	end
+
+	local function accessoryMountValid(item, character, mount)
+		if not mount or not mount.model or not mount.model.Parent then
+			return false
+		end
+		local head = findHead(character)
+		if not head or mount.part0 ~= head then
+			return false
+		end
+		local handle = mount.model:FindFirstChild("Handle")
+		if not handle then
+			return false
+		end
+		local weld = handle:FindFirstChild("SV_AccessoryWeld")
+		if not weld or weld.Part0 ~= head then
+			return false
+		end
+		-- Rebuild once the real head attachment becomes available so the item
+		-- snaps from "top of head" to the exact HatAttachment.
+		if mount.usedAttachment ~= true and accessoryHasHeadMount(item, head) then
+			return false
+		end
+		return true
+	end
+
+	local function accessoryAttachTo(item, character)
+		if not item.worn or not item.tmpl or not character then
+			return false
+		end
+		local mounts = accessoryMounts(item)
+		local existing = mounts[character]
+		if existing and accessoryMountValid(item, character, existing) then
+			return true
+		end
+		if existing then
+			accessoryDestroyMount(existing)
+			mounts[character] = nil
+		end
+		local model, part0, usedAttachment = accessoryBuildModel(character, item, character, false)
+		if not model then
+			return false
+		end
+		local mount = {
+			model = model,
+			part0 = part0,
+			head = findHead(character),
+			usedAttachment = usedAttachment == true,
+		}
+		mounts[character] = mount
+		if not item.model or not item.model.Parent then
+			item.model = model
+			item.part0 = part0
+			item.character = character
+			item.usedAttachment = mount.usedAttachment
+		end
+		return true
+	end
+
+	-- Rebuild every copy of the accessory on every rig of the local player.
+	local function accessoryAttach(item)
+		accessoryClearModel(item)
+		if not item.worn then
+			return false
+		end
+		local mounted = false
+		for _, character in ipairs(getAccessoryCharacters()) do
+			if accessoryAttachTo(item, character) then
+				mounted = true
+			end
+		end
+		return mounted
+	end
+
+	local function accessoryRefreshAll()
+		if #getAccessoryCharacters() == 0 then
+			return false
+		end
+		for _, id in ipairs(accessoryOrder) do
+			local item = accessoryItems[id]
+			if item and item.worn then
+				accessoryAttach(item)
+			end
+		end
+		return true
 	end
 
 	function Effects.getAccessoryCatalog()
@@ -6002,26 +6085,42 @@ __modules["Effects"] = function()
 		refreshCatalogAccessories = Effects.refreshCatalogAccessories,
 		clearCatalogAccessories = Effects.clearCatalogAccessories,
 		reanchorAccessories = function()
-			local character = getAccessoryCharacter()
-			local head = findHead(character)
-			if not character or not head then
-				return
-			end
+			local characters = getAccessoryCharacters()
 			for _, id in ipairs(accessoryOrder) do
 				local item = accessoryItems[id]
-				if item and item.worn then
-					local handle = item.model and item.model:FindFirstChild("Handle")
-					local weld = handle and handle:FindFirstChild("SV_AccessoryWeld")
-					-- Anything still welded to the torso (older builds did that),
-					-- mounted on a stale rig or missing its joint gets rebuilt on
-					-- the current head.
-					local needsRebuild = weld == nil
-						or weld.Part0 ~= head
-						or item.part0 ~= head
-						or item.character ~= character
-						or (item.usedAttachment ~= true and accessoryHasHeadMount(item, head))
-					if needsRebuild then
-						accessoryAttach(item)
+				if item and item.worn and item.tmpl then
+					local mounts = accessoryMounts(item)
+					-- Drop copies whose rig disappeared, whose head changed, or
+					-- that can now snap to a real head attachment.
+					for character, mount in pairs(mounts) do
+						if not character.Parent or not accessoryMountValid(item, character, mount) then
+							accessoryDestroyMount(mount)
+							mounts[character] = nil
+							if item.model == mount.model then
+								item.model = nil
+								item.part0 = nil
+								item.character = nil
+								item.usedAttachment = nil
+							end
+						end
+					end
+					-- Mirror onto every rig the player currently has (in-game
+					-- character, loadout/PlayerCache preview, Rigs, ...).
+					for _, character in ipairs(characters) do
+						if not mounts[character] then
+							accessoryAttachTo(item, character)
+						end
+					end
+					if not item.model or not item.model.Parent then
+						for character, mount in pairs(mounts) do
+							if mount.model and mount.model.Parent then
+								item.model = mount.model
+								item.part0 = mount.part0
+								item.character = character
+								item.usedAttachment = mount.usedAttachment
+								break
+							end
+						end
 					end
 				end
 			end
@@ -8433,11 +8532,11 @@ __modules["Effects"] = function()
 			cosmeticTimer = 0
 		end
 
-		-- Accessories can be equipped before the avatar's real Head streams in
-		-- (Evade). Move them from the torso onto the head once it exists so they
-		-- tilt with head movement.
+		-- The original menu re-applies accessories every Heartbeat so they follow
+		-- the rig that is currently on screen (in-game character or the
+		-- loadout/PlayerCache preview). Check a few times per second, cheaply.
 		accessoryAnchorTimer = accessoryAnchorTimer + deltaTime
-		if accessoryAnchorTimer >= 1 then
+		if accessoryAnchorTimer >= 0.25 then
 			accessoryAnchorTimer = 0
 			if Effects._character and Effects._character.reanchorAccessories then
 				pcall(Effects._character.reanchorAccessories)
