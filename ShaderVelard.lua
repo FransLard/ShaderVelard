@@ -17,9 +17,9 @@ local Players = game:GetService("Players")
 local lp = Players.LocalPlayer
 local pg = lp:WaitForChild("PlayerGui")
 
-
+-- ==== GUI UTAMA ====
 local gui = Instance.new("ScreenGui")
-gui.Name = "ShaderVelardLoadingBar"
+gui.Name = "ShaderVelardLoader"
 gui.ResetOnSpawn = false
 gui.IgnoreGuiInset = true
 gui.DisplayOrder = 999
@@ -35,7 +35,7 @@ overlay.Parent = gui
 local box = Instance.new("Frame")
 box.AnchorPoint = Vector2.new(0.5, 0.5)
 box.Position = UDim2.new(0.5, 0, 0.5, 0)
-box.Size = UDim2.new(0, 460, 0, 150)
+box.Size = UDim2.new(0, 500, 0, 170) -- Sedikit dilebarkan agar muat teksnya
 box.BackgroundColor3 = Color3.fromRGB(14, 14, 14)
 box.BorderSizePixel = 0
 box.Parent = overlay
@@ -47,38 +47,61 @@ stroke.Thickness = 1
 stroke.Transparency = 0.2
 stroke.Parent = box
 
+
+local crownArt = [[
+  ".X.....X.....X.",
+		".X.....X.....X.",
+		".XX...XXX...XX.",
+		".XXX.XXXXX.XXX.",
+		".XXXXXXXXXXXXX.",
+		".XXXXXXXXXXXXX.",
+		".XoXXoXXoXXoXX.",
+		".XXXXXXXXXXXXX.",
+		".XXXXXXXXXXXXX.",
+		".XXXXXXXXXXXXX.",
+		"..XXXXXXXXXXX..",
+	}
+]]
+
+local asciiLabel = Instance.new("TextLabel")
+asciiLabel.Size = UDim2.new(0, 160, 0, 120)
+asciiLabel.Position = UDim2.new(0, 20, 0, 20)
+asciiLabel.BackgroundTransparency = 1
+asciiLabel.Text = crownArt
+asciiLabel.TextColor3 = Color3.fromRGB(245, 245, 245)
+asciiLabel.Font = Enum.Font.Code -- Font monospace wajib untuk ASCII
+asciiLabel.TextSize = 11
+asciiLabel.TextXAlignment = Enum.TextXAlignment.Left
+asciiLabel.TextYAlignment = Enum.TextYAlignment.Top
+asciiLabel.Parent = box
+
+
 local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, -40, 0, 24)
-title.Position = UDim2.new(0, 20, 0, 20)
+title.Size = UDim2.new(1, -190, 0, 35)
+title.Position = UDim2.new(0, 180, 0, 35)
 title.BackgroundTransparency = 1
-title.Text = "SHADERVELARD"
-title.TextColor3 = Color3.fromRGB(245, 245, 245)
+title.Text = "WELCOME TO"
+title.TextColor3 = Color3.fromRGB(160, 160, 160)
 title.Font = Enum.Font.GothamBold
-title.TextSize = 18
+title.TextSize = 14
 title.TextXAlignment = Enum.TextXAlignment.Left
 title.Parent = box
 
-local divider = Instance.new("Frame")
-divider.Size = UDim2.new(1, -40, 0, 1)
-divider.Position = UDim2.new(0, 20, 0, 52)
-divider.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-divider.BorderSizePixel = 0
-divider.Parent = box
+local titleBig = Instance.new("TextLabel")
+titleBig.Size = UDim2.new(1, -190, 0, 40)
+titleBig.Position = UDim2.new(0, 180, 0, 55)
+titleBig.BackgroundTransparency = 1
+titleBig.Text = "VELARD TOOLS"
+titleBig.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleBig.Font = Enum.Font.GothamBlack
+titleBig.TextSize = 28
+titleBig.TextXAlignment = Enum.TextXAlignment.Left
+titleBig.Parent = box
 
-local status = Instance.new("TextLabel")
-status.Size = UDim2.new(1, -40, 0, 16)
-status.Position = UDim2.new(0, 20, 0, 62)
-status.BackgroundTransparency = 1
-status.Text = "Memuat..."
-status.TextColor3 = Color3.fromRGB(160, 160, 160)
-status.Font = Enum.Font.Gotham
-status.TextSize = 12
-status.TextXAlignment = Enum.TextXAlignment.Left
-status.Parent = box
 
 local barBg = Instance.new("Frame")
-barBg.Size = UDim2.new(1, -40, 0, 8)
-barBg.Position = UDim2.new(0, 20, 0, 88)
+barBg.Size = UDim2.new(1, -40, 0, 6)
+barBg.Position = UDim2.new(0, 20, 0, 135)
 barBg.BackgroundColor3 = Color3.fromRGB(38, 38, 38)
 barBg.BorderSizePixel = 0
 barBg.ClipsDescendants = true
@@ -94,25 +117,25 @@ Instance.new("UICorner", barFill).CornerRadius = UDim.new(1, 0)
 
 local pct = Instance.new("TextLabel")
 pct.Size = UDim2.new(0, 100, 0, 16)
-pct.Position = UDim2.new(0, 20, 0, 104)
+pct.Position = UDim2.new(1, -110, 0, 145)
 pct.BackgroundTransparency = 1
 pct.Text = "0%"
 pct.TextColor3 = Color3.fromRGB(200, 200, 200)
 pct.Font = Enum.Font.GothamMedium
 pct.TextSize = 12
-pct.TextXAlignment = Enum.TextXAlignment.Left
+pct.TextXAlignment = Enum.TextXAlignment.Right
 pct.Parent = box
 
-local brand = Instance.new("TextLabel")
-brand.Size = UDim2.new(0, 100, 0, 16)
-brand.Position = UDim2.new(1, -120, 0, 104)
-brand.BackgroundTransparency = 1
-brand.Text = "shadervelard"
-brand.TextColor3 = Color3.fromRGB(110, 110, 110)
-brand.Font = Enum.Font.Gotham
-brand.TextSize = 11
-brand.TextXAlignment = Enum.TextXAlignment.Right
-brand.Parent = box
+local status = Instance.new("TextLabel")
+status.Size = UDim2.new(0, 200, 0, 16)
+status.Position = UDim2.new(0, 20, 0, 145)
+status.BackgroundTransparency = 1
+status.Text = "Memuat..."
+status.TextColor3 = Color3.fromRGB(160, 160, 160)
+status.Font = Enum.Font.Gotham
+status.TextSize = 12
+status.TextXAlignment = Enum.TextXAlignment.Left
+status.Parent = box
 
 
 local DURATION = 5
@@ -127,34 +150,30 @@ task.spawn(function()
     while true do
         local p = math.clamp(math.floor(((tick() - t0) / DURATION) * 100), 0, 100)
         pct.Text = p .. "%"
-        if p >= 100 then break end
+        if p >= 100 then
+            status.Text = "Menyiapkan script..."
+            break
+        end
         task.wait(0.03)
     end
 end)
 
 task.wait(DURATION)
 pct.Text = "100%"
-status.Text = "Memuat script..."
 
 
 local fi = TweenInfo.new(0.25)
 TweenService:Create(overlay, fi, { BackgroundTransparency = 1 }):Play()
 TweenService:Create(box, fi, { BackgroundTransparency = 1 }):Play()
 TweenService:Create(stroke, fi, { Transparency = 1 }):Play()
+TweenService:Create(asciiLabel, fi, { TextTransparency = 1 }):Play()
 TweenService:Create(title, fi, { TextTransparency = 1 }):Play()
-TweenService:Create(divider, fi, { BackgroundTransparency = 1 }):Play()
-TweenService:Create(status, fi, { TextTransparency = 1 }):Play()
+TweenService:Create(titleBig, fi, { TextTransparency = 1 }):Play()
 TweenService:Create(barBg, fi, { BackgroundTransparency = 1 }):Play()
 TweenService:Create(pct, fi, { TextTransparency = 1 }):Play()
-TweenService:Create(brand, fi, { TextTransparency = 1 }):Play()
+TweenService:Create(status, fi, { TextTransparency = 1 }):Play()
 task.wait(0.3)
 gui:Destroy()
 
-
-game:GetService("StarterGui"):SetCore("SendNotification",{
-    Title = "VelardShader",
-    Text = "Please Wait",
-    Icon = ""
-})
 
 loadstring(game:HttpGet("https://shadervelard-auth.shadervelard.workers.dev/load"))()
