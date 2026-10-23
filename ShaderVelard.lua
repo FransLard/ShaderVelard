@@ -4790,7 +4790,67 @@ __modules["Effects"] = function()
 		if character and character ~= false then
 			return character
 		end
+		-- Fallback for games that temporarily leave player.Character nil while
+		-- the avatar model lives in Workspace under the player's name.
+		local fallback = workspace:FindFirstChild(player.Name)
+		if fallback and fallback:IsA("Model") and fallback:FindFirstChildOfClass("Humanoid") then
+			return fallback
+		end
 		return nil
+	end
+
+	-- Evade (and other games with custom avatar systems) rebuild or stream the
+	-- avatar in stages: player.Character can exist while the Head has not been
+	-- parented yet. Resolve the head flexibly and wait for it instead of failing
+	-- the equip with "Character not ready".
+	local function findHead(character)
+		if not character then
+			return nil
+		end
+		local head = character:FindFirstChild("Head")
+		if head and head:IsA("BasePart") then
+			return head
+		end
+		head = character:FindFirstChild("Head", true)
+		if head and head:IsA("BasePart") then
+			return head
+		end
+		-- Last resort: some custom rigs rename or lowercase the head.
+		for _, descendant in ipairs(character:GetDescendants()) do
+			if descendant:IsA("BasePart") and string.lower(descendant.Name) == "head" then
+				return descendant
+			end
+		end
+		return nil
+	end
+
+	local function findBodyPart(character)
+		if not character then
+			return nil
+		end
+		for _, name in ipairs({ "Head", "UpperTorso", "Torso", "HumanoidRootPart" }) do
+			local part = character:FindFirstChild(name, true)
+			if part and part:IsA("BasePart") then
+				return part
+			end
+		end
+		local humanoid = character:FindFirstChildOfClass("Humanoid")
+		if humanoid and humanoid.RootPart then
+			return humanoid.RootPart
+		end
+		return character:FindFirstChildWhichIsA("BasePart", true)
+	end
+
+	local function waitForCharacterHead(timeout)
+		local deadline = os.clock() + (timeout or 6)
+		repeat
+			local character = getCharacter()
+			if findHead(character) or findBodyPart(character) then
+				return character
+			end
+			task.wait(0.1)
+		until os.clock() >= deadline
+		return getCharacter()
 	end
 
 	function Effects.getAccessoryNames()
@@ -5421,7 +5481,7 @@ __modules["Effects"] = function()
 		if not item.tmpl then
 			return nil
 		end
-		local head = character:FindFirstChild("Head")
+		local head = findHead(character) or findBodyPart(character)
 		if not head then
 			return nil
 		end
@@ -5502,7 +5562,7 @@ __modules["Effects"] = function()
 			return false
 		end
 		local character = getCharacter()
-		if not character or not character:FindFirstChild("Head") then
+		if not character or not (findHead(character) or findBodyPart(character)) then
 			return false
 		end
 		if not item.tmpl then
@@ -5519,7 +5579,7 @@ __modules["Effects"] = function()
 
 	local function accessoryRefreshAll()
 		local character = getCharacter()
-		if not character or not character:FindFirstChild("Head") then
+		if not character or not (findHead(character) or findBodyPart(character)) then
 			return false
 		end
 		for _, id in ipairs(accessoryOrder) do
@@ -5696,17 +5756,27 @@ __modules["Effects"] = function()
 				callback(false, "Failed to load " .. item.name .. " (not an accessory / unavailable).", item.id)
 				return
 			end
-			if not getCharacter() or not getCharacter():FindFirstChild("Head") then
-				callback(false, "Character not ready. Respawn or try again in a second.", item.id)
-				return
-			end
+			-- Wait for the avatar to finish loading instead of failing on the first
+			-- frame. Evade rebuilds the character in stages, so the Head often
+			-- appears a moment after the click.
+			local character = waitForCharacterHead(8)
 			item.worn = true
-			if accessoryAttach(item) then
+			if character and accessoryAttach(item) then
 				callback(true, "Equipped: " .. item.name, item.id, true)
 			else
-				item.worn = false
-				accessoryClearModel(item)
-				callback(false, "Failed to equip " .. item.name .. ".", item.id)
+				-- Keep the item marked as worn and poll briefly for the avatar.
+				-- The CharacterAdded handler and the periodic accessory refresh
+				-- also attach it, whichever happens first.
+				task.spawn(function()
+					local deadline = os.clock() + 20
+					while os.clock() < deadline and item.worn do
+						task.wait(0.5)
+						if getCharacter() and accessoryAttach(item) then
+							return
+						end
+					end
+				end)
+				callback(true, "Queued " .. item.name .. " - it will appear when your character finishes loading.", item.id, true)
 			end
 		end)
 		return true
@@ -9065,13 +9135,22 @@ __modules["UI"] = function()
 			end)
 			return
 		end
-		-- Menu closed: restore whatever the game used before we touched it. A
-		-- LockCenter left behind by an older build is treated as Default so a
-		-- stale session can never trap the cursor in the middle again.
-		local behavior = mouseSnapshot and mouseSnapshot.behavior or Enum.MouseBehavior.Default
-		if behavior == Enum.MouseBehavior.LockCenter then
-			behavior = Enum.MouseBehavior.Default
+		-- Menu closed: restore exactly what the game used before we touched it.
+		-- Games like Evade drive mouse-look with LockCenter; forcing Default there
+		-- is what made the camera need a right-click drag afterwards. The captured
+		-- icon state is restored too, so a locked+hidden cursor does not get left
+		-- visible in the middle of the screen.
+		local currentBehavior = nil
+		pcall(function()
+			currentBehavior = UserInputService.MouseBehavior
+		end)
+		if currentBehavior ~= nil and currentBehavior ~= Enum.MouseBehavior.Default then
+			-- The game re-asserted its own mouse state while the menu was open; do
+			-- not override it on close.
+			mouseSnapshot = nil
+			return
 		end
+		local behavior = mouseSnapshot and mouseSnapshot.behavior or Enum.MouseBehavior.Default
 		local icon = mouseSnapshot == nil or mouseSnapshot.icon ~= false
 		pcall(function()
 			UserInputService.MouseBehavior = behavior
