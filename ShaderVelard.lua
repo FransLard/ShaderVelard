@@ -5457,7 +5457,19 @@ __modules["Effects"] = function()
 							descendant:Destroy()
 						end
 					end
-					template = { handle = clone, ap = attachmentPoint }
+					-- Remember which attachment the accessory considers its mount
+					-- point. Roblox's own AddAccessory aligns this attachment with
+					-- the head attachment of the same name, so keeping its name lets
+					-- us reproduce that fit even when the handle exposes several
+					-- attachments.
+					local apName
+					for _, child in ipairs(clone:GetChildren()) do
+						if child:IsA("Attachment") and child.CFrame == attachmentPoint then
+							apName = child.Name
+							break
+						end
+					end
+					template = { handle = clone, ap = attachmentPoint, apName = apName }
 				end
 			end
 			pcall(function()
@@ -5501,7 +5513,7 @@ __modules["Effects"] = function()
 		if not item.tmpl then
 			return nil
 		end
-		local head = findHead(character) or findBodyPart(character)
+		local head = findHead(character)
 		if not head then
 			return nil
 		end
@@ -5527,33 +5539,39 @@ __modules["Effects"] = function()
 			handle.Size = handle.Size * scale
 		end
 
-		-- Prefer an attachment on the head so hats/crowns tilt with the head. Only
-		-- fall back to body attachments (necklaces etc.) when the asset has no
-		-- head attachment, otherwise the accessory ends up welded to the torso and
-		-- stops following when the player nods.
-		local handleAttachment, characterAttachment, characterPart
+		-- Frame the accessory exactly the way the original Delux Zephyr menu does
+		-- (see character.txt, DLX_Weld / _dl):
+		--
+		--   * The head is ALWAYS Part0, so the accessory is part of the same
+		--     assembly as the head and follows every neck animation (nodding,
+		--     leaning, emotes) instead of floating or sticking to the torso.
+		--   * If the handle has an attachment the head also provides, the weld is
+		--     attached attachment-to-attachment (C0 = head attachment * offset,
+		--     C1 = handle attachment). That is what makes hats sit exactly on the
+		--     HatAttachment instead of hovering above the head.
+		--   * Otherwise fall back to the top of the head using the accessory's
+		--     own AttachmentPoint, exactly like the reference.
+		--
+		-- Never mount a head item on another body part: doing that was making
+		-- hats/crowns drift towards the shoulders and stop matching head rotation.
+		local handleAttachment, characterAttachment
 		for _, child in ipairs(handle:GetChildren()) do
 			if child:IsA("Attachment") then
 				local match = accessoryFindAttachment(head, child.Name)
 				if match then
-					handleAttachment, characterAttachment, characterPart = child, match, head
+					handleAttachment, characterAttachment = child, match
 					break
 				end
 			end
 		end
-		if not handleAttachment then
-			for _, child in ipairs(handle:GetChildren()) do
-				if child:IsA("Attachment") then
-					for _, part in ipairs(character:GetChildren()) do
-						if part:IsA("BasePart") and part ~= head then
-							local match = accessoryFindAttachment(part, child.Name)
-							if match then
-								handleAttachment, characterAttachment, characterPart = child, match, part
-								break
-							end
-						end
-					end
-					if handleAttachment then
+		-- Some assets expose several attachments; prefer the one the accessory
+		-- itself declares as its mount point when the head provides it too.
+		if not handleAttachment and item.tmpl.apName then
+			local preferred = accessoryFindAttachment(head, item.tmpl.apName)
+			if preferred then
+				for _, child in ipairs(handle:GetChildren()) do
+					if child:IsA("Attachment") and child.Name == item.tmpl.apName then
+						handleAttachment, characterAttachment = child, preferred
 						break
 					end
 				end
@@ -5562,13 +5580,12 @@ __modules["Effects"] = function()
 
 		local offset = CFrame.new(cfg.x, cfg.y, cfg.z)
 			* CFrame.Angles(math.rad(cfg.rx), math.rad(cfg.ry), math.rad(cfg.rz))
-		local c0, c1, part0
+		local part0 = head
+		local c0, c1
 		if handleAttachment then
-			part0 = characterPart
 			c0 = characterAttachment.CFrame * offset
 			c1 = handleAttachment.CFrame
 		else
-			part0 = head
 			c0 = CFrame.new(0, head.Size.Y / 2, 0) * offset * item.tmpl.ap:Inverse()
 			c1 = CFrame.new()
 		end
@@ -5576,10 +5593,6 @@ __modules["Effects"] = function()
 		local model = Instance.new("Model")
 		model.Name = "SV_Accessory_" .. tostring(item.id)
 		handle.Parent = model
-		-- Parent the model before creating the joint so both parts are already in
-		-- the DataModel when the Weld is built. This is the reliable order for
-		-- runtime welds (otherwise the hat can stay detached from the head).
-		model.Parent = parent or character
 
 		local targetCFrame = part0.CFrame * c0 * c1:Inverse()
 		handle.CFrame = targetCFrame
@@ -5587,15 +5600,20 @@ __modules["Effects"] = function()
 			handle.Anchored = true
 		else
 			handle.Anchored = false
+			-- Build and configure the Weld while the model is still outside the
+			-- DataModel, then parent it. The joint is then enabled with its final
+			-- C0/C1 on the very first physics step, so the handle never has a frame
+			-- where it is unanchored and unwelded (which used to let it drift).
 			local weld = Instance.new("Weld")
 			weld.Name = "SV_AccessoryWeld"
 			weld.Part0 = part0
 			weld.Part1 = handle
-			weld.C0 = part0.CFrame:Inverse() * targetCFrame
-			weld.C1 = CFrame.new()
+			weld.C0 = c0
+			weld.C1 = c1
 			weld.Parent = handle
 		end
-		return model, part0
+		model.Parent = parent or character
+		return model, part0, handleAttachment ~= nil
 	end
 
 	local function accessoryAttach(item)
@@ -5604,24 +5622,25 @@ __modules["Effects"] = function()
 			return false
 		end
 		local character = getCharacter()
-		if not character or not (findHead(character) or findBodyPart(character)) then
+		if not character or not findHead(character) then
 			return false
 		end
 		if not item.tmpl then
 			return false
 		end
-		local model, part0 = accessoryBuildModel(character, item, character, false)
+		local model, part0, usedAttachment = accessoryBuildModel(character, item, character, false)
 		if not model then
 			return false
 		end
 		item.model = model
 		item.part0 = part0
+		item.usedAttachment = usedAttachment == true
 		return true
 	end
 
 	local function accessoryRefreshAll()
 		local character = getCharacter()
-		if not character or not (findHead(character) or findBodyPart(character)) then
+		if not character or not findHead(character) then
 			return false
 		end
 		for _, id in ipairs(accessoryOrder) do
@@ -5631,6 +5650,21 @@ __modules["Effects"] = function()
 			end
 		end
 		return true
+	end
+
+	-- True when the head now exposes an attachment this accessory can snap to.
+	-- Used to upgrade an accessory that was mounted with the fallback (top of the
+	-- head) before the avatar's head attachments streamed in.
+	local function accessoryHasHeadMount(item, head)
+		if not item.tmpl or not head then
+			return false
+		end
+		for _, child in ipairs(item.tmpl.handle:GetChildren()) do
+			if child:IsA("Attachment") and accessoryFindAttachment(head, child.Name) then
+				return true
+			end
+		end
+		return false
 	end
 
 	function Effects.getAccessoryCatalog()
@@ -5895,26 +5929,6 @@ __modules["Effects"] = function()
 	end
 
 
-	-- True when this accessory belongs on the head: either it has an attachment
-	-- the head provides, or it has no attachments at all (so it is mounted on the
-	-- head by default). Used to move an accessory off the torso once the real
-	-- head finishes loading.
-	local function accessoryPrefersHead(item, head)
-		if not item.tmpl or not head then
-			return false
-		end
-		local hasAttachment = false
-		for _, child in ipairs(item.tmpl.handle:GetChildren()) do
-			if child:IsA("Attachment") then
-				hasAttachment = true
-				if accessoryFindAttachment(head, child.Name) then
-					return true
-				end
-			end
-		end
-		return not hasAttachment
-	end
-
 	local function tickUnusual()
 		local root = getRootPart()
 		if root and (not unusualAttachment or unusualAttachment.Parent ~= root) then
@@ -5958,8 +5972,12 @@ __modules["Effects"] = function()
 				if item and item.worn then
 					local handle = item.model and item.model:FindFirstChild("Handle")
 					local weld = handle and handle:FindFirstChild("SV_AccessoryWeld")
-					local needsRebuild = (item.part0 ~= head and accessoryPrefersHead(item, head))
-						or (weld == nil)
+					-- Anything still welded to the torso (older builds did that) or
+					-- missing its joint gets rebuilt on the current head.
+					local needsRebuild = weld == nil
+						or weld.Part0 ~= head
+						or item.part0 ~= head
+						or (item.usedAttachment ~= true and accessoryHasHeadMount(item, head))
 					if needsRebuild then
 						accessoryAttach(item)
 					end
