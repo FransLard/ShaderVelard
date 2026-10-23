@@ -19,7 +19,7 @@ local pg = lp:WaitForChild("PlayerGui")
 
 
 local gui = Instance.new("ScreenGui")
-gui.Name = "ShaderVelardLoader"
+gui.Name = "VelardToolsLoader"
 gui.ResetOnSpawn = false
 gui.IgnoreGuiInset = true
 gui.DisplayOrder = 999
@@ -63,13 +63,13 @@ local titleBig = Instance.new("TextLabel")
 titleBig.Size = UDim2.new(1, -40, 0, 50)
 titleBig.Position = UDim2.new(0, 20, 0, 50)
 titleBig.BackgroundTransparency = 1
-titleBig.Text = "VELARD SHADER"
-
-titleBig.TextColor3 = Color3.fromRGB(255, 140, 0) 
+titleBig.Text = "VELARD TOOLS"
+titleBig.TextColor3 = Color3.fromRGB(255, 255, 255) -- Teks Putih Bersih
 titleBig.Font = Enum.Font.GothamBlack
 titleBig.TextSize = 34
 titleBig.TextXAlignment = Enum.TextXAlignment.Center
 titleBig.Parent = box
+
 
 local barBg = Instance.new("Frame")
 barBg.Size = UDim2.new(1, -40, 0, 6)
@@ -82,7 +82,7 @@ Instance.new("UICorner", barBg).CornerRadius = UDim.new(1, 0)
 
 local barFill = Instance.new("Frame")
 barFill.Size = UDim2.new(0, 0, 1, 0)
-barFill.BackgroundColor3 = Color3.fromRGB(240, 240, 240) -- Tetap putih
+barFill.BackgroundColor3 = Color3.fromRGB(240, 240, 240) -- Putih
 barFill.BorderSizePixel = 0
 barFill.Parent = barBg
 Instance.new("UICorner", barFill).CornerRadius = UDim.new(1, 0)
@@ -92,7 +92,7 @@ pct.Size = UDim2.new(0, 100, 0, 16)
 pct.Position = UDim2.new(1, -120, 0, 130)
 pct.BackgroundTransparency = 1
 pct.Text = "0%"
-pct.TextColor3 = Color3.fromRGB(200, 200, 200) -- Tetap putih/abu
+pct.TextColor3 = Color3.fromRGB(200, 200, 200)
 pct.Font = Enum.Font.GothamMedium
 pct.TextSize = 12
 pct.TextXAlignment = Enum.TextXAlignment.Right
@@ -103,7 +103,7 @@ status.Size = UDim2.new(0, 200, 0, 16)
 status.Position = UDim2.new(0, 20, 0, 130)
 status.BackgroundTransparency = 1
 status.Text = "Memuat..."
-status.TextColor3 = Color3.fromRGB(160, 160, 160) -- Tetap abu-abu
+status.TextColor3 = Color3.fromRGB(160, 160, 160)
 status.Font = Enum.Font.Gotham
 status.TextSize = 12
 status.TextXAlignment = Enum.TextXAlignment.Left
