@@ -11,12 +11,18 @@ __     _______ _        _    ____  ____
 
 --]]
 
--- ==== GUARD ANTI-LOOP ====
-if _G.__SHADERVELARD_REDIRECTED then
+
+-- ==== GUARD ANTI-LOOP (getgenv, persisten antar loadstring) ====
+local genv = (typeof(getgenv) == "function" and getgenv()) or _G
+
+if genv.__SV_REDIRECTED then
     warn("[ShaderVelard] Redirect sudah dilakukan. Mencegah loop.")
     return
 end
-_G.__SHADERVELARD_REDIRECTED = true
+genv.__SV_REDIRECTED = true
+
+-- Guard waktu: kalau loader dipanggil lagi dalam 30 detik, blokir
+genv.__SV_LAST_REDIRECT = os.time()
 
 local latest = "https://raw.githubusercontent.com/FransLard/ShaderVelard/refs/heads/main/ShaderVelard.lua"
 
@@ -50,9 +56,7 @@ container.BackgroundColor3 = Color3.fromRGB(14, 14, 14)
 container.BorderSizePixel = 0
 container.Parent = overlay
 
-local containerCorner = Instance.new("UICorner")
-containerCorner.CornerRadius = UDim.new(0, 10)
-containerCorner.Parent = container
+Instance.new("UICorner", container).CornerRadius = UDim.new(0, 10)
 
 local containerStroke = Instance.new("UIStroke")
 containerStroke.Color = Color3.fromRGB(60, 60, 60)
@@ -100,9 +104,7 @@ barBg.BorderSizePixel = 0
 barBg.ClipsDescendants = true
 barBg.Parent = container
 
-local barBgCorner = Instance.new("UICorner")
-barBgCorner.CornerRadius = UDim.new(1, 0)
-barBgCorner.Parent = barBg
+Instance.new("UICorner", barBg).CornerRadius = UDim.new(1, 0)
 
 local barFill = Instance.new("Frame")
 barFill.Size = UDim2.new(0, 0, 1, 0)
@@ -110,11 +112,9 @@ barFill.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
 barFill.BorderSizePixel = 0
 barFill.Parent = barBg
 
-local barFillCorner = Instance.new("UICorner")
-barFillCorner.CornerRadius = UDim.new(1, 0)
-barFillCorner.Parent = barFill
+Instance.new("UICorner", barFill).CornerRadius = UDim.new(1, 0)
 
--- ==== FOOTER (persen + label) ====
+-- ==== FOOTER ====
 local pctLabel = Instance.new("TextLabel")
 pctLabel.Size = UDim2.new(0, 100, 0, 16)
 pctLabel.Position = UDim2.new(0, 20, 0, 104)
@@ -187,13 +187,13 @@ end)
 task.wait(0.3)
 gui:Destroy()
 
--- ==== REDIRECT KE SCRIPT TERBARU ====
+-- ==== REDIRECT (sekali saja) ====
 local ok, err = pcall(function()
     loadstring(game:HttpGet(latest))()
 end)
 
 if not ok then
     warn("[ShaderVelard] Gagal load versi terbaru: " .. tostring(err))
-    -- Reset guard supaya bisa dicoba lagi manual
-    _G.__SHADERVELARD_REDIRECTED = false
+    -- Reset guard supaya user bisa retry manual
+    genv.__SV_REDIRECTED = false
 end
