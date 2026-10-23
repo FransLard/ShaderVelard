@@ -3185,6 +3185,7 @@ __modules["Effects"] = function()
 	local skyTimer = 0
 	local clock = 0
 	local cosmeticTimer = 0
+	local accessoryAnchorTimer = 0
 	local cosmeticCache = {
 		korblox = {},
 		headMesh = {},
@@ -4815,10 +4816,29 @@ __modules["Effects"] = function()
 		if head and head:IsA("BasePart") then
 			return head
 		end
-		-- Last resort: some custom rigs rename or lowercase the head.
+		-- Custom rigs rename the head. The Neck Motor6D always points at it
+		-- (Part1 = Head for both R6 and R15), so use that instead of guessing.
+		for _, descendant in ipairs(character:GetDescendants()) do
+			if descendant:IsA("Motor6D") and descendant.Name == "Neck" then
+				local part = descendant.Part1
+				if part and part:IsA("BasePart") then
+					return part
+				end
+			end
+		end
+		-- Last resorts: lowercase "head", or the part that carries the Face decal.
 		for _, descendant in ipairs(character:GetDescendants()) do
 			if descendant:IsA("BasePart") and string.lower(descendant.Name) == "head" then
 				return descendant
+			end
+		end
+		for _, descendant in ipairs(character:GetDescendants()) do
+			if descendant:IsA("BasePart") then
+				for _, child in ipairs(descendant:GetChildren()) do
+					if child:IsA("Decal") and string.lower(child.Name) == "face" then
+						return descendant
+					end
+				end
 			end
 		end
 		return nil
@@ -4845,7 +4865,7 @@ __modules["Effects"] = function()
 		local deadline = os.clock() + (timeout or 6)
 		repeat
 			local character = getCharacter()
-			if findHead(character) or findBodyPart(character) then
+			if findHead(character) then
 				return character
 			end
 			task.wait(0.1)
@@ -5507,20 +5527,35 @@ __modules["Effects"] = function()
 			handle.Size = handle.Size * scale
 		end
 
+		-- Prefer an attachment on the head so hats/crowns tilt with the head. Only
+		-- fall back to body attachments (necklaces etc.) when the asset has no
+		-- head attachment, otherwise the accessory ends up welded to the torso and
+		-- stops following when the player nods.
 		local handleAttachment, characterAttachment, characterPart
 		for _, child in ipairs(handle:GetChildren()) do
 			if child:IsA("Attachment") then
-				for _, part in ipairs(character:GetChildren()) do
-					if part:IsA("BasePart") then
-						local match = accessoryFindAttachment(part, child.Name)
-						if match then
-							handleAttachment, characterAttachment, characterPart = child, match, part
-							break
+				local match = accessoryFindAttachment(head, child.Name)
+				if match then
+					handleAttachment, characterAttachment, characterPart = child, match, head
+					break
+				end
+			end
+		end
+		if not handleAttachment then
+			for _, child in ipairs(handle:GetChildren()) do
+				if child:IsA("Attachment") then
+					for _, part in ipairs(character:GetChildren()) do
+						if part:IsA("BasePart") and part ~= head then
+							local match = accessoryFindAttachment(part, child.Name)
+							if match then
+								handleAttachment, characterAttachment, characterPart = child, match, part
+								break
+							end
 						end
 					end
-				end
-				if handleAttachment then
-					break
+					if handleAttachment then
+						break
+					end
 				end
 			end
 		end
@@ -5541,18 +5576,25 @@ __modules["Effects"] = function()
 		local model = Instance.new("Model")
 		model.Name = "SV_Accessory_" .. tostring(item.id)
 		handle.Parent = model
+		-- Parent the model before creating the joint so both parts are already in
+		-- the DataModel when the Weld is built. This is the reliable order for
+		-- runtime welds (otherwise the hat can stay detached from the head).
+		model.Parent = parent or character
+
+		local targetCFrame = part0.CFrame * c0 * c1:Inverse()
+		handle.CFrame = targetCFrame
 		if anchored then
-			handle.CFrame = part0.CFrame * c0 * c1:Inverse()
+			handle.Anchored = true
 		else
+			handle.Anchored = false
 			local weld = Instance.new("Weld")
 			weld.Name = "SV_AccessoryWeld"
 			weld.Part0 = part0
 			weld.Part1 = handle
-			weld.C0 = c0
-			weld.C1 = c1
+			weld.C0 = part0.CFrame:Inverse() * targetCFrame
+			weld.C1 = CFrame.new()
 			weld.Parent = handle
 		end
-		model.Parent = parent or character
 		return model, part0
 	end
 
@@ -5853,6 +5895,26 @@ __modules["Effects"] = function()
 	end
 
 
+	-- True when this accessory belongs on the head: either it has an attachment
+	-- the head provides, or it has no attachments at all (so it is mounted on the
+	-- head by default). Used to move an accessory off the torso once the real
+	-- head finishes loading.
+	local function accessoryPrefersHead(item, head)
+		if not item.tmpl or not head then
+			return false
+		end
+		local hasAttachment = false
+		for _, child in ipairs(item.tmpl.handle:GetChildren()) do
+			if child:IsA("Attachment") then
+				hasAttachment = true
+				if accessoryFindAttachment(head, child.Name) then
+					return true
+				end
+			end
+		end
+		return not hasAttachment
+	end
+
 	local function tickUnusual()
 		local root = getRootPart()
 		if root and (not unusualAttachment or unusualAttachment.Parent ~= root) then
@@ -5885,6 +5947,25 @@ __modules["Effects"] = function()
 		clearAccessories = clearAccessories,
 		refreshCatalogAccessories = Effects.refreshCatalogAccessories,
 		clearCatalogAccessories = Effects.clearCatalogAccessories,
+		reanchorAccessories = function()
+			local character = getCharacter()
+			local head = findHead(character)
+			if not character or not head then
+				return
+			end
+			for _, id in ipairs(accessoryOrder) do
+				local item = accessoryItems[id]
+				if item and item.worn then
+					local handle = item.model and item.model:FindFirstChild("Handle")
+					local weld = handle and handle:FindFirstChild("SV_AccessoryWeld")
+					local needsRebuild = (item.part0 ~= head and accessoryPrefersHead(item, head))
+						or (weld == nil)
+					if needsRebuild then
+						accessoryAttach(item)
+					end
+				end
+			end
+		end,
 		resetEmotes = function()
 			for _, track in ipairs(emoteTracks) do
 				pcall(function()
@@ -8290,6 +8371,17 @@ __modules["Effects"] = function()
 			end
 		else
 			cosmeticTimer = 0
+		end
+
+		-- Accessories can be equipped before the avatar's real Head streams in
+		-- (Evade). Move them from the torso onto the head once it exists so they
+		-- tilt with head movement.
+		accessoryAnchorTimer = accessoryAnchorTimer + deltaTime
+		if accessoryAnchorTimer >= 1 then
+			accessoryAnchorTimer = 0
+			if Effects._character and Effects._character.reanchorAccessories then
+				pcall(Effects._character.reanchorAccessories)
+			end
 		end
 
 		if state.toggles.chromatic then
