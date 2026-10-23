@@ -5243,6 +5243,545 @@ __modules["Effects"] = function()
 		return value
 	end
 
+	-- ===== Visual accessory catalog =====
+	-- Ported from DZ Delux Zephyr's Accessories tab. Items are loaded straight
+	-- from asset IDs with game:GetObjects and welded to the local character, so
+	-- nothing is equipped on the server and other players never see the change.
+	local ACCESSORY_DEFAULT_ITEMS = {
+		{ id = 10159600649, name = "8 Bit Royal Crown", desc = "Pixel crown + sparkle effect", fx = "crown" },
+		{ id = 215718515, name = "Fiery Horns of the Netherworld", desc = "Hellfire horns" },
+		{ id = 74891470, name = "Frozen Horns of the Frigid Planes", desc = "Frozen ice horns" },
+		{ id = 1744060292, name = "Poisoned Horns of the Toxic Wasteland", desc = "Toxic horns + effect", fx = "horns" },
+		{ id = 10159617728, name = "8 Bit Tabby Cat", desc = "Pixel cat" },
+		{ id = 10159610478, name = "8 Bit HP Bar", desc = "Pixel HP bar" },
+		{ id = 141742418, name = "Winter Fairy", desc = "Winter fairy" },
+		{ id = 439945661, name = "Silver King of the Night", desc = "Silver king crown" },
+		{ id = 88885069, name = "Lord of the Federation (hat)", desc = "Lord of the Federation hat" },
+		{ id = 83672858218486, name = "Heart Shades Bobux Cloud", desc = "Heart glasses" },
+		{ id = 8151404994, name = "Hovering UFO", desc = "Hovering UFO" },
+		{ id = 73030805068953, name = "Arcane Fedora", desc = "Arcane fedora" },
+		{ id = 67995931, name = "8-Bit Fedora", desc = "Pixel fedora" },
+	}
+	local ACCESSORY_ASSET_TYPES = {
+		[8] = true, [10] = true, [41] = true, [42] = true,
+		[43] = true, [44] = true, [45] = true, [46] = true, [47] = true,
+	}
+	local ACCESSORY_MAX_ITEMS = 100
+	local ACCESSORY_TYPE_NAMES = {
+		[8] = "Hat", [10] = "Face", [41] = "Hair", [42] = "Face",
+		[43] = "Neck", [44] = "Shoulder", [45] = "Front", [46] = "Back", [47] = "Waist",
+	}
+	local accessoryItems = {}
+	local accessoryOrder = {}
+	local accessoryTemplateCache = {}
+	local accessoryLoadingIds = {}
+	local accessoryDefaultIds = {}
+
+	local function accessoryDefaultConfig()
+		return { size = 1, x = 0, y = 0, z = 0, rx = 0, ry = 0, rz = 0 }
+	end
+
+	local function accessoryNormalizeConfig(config)
+		local out = accessoryDefaultConfig()
+		config = type(config) == "table" and config or {}
+		out.size = math.clamp(tonumber(config.size) or 1, 0.1, 5)
+		out.x = math.clamp(tonumber(config.x) or 0, -5, 5)
+		out.y = math.clamp(tonumber(config.y) or 0, -5, 5)
+		out.z = math.clamp(tonumber(config.z) or 0, -5, 5)
+		out.rx = math.clamp(tonumber(config.rx) or 0, -180, 180)
+		out.ry = math.clamp(tonumber(config.ry) or 0, -180, 180)
+		out.rz = math.clamp(tonumber(config.rz) or 0, -180, 180)
+		return out
+	end
+
+	local function accessoryRegister(item)
+		if not item or not item.id or accessoryItems[item.id] then
+			return nil
+		end
+		item.name = tostring(item.name or ("ID " .. tostring(item.id)))
+		item.desc = tostring(item.desc or "")
+		item.cfg = accessoryNormalizeConfig(item.cfg)
+		item.fav = item.fav == true
+		item.worn = item.worn == true
+		item.busy = false
+		accessoryItems[item.id] = item
+		accessoryOrder[#accessoryOrder + 1] = item.id
+		return item
+	end
+
+	for _, entry in ipairs(ACCESSORY_DEFAULT_ITEMS) do
+		accessoryDefaultIds[entry.id] = true
+		accessoryRegister({
+			id = entry.id,
+			name = entry.name,
+			desc = entry.desc,
+			seed = true,
+			fav = false,
+			cfg = accessoryDefaultConfig(),
+		})
+	end
+
+	local function accessoryParseId(input)
+		local text = tostring(input or "")
+		local digits = text:match("catalog/(%d+)")
+			or text:match("library/(%d+)")
+			or text:match("rbxassetid://(%d+)")
+			or text:match("[?&]id=(%d+)")
+			or text:match("^%s*(%d+)%s*$")
+		local id = digits and tonumber(digits)
+		if not id or id < 1 or id >= 1e15 then
+			return nil
+		end
+		return math.floor(id)
+	end
+
+	local function accessoryFindAttachment(part, name)
+		for _, child in ipairs(part:GetChildren()) do
+			if child:IsA("Attachment") and child.Name == name then
+				return child
+			end
+		end
+		return nil
+	end
+
+	local function accessoryLoadTemplate(id)
+		if accessoryTemplateCache[id] then
+			return accessoryTemplateCache[id]
+		end
+		local ok, objects = pcall(function()
+			return game:GetObjects("rbxassetid://" .. tostring(id))
+		end)
+		if not ok or type(objects) ~= "table" then
+			return nil
+		end
+		local template
+		for _, object in ipairs(objects) do
+			if not template then
+				local handle = (object:IsA("BasePart") and object)
+					or object:FindFirstChild("Handle", true)
+					or object:FindFirstChildWhichIsA("BasePart", true)
+				if handle then
+					local attachmentPoint = CFrame.new()
+					local accoutrement = handle:FindFirstAncestorWhichIsA("Accoutrement")
+					if accoutrement then
+						pcall(function()
+							attachmentPoint = accoutrement.AttachmentPoint
+						end)
+					end
+					local clone = handle:Clone()
+					for _, descendant in ipairs(clone:GetDescendants()) do
+						if descendant:IsA("LuaSourceContainer")
+							or descendant:IsA("Weld")
+							or descendant:IsA("WeldConstraint")
+							or descendant:IsA("Motor6D") then
+							descendant:Destroy()
+						end
+					end
+					template = { handle = clone, ap = attachmentPoint }
+				end
+			end
+			pcall(function()
+				object:Destroy()
+			end)
+		end
+		if template then
+			accessoryTemplateCache[id] = template
+		end
+		return template
+	end
+
+	local function accessoryEnsureTemplate(item)
+		if item.tmpl then
+			return true
+		end
+		if item.failedAt and tick() - item.failedAt < 8 then
+			return false
+		end
+		local template = accessoryLoadTemplate(item.id)
+		if not template then
+			item.failedAt = tick()
+			return false
+		end
+		item.failedAt = nil
+		item.tmpl = template
+		return true
+	end
+
+	local function accessoryClearModel(item)
+		if item.model then
+			pcall(function()
+				item.model:Destroy()
+			end)
+			item.model = nil
+		end
+		item.part0 = nil
+	end
+
+	local function accessoryBuildModel(character, item, parent, anchored)
+		if not item.tmpl then
+			return nil
+		end
+		local head = character:FindFirstChild("Head")
+		if not head then
+			return nil
+		end
+		local cfg = item.cfg or accessoryDefaultConfig()
+		local handle = item.tmpl.handle:Clone()
+		handle.Name = "Handle"
+		handle.Anchored = anchored == true
+		handle.CanCollide = false
+		handle.CanTouch = false
+		handle.CanQuery = false
+		handle.Massless = true
+		handle.Transparency = 0
+
+		local scale = tonumber(cfg.size) or 1
+		if scale ~= 1 then
+			for _, descendant in ipairs(handle:GetDescendants()) do
+				if descendant:IsA("Attachment") then
+					descendant.Position = descendant.Position * scale
+				elseif descendant:IsA("SpecialMesh") then
+					descendant.Scale = descendant.Scale * scale
+				end
+			end
+			handle.Size = handle.Size * scale
+		end
+
+		local handleAttachment, characterAttachment, characterPart
+		for _, child in ipairs(handle:GetChildren()) do
+			if child:IsA("Attachment") then
+				for _, part in ipairs(character:GetChildren()) do
+					if part:IsA("BasePart") then
+						local match = accessoryFindAttachment(part, child.Name)
+						if match then
+							handleAttachment, characterAttachment, characterPart = child, match, part
+							break
+						end
+					end
+				end
+				if handleAttachment then
+					break
+				end
+			end
+		end
+
+		local offset = CFrame.new(cfg.x, cfg.y, cfg.z)
+			* CFrame.Angles(math.rad(cfg.rx), math.rad(cfg.ry), math.rad(cfg.rz))
+		local c0, c1, part0
+		if handleAttachment then
+			part0 = characterPart
+			c0 = characterAttachment.CFrame * offset
+			c1 = handleAttachment.CFrame
+		else
+			part0 = head
+			c0 = CFrame.new(0, head.Size.Y / 2, 0) * offset * item.tmpl.ap:Inverse()
+			c1 = CFrame.new()
+		end
+
+		local model = Instance.new("Model")
+		model.Name = "SV_Accessory_" .. tostring(item.id)
+		handle.Parent = model
+		if anchored then
+			handle.CFrame = part0.CFrame * c0 * c1:Inverse()
+		else
+			local weld = Instance.new("Weld")
+			weld.Name = "SV_AccessoryWeld"
+			weld.Part0 = part0
+			weld.Part1 = handle
+			weld.C0 = c0
+			weld.C1 = c1
+			weld.Parent = handle
+		end
+		model.Parent = parent or character
+		return model, part0
+	end
+
+	local function accessoryAttach(item)
+		accessoryClearModel(item)
+		if not item.worn then
+			return false
+		end
+		local character = getCharacter()
+		if not character or not character:FindFirstChild("Head") then
+			return false
+		end
+		if not item.tmpl then
+			return false
+		end
+		local model, part0 = accessoryBuildModel(character, item, character, false)
+		if not model then
+			return false
+		end
+		item.model = model
+		item.part0 = part0
+		return true
+	end
+
+	local function accessoryRefreshAll()
+		local character = getCharacter()
+		if not character or not character:FindFirstChild("Head") then
+			return false
+		end
+		for _, id in ipairs(accessoryOrder) do
+			local item = accessoryItems[id]
+			if item and item.worn then
+				accessoryAttach(item)
+			end
+		end
+		return true
+	end
+
+	function Effects.getAccessoryCatalog()
+		local out = {}
+		for _, id in ipairs(accessoryOrder) do
+			local item = accessoryItems[id]
+			if item then
+				out[#out + 1] = {
+					id = item.id,
+					name = item.name,
+					desc = item.desc,
+					fav = item.fav == true,
+					seed = item.seed == true,
+					worn = item.worn == true,
+					busy = item.busy == true,
+					cfg = accessoryNormalizeConfig(item.cfg),
+				}
+			end
+		end
+		return out
+	end
+
+	function Effects.getAccessoryDefaults()
+		local out = {}
+		for _, entry in ipairs(ACCESSORY_DEFAULT_ITEMS) do
+			out[#out + 1] = {
+				id = entry.id,
+				name = entry.name,
+				desc = entry.desc,
+				seed = true,
+			}
+		end
+		return out
+	end
+
+	function Effects.getAccessoryConfig(id)
+		local item = accessoryItems[tonumber(id) or 0]
+		if not item then
+			return nil
+		end
+		return accessoryNormalizeConfig(item.cfg)
+	end
+
+	function Effects.setAccessoryConfig(id, config)
+		local item = accessoryItems[tonumber(id) or 0]
+		if not item then
+			return false
+		end
+		item.cfg = accessoryNormalizeConfig(config)
+		if item.worn then
+			accessoryAttach(item)
+		end
+		return true
+	end
+
+	function Effects.setAccessoryFavorite(id, value)
+		local item = accessoryItems[tonumber(id) or 0]
+		if not item then
+			return false
+		end
+		item.fav = value == true
+		return true
+	end
+
+	function Effects.setAccessoryName(id, name)
+		local item = accessoryItems[tonumber(id) or 0]
+		if not item or tostring(name or "") == "" then
+			return false
+		end
+		item.name = tostring(name):sub(1, 60)
+		return true
+	end
+
+	function Effects.addAccessory(input, callback)
+		callback = callback or function() end
+		local id = accessoryParseId(input)
+		if not id then
+			callback(false, "Invalid ID. Enter a numeric Asset ID or an item link.")
+			return false
+		end
+		if accessoryItems[id] then
+			callback(false, "Already in the catalog.", id)
+			return false
+		end
+		if #accessoryOrder >= ACCESSORY_MAX_ITEMS then
+			callback(false, "Catalog full (max " .. ACCESSORY_MAX_ITEMS .. " items).")
+			return false
+		end
+		if accessoryLoadingIds[id] then
+			callback(false, "Please wait...")
+			return false
+		end
+		accessoryLoadingIds[id] = true
+		task.spawn(function()
+			local info
+			local infoOk, infoResult = pcall(function()
+				return game:GetService("MarketplaceService"):GetProductInfo(id, Enum.InfoType.Asset)
+			end)
+			if infoOk and type(infoResult) == "table" then
+				info = infoResult
+			end
+			if info and info.AssetTypeId and not ACCESSORY_ASSET_TYPES[tonumber(info.AssetTypeId)] then
+				accessoryLoadingIds[id] = nil
+				local typeId = tonumber(info.AssetTypeId)
+				local typeName = ACCESSORY_TYPE_NAMES[typeId] or tostring(typeId)
+				if typeId >= 64 and typeId <= 80 then
+					callback(false, "Layered accessories are not supported: " .. tostring(info.Name or id))
+				else
+					callback(false, "ID " .. tostring(id) .. " is not an accessory (type " .. typeName .. ").")
+				end
+				return
+			end
+			local entry = {
+				id = id,
+				name = info and info.Name or ("ID " .. tostring(id)),
+				desc = info and ("Asset " .. tostring(info.AssetTypeId or "")) or "Custom asset",
+				seed = accessoryDefaultIds[id] == true,
+				fav = false,
+				cfg = accessoryDefaultConfig(),
+			}
+			entry.name = tostring(entry.name):sub(1, 60)
+			local item = accessoryRegister(entry)
+			local loaded = item and accessoryEnsureTemplate(item)
+			accessoryLoadingIds[id] = nil
+			if not item or not loaded then
+				if item then
+					accessoryItems[id] = nil
+					for index, value in ipairs(accessoryOrder) do
+						if value == id then
+							table.remove(accessoryOrder, index)
+							break
+						end
+					end
+				end
+				callback(false, "Failed to load ID " .. tostring(id) .. " (not an accessory / unavailable).")
+				return
+			end
+			callback(true, "Added: " .. item.name, id)
+		end)
+		return true
+	end
+
+	function Effects.toggleAccessory(id, callback)
+		callback = callback or function() end
+		local item = accessoryItems[tonumber(id) or 0]
+		if not item then
+			callback(false, "Accessory not found.")
+			return false
+		end
+		if item.busy then
+			callback(false, "Please wait...")
+			return false
+		end
+		if item.worn then
+			item.worn = false
+			accessoryClearModel(item)
+			callback(true, "Removed: " .. item.name, item.id, false)
+			return true
+		end
+		item.busy = true
+		task.spawn(function()
+			local loaded = accessoryEnsureTemplate(item)
+			item.busy = false
+			if not loaded then
+				callback(false, "Failed to load " .. item.name .. " (not an accessory / unavailable).", item.id)
+				return
+			end
+			if not getCharacter() or not getCharacter():FindFirstChild("Head") then
+				callback(false, "Character not ready. Respawn or try again in a second.", item.id)
+				return
+			end
+			item.worn = true
+			if accessoryAttach(item) then
+				callback(true, "Equipped: " .. item.name, item.id, true)
+			else
+				item.worn = false
+				accessoryClearModel(item)
+				callback(false, "Failed to equip " .. item.name .. ".", item.id)
+			end
+		end)
+		return true
+	end
+
+	function Effects.removeAccessory(id)
+		local numericId = tonumber(id) or 0
+		local item = accessoryItems[numericId]
+		if not item then
+			return false, "Accessory not found."
+		end
+		item.worn = false
+		accessoryClearModel(item)
+		accessoryItems[numericId] = nil
+		accessoryTemplateCache[numericId] = nil
+		for index, value in ipairs(accessoryOrder) do
+			if value == numericId then
+				table.remove(accessoryOrder, index)
+				break
+			end
+		end
+		return true, "Removed from catalog: " .. item.name
+	end
+
+	function Effects.clearWornAccessories()
+		local count = 0
+		for _, id in ipairs(accessoryOrder) do
+			local item = accessoryItems[id]
+			if item and item.worn then
+				item.worn = false
+				accessoryClearModel(item)
+				count = count + 1
+			end
+		end
+		return count
+	end
+
+	function Effects.restoreDefaultAccessories()
+		local added = 0
+		for _, entry in ipairs(ACCESSORY_DEFAULT_ITEMS) do
+			if not accessoryItems[entry.id] and #accessoryOrder < ACCESSORY_MAX_ITEMS then
+				accessoryRegister({
+					id = entry.id,
+					name = entry.name,
+					desc = entry.desc,
+					seed = true,
+					fav = false,
+					cfg = accessoryDefaultConfig(),
+				})
+				added = added + 1
+			end
+		end
+		return added
+	end
+
+	function Effects.refreshCatalogAccessories()
+		for _, id in ipairs(accessoryOrder) do
+			local item = accessoryItems[id]
+			if item then
+				accessoryClearModel(item)
+			end
+		end
+		return accessoryRefreshAll()
+	end
+
+	function Effects.clearCatalogAccessories()
+		for _, id in ipairs(accessoryOrder) do
+			local item = accessoryItems[id]
+			if item then
+				item.worn = false
+				accessoryClearModel(item)
+			end
+		end
+	end
+
 
 	local function tickUnusual()
 		local root = getRootPart()
@@ -5274,6 +5813,8 @@ __modules["Effects"] = function()
 		updateFreecam = updateFreecam,
 		applyAntiAfk = applyAntiAfk,
 		clearAccessories = clearAccessories,
+		refreshCatalogAccessories = Effects.refreshCatalogAccessories,
+		clearCatalogAccessories = Effects.clearCatalogAccessories,
 		resetEmotes = function()
 			for _, track in ipairs(emoteTracks) do
 				pcall(function()
@@ -5842,6 +6383,9 @@ __modules["Effects"] = function()
 				Effects._character.applySpoof()
 			end
 			pcall(Effects.refreshAccessories)
+			if Effects.refreshCatalogAccessories then
+				pcall(Effects.refreshCatalogAccessories)
+			end
 			if state.toggles.motionTrail then
 				ensureTrail()
 			end
@@ -5906,6 +6450,9 @@ __modules["Effects"] = function()
 				Effects._character.clearSpoof()
 			end
 			pcall(Effects.refreshAccessories)
+			if Effects.refreshCatalogAccessories then
+				pcall(Effects.refreshCatalogAccessories)
+			end
 			if state.toggles.motionTrail then
 				ensureTrail()
 			else
@@ -7459,6 +8006,7 @@ __modules["Effects"] = function()
 		Effects._character.clearUnusual()
 		Effects._character.clearSpoof()
 		Effects._character.clearAccessories()
+		Effects._character.clearCatalogAccessories()
 		Effects._character.resetEmotes()
 		clearTrail()
 		clearSkyText()
@@ -10377,7 +10925,684 @@ __modules["UI"] = function()
 		Effects.setDropdown("trailColor", value)
 	end)
 	addSlider(characterTab, "trailLifetime", "Trail Lifetime", 0.1, 3, 0.05, "s")
-	addSection(characterTab, "Accessories Changer")
+
+	-- ============================================================
+	-- VISUAL ACCESSORY CATALOG (ported from DZ Delux Zephyr)
+	-- ============================================================
+	do
+		addSection(characterTab, "Visual Accessories")
+
+		local accessoryPanel = make("Frame", {
+			Name = "VisualAccessoryPanel",
+			Size = UDim2.new(1, 0, 0, 506),
+			BackgroundColor3 = theme.Card,
+			BorderSizePixel = 0,
+			LayoutOrder = #characterTab:GetChildren(),
+		}, characterTab)
+		addCorner(accessoryPanel, 12)
+		addStroke(accessoryPanel, theme.Stroke, 1, 0.2)
+
+		make("TextLabel", {
+			Text = "ACCESSORY CATALOG",
+			Font = fonts.Bold,
+			TextSize = 11,
+			TextColor3 = theme.Text,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			BackgroundTransparency = 1,
+			Position = UDim2.fromOffset(14, 12),
+			Size = UDim2.new(1, -140, 0, 16),
+		}, accessoryPanel)
+
+		local itemCount = make("TextLabel", {
+			Text = "0 items",
+			Font = fonts.Mono,
+			TextSize = 10,
+			TextColor3 = theme.SubText,
+			TextXAlignment = Enum.TextXAlignment.Right,
+			BackgroundTransparency = 1,
+			Position = UDim2.new(1, -140, 0, 12),
+			Size = UDim2.fromOffset(126, 16),
+		}, accessoryPanel)
+
+		local function styleInput(box)
+			addCorner(box, 7)
+			addStroke(box, theme.Stroke, 1, 0.15)
+			local padding = Instance.new("UIPadding")
+			padding.PaddingLeft = UDim.new(0, 8)
+			padding.Parent = box
+		end
+
+		local searchBox = make("TextBox", {
+			Name = "AccessorySearch",
+			Text = "",
+			PlaceholderText = "Search name / ID...",
+			Font = fonts.Regular,
+			TextSize = 11,
+			TextColor3 = theme.Text,
+			PlaceholderColor3 = theme.Muted,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			BackgroundColor3 = theme.BgSoft,
+			ClearTextOnFocus = false,
+			Position = UDim2.fromOffset(14, 38),
+			Size = UDim2.fromOffset(230, 30),
+			BorderSizePixel = 0,
+		}, accessoryPanel)
+		styleInput(searchBox)
+
+		local allButton = make("TextButton", {
+			Name = "FilterAll",
+			Text = "All",
+			Font = fonts.Bold,
+			TextSize = 10,
+			TextColor3 = Color3.fromRGB(12, 12, 14),
+			BackgroundColor3 = theme.Accent,
+			AutoButtonColor = false,
+			Position = UDim2.fromOffset(250, 38),
+			Size = UDim2.fromOffset(58, 30),
+			BorderSizePixel = 0,
+		}, accessoryPanel)
+		addCorner(allButton, 7)
+
+		local favButton = make("TextButton", {
+			Name = "FilterFavorites",
+			Text = "Favorites",
+			Font = fonts.Bold,
+			TextSize = 10,
+			TextColor3 = theme.SubText,
+			BackgroundColor3 = theme.BgSoft,
+			AutoButtonColor = false,
+			Position = UDim2.fromOffset(314, 38),
+			Size = UDim2.fromOffset(70, 30),
+			BorderSizePixel = 0,
+		}, accessoryPanel)
+		addCorner(favButton, 7)
+		addStroke(favButton, theme.Stroke, 1, 0.25)
+
+		local idBox = make("TextBox", {
+			Name = "AccessoryId",
+			Text = "",
+			PlaceholderText = "Asset ID / link",
+			Font = fonts.Regular,
+			TextSize = 11,
+			TextColor3 = theme.Text,
+			PlaceholderColor3 = theme.Muted,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			BackgroundColor3 = theme.BgSoft,
+			ClearTextOnFocus = false,
+			Position = UDim2.fromOffset(14, 76),
+			Size = UDim2.fromOffset(300, 30),
+			BorderSizePixel = 0,
+		}, accessoryPanel)
+		styleInput(idBox)
+
+		local function smallButton(parent, text, position, size, accent)
+			local button = make("TextButton", {
+				Text = text,
+				Font = fonts.Bold,
+				TextSize = 10,
+				TextColor3 = accent and Color3.fromRGB(12, 12, 14) or theme.Text,
+				BackgroundColor3 = accent and theme.Accent or theme.BgSoft,
+				AutoButtonColor = false,
+				Position = position,
+				Size = size,
+				BorderSizePixel = 0,
+			}, parent)
+			addCorner(button, 7)
+			if not accent then
+				addStroke(button, theme.Stroke, 1, 0.25)
+			end
+			return button
+		end
+
+		local addButton = smallButton(accessoryPanel, "Add", UDim2.fromOffset(320, 76), UDim2.fromOffset(90, 30), true)
+		local refreshButton = smallButton(accessoryPanel, "Refresh", UDim2.fromOffset(416, 76), UDim2.fromOffset(64, 30), false)
+		local defaultsButton = smallButton(accessoryPanel, "Defaults", UDim2.fromOffset(486, 76), UDim2.fromOffset(70, 30), false)
+
+		local catalogScroll = make("ScrollingFrame", {
+			Name = "AccessoryGrid",
+			Position = UDim2.fromOffset(14, 114),
+			Size = UDim2.new(1, -28, 0, 344),
+			BackgroundColor3 = theme.BgSoft,
+			BorderSizePixel = 0,
+			ScrollBarThickness = 4,
+			ScrollBarImageColor3 = theme.Muted,
+			ScrollBarImageTransparency = 0.3,
+			CanvasSize = UDim2.new(),
+			AutomaticCanvasSize = Enum.AutomaticSize.Y,
+			ScrollingDirection = Enum.ScrollingDirection.Y,
+		}, accessoryPanel)
+		addCorner(catalogScroll, 8)
+		addStroke(catalogScroll, theme.Stroke, 1, 0.4)
+		local grid = Instance.new("UIGridLayout")
+		grid.CellSize = UDim2.fromOffset(170, 188)
+		grid.CellPadding = UDim2.fromOffset(6, 6)
+		grid.SortOrder = Enum.SortOrder.LayoutOrder
+		grid.HorizontalAlignment = Enum.HorizontalAlignment.Center
+		grid.Parent = catalogScroll
+		local gridPadding = Instance.new("UIPadding")
+		gridPadding.PaddingTop = UDim.new(0, 6)
+		gridPadding.PaddingBottom = UDim.new(0, 6)
+		gridPadding.Parent = catalogScroll
+
+		local removeAllButton = smallButton(accessoryPanel, "Remove All", UDim2.fromOffset(14, 466), UDim2.fromOffset(104, 28), false)
+		local statusLabel = make("TextLabel", {
+			Text = "Local visual catalog. Nothing is sent to the server.",
+			Font = fonts.Regular,
+			TextSize = 9,
+			TextColor3 = theme.SubText,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			TextWrapped = true,
+			BackgroundTransparency = 1,
+			Position = UDim2.fromOffset(126, 466),
+			Size = UDim2.new(1, -140, 0, 28),
+		}, accessoryPanel)
+
+		local filterMode = "all"
+		local searchText = ""
+		local cards = {}
+		local selectedId = nil
+
+		local ADJUST_FIELDS = {
+			{ key = "size", label = "Size", min = 0.1, max = 5, step = 0.1 },
+			{ key = "x", label = "Position X", min = -5, max = 5, step = 0.05 },
+			{ key = "y", label = "Position Y", min = -5, max = 5, step = 0.05 },
+			{ key = "z", label = "Position Z", min = -5, max = 5, step = 0.05 },
+			{ key = "rx", label = "Rotation X", min = -180, max = 180, step = 10 },
+			{ key = "ry", label = "Rotation Y", min = -180, max = 180, step = 10 },
+			{ key = "rz", label = "Rotation Z", min = -180, max = 180, step = 10 },
+		}
+		local adjustFieldBoxes = {}
+		local adjustId = nil
+		local adjustConfig = nil
+
+		local function formatConfigValue(value)
+			local text = string.format("%.2f", tonumber(value) or 0)
+			text = text:gsub("(%..-)0+$", "%1"):gsub("%.$", "")
+			return text
+		end
+
+		local function clampField(field, value)
+			value = tonumber(value) or 0
+			value = math.floor(value / field.step + 0.5) * field.step
+			return math.clamp(value, field.min, field.max)
+		end
+
+		local adjustOverlay = make("TextButton", {
+			Name = "AccessoryAdjustOverlay",
+			Text = "",
+			AutoButtonColor = false,
+			Size = UDim2.fromScale(1, 1),
+			BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+			BackgroundTransparency = 0.5,
+			BorderSizePixel = 0,
+			Visible = false,
+			ZIndex = 560,
+		}, gui)
+		local adjustCard = make("Frame", {
+			Name = "AccessoryAdjustCard",
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.fromScale(0.5, 0.5),
+			Size = isMobile and UDim2.new(1, -32, 0, 364) or UDim2.fromOffset(440, 364),
+			BackgroundColor3 = theme.BgSoft,
+			BorderSizePixel = 0,
+			ZIndex = 561,
+		}, adjustOverlay)
+		addCorner(adjustCard, 14)
+		addStroke(adjustCard, theme.Accent, 1, 0.55)
+
+		local adjustTitle = make("TextLabel", {
+			Text = "Adjust accessory",
+			Font = fonts.Bold,
+			TextSize = 15,
+			TextColor3 = theme.Text,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			BackgroundTransparency = 1,
+			Position = UDim2.fromOffset(16, 12),
+			Size = UDim2.new(1, -64, 0, 20),
+			ZIndex = 562,
+		}, adjustCard)
+		make("TextLabel", {
+			Text = "Only changes this accessory, not your character size.",
+			Font = fonts.Regular,
+			TextSize = 10,
+			TextColor3 = theme.SubText,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			BackgroundTransparency = 1,
+			Position = UDim2.fromOffset(16, 32),
+			Size = UDim2.new(1, -32, 0, 14),
+			ZIndex = 562,
+		}, adjustCard)
+		local adjustCloseX = make("TextButton", {
+			Text = "X",
+			Font = fonts.Bold,
+			TextSize = 11,
+			TextColor3 = theme.Text,
+			BackgroundColor3 = theme.Card,
+			AutoButtonColor = false,
+			Position = UDim2.new(1, -40, 0, 12),
+			Size = UDim2.fromOffset(26, 26),
+			BorderSizePixel = 0,
+			ZIndex = 562,
+		}, adjustCard)
+		addCorner(adjustCloseX, 7)
+
+		local function pushAdjustConfig()
+			if not adjustId or not adjustConfig then
+				return
+			end
+			Effects.setAccessoryConfig(adjustId, adjustConfig)
+			for _, field in ipairs(ADJUST_FIELDS) do
+				local box = adjustFieldBoxes[field.key]
+				if box then
+					box.Text = formatConfigValue(adjustConfig[field.key])
+				end
+			end
+		end
+
+		local function closeAdjust()
+			adjustOverlay.Visible = false
+			adjustId = nil
+			adjustConfig = nil
+		end
+
+		local function openAdjust(id)
+			local config = Effects.getAccessoryConfig(id)
+			if not config then
+				showNotification("Accessories", "Select an accessory first.", 4)
+				return
+			end
+			adjustId = id
+			adjustConfig = config
+			local entryName = "Accessory"
+			for _, entry in ipairs(Effects.getAccessoryCatalog()) do
+				if entry.id == id then
+					entryName = entry.name
+					break
+				end
+			end
+			adjustTitle.Text = "Adjust: " .. entryName
+			for _, field in ipairs(ADJUST_FIELDS) do
+				local box = adjustFieldBoxes[field.key]
+				if box then
+					box.Text = formatConfigValue(adjustConfig[field.key])
+				end
+			end
+			adjustOverlay.Visible = true
+		end
+
+		adjustCloseX.Activated:Connect(closeAdjust)
+
+		for index, field in ipairs(ADJUST_FIELDS) do
+			local y = 54 + (index - 1) * 34
+			make("TextLabel", {
+				Text = field.label,
+				Font = fonts.Medium,
+				TextSize = 11,
+				TextColor3 = theme.Text,
+				TextXAlignment = Enum.TextXAlignment.Left,
+				BackgroundTransparency = 1,
+				Position = UDim2.fromOffset(16, y + 5),
+				Size = UDim2.fromOffset(110, 16),
+				ZIndex = 562,
+			}, adjustCard)
+
+			local minus = make("TextButton", {
+				Text = "-",
+				Font = fonts.Bold,
+				TextSize = 14,
+				TextColor3 = theme.Text,
+				BackgroundColor3 = theme.Card,
+				AutoButtonColor = false,
+				Position = UDim2.new(1, -208, 0, y),
+				Size = UDim2.fromOffset(30, 26),
+				BorderSizePixel = 0,
+				ZIndex = 562,
+			}, adjustCard)
+			addCorner(minus, 6)
+
+			local box = make("TextBox", {
+				Text = "0",
+				Font = fonts.Mono,
+				TextSize = 11,
+				TextColor3 = theme.Text,
+				BackgroundColor3 = theme.Bg,
+				ClearTextOnFocus = false,
+				TextXAlignment = Enum.TextXAlignment.Center,
+				Position = UDim2.new(1, -172, 0, y),
+				Size = UDim2.fromOffset(104, 26),
+				BorderSizePixel = 0,
+				ZIndex = 562,
+			}, adjustCard)
+			addCorner(box, 6)
+			addStroke(box, theme.Stroke, 1, 0.2)
+			adjustFieldBoxes[field.key] = box
+
+			local plus = make("TextButton", {
+				Text = "+",
+				Font = fonts.Bold,
+				TextSize = 14,
+				TextColor3 = theme.Text,
+				BackgroundColor3 = theme.Card,
+				AutoButtonColor = false,
+				Position = UDim2.new(1, -62, 0, y),
+				Size = UDim2.fromOffset(30, 26),
+				BorderSizePixel = 0,
+				ZIndex = 562,
+			}, adjustCard)
+			addCorner(plus, 6)
+
+			minus.Activated:Connect(function()
+				if not adjustConfig then
+					return
+				end
+				adjustConfig[field.key] = clampField(field, (tonumber(adjustConfig[field.key]) or 0) - field.step)
+				pushAdjustConfig()
+			end)
+			plus.Activated:Connect(function()
+				if not adjustConfig then
+					return
+				end
+				adjustConfig[field.key] = clampField(field, (tonumber(adjustConfig[field.key]) or 0) + field.step)
+				pushAdjustConfig()
+			end)
+			box.FocusLost:Connect(function()
+				if not adjustConfig then
+					return
+				end
+				adjustConfig[field.key] = clampField(field, box.Text)
+				pushAdjustConfig()
+			end)
+		end
+
+		local resetAdjust = smallButton(adjustCard, "Reset", UDim2.fromOffset(16, 316), UDim2.fromOffset(190, 32), false)
+		local closeAdjustButton = smallButton(adjustCard, "Close", UDim2.new(1, -214, 0, 316), UDim2.fromOffset(198, 32), true)
+		resetAdjust.ZIndex = 562
+		closeAdjustButton.ZIndex = 562
+		resetAdjust.Activated:Connect(function()
+			if not adjustId then
+				return
+			end
+			Effects.setAccessoryConfig(adjustId, {
+				size = 1, x = 0, y = 0, z = 0, rx = 0, ry = 0, rz = 0,
+			})
+			adjustConfig = Effects.getAccessoryConfig(adjustId)
+			for _, field in ipairs(ADJUST_FIELDS) do
+				local box = adjustFieldBoxes[field.key]
+				if box then
+					box.Text = formatConfigValue(adjustConfig[field.key])
+				end
+			end
+			showNotification("Accessories", "Settings reset.", 3)
+		end)
+		closeAdjustButton.Activated:Connect(closeAdjust)
+
+		local function entryMatches(entry)
+			if filterMode == "fav" and not entry.fav then
+				return false
+			end
+			if searchText ~= "" then
+				local name = tostring(entry.name):lower()
+				local id = tostring(entry.id)
+				if not (name:find(searchText, 1, true) or id:find(searchText, 1, true)) then
+					return false
+				end
+			end
+			return true
+		end
+
+		local function applyFilter()
+			local visible = 0
+			for _, entry in ipairs(Effects.getAccessoryCatalog()) do
+				local record = cards[entry.id]
+				if record then
+					local show = entryMatches(entry)
+					record.frame.Visible = show
+					record.frame.LayoutOrder = show and visible + 1 or 9999
+					if show then
+						visible = visible + 1
+					end
+				end
+			end
+			itemCount.Text = visible .. (visible == 1 and " item" or " items")
+			allButton.BackgroundColor3 = filterMode == "all" and theme.Accent or theme.BgSoft
+			allButton.TextColor3 = filterMode == "all" and Color3.fromRGB(12, 12, 14) or theme.SubText
+			favButton.BackgroundColor3 = filterMode == "fav" and theme.Accent or theme.BgSoft
+			favButton.TextColor3 = filterMode == "fav" and Color3.fromRGB(12, 12, 14) or theme.SubText
+			if visible == 0 then
+				statusLabel.Text = #Effects.getAccessoryCatalog() == 0
+					and "Catalog empty. Enter an Asset ID and press Add, or press Defaults."
+					or (filterMode == "fav" and "No matching favorites. Press the star on a card to add one." or "No items match your search.")
+			else
+				statusLabel.Text = "Local visual catalog. Nothing is sent to the server."
+			end
+		end
+
+		local rebuildCards
+
+		local function buildCard(entry)
+			local frame = make("Frame", {
+				Name = "Accessory_" .. tostring(entry.id),
+				BackgroundColor3 = theme.BgSoft,
+				BorderSizePixel = 0,
+			}, catalogScroll)
+			addCorner(frame, 8)
+			local stroke = addStroke(frame, entry.worn and theme.Accent or theme.Stroke, 1, entry.worn and 0.2 or 0.45)
+
+			local thumb = make("Frame", {
+				Position = UDim2.fromOffset(7, 7),
+				Size = UDim2.fromOffset(56, 56),
+				BackgroundColor3 = theme.Bg,
+				BorderSizePixel = 0,
+			}, frame)
+			addCorner(thumb, 6)
+			make("ImageLabel", {
+				Size = UDim2.fromScale(1, 1),
+				BackgroundTransparency = 1,
+				Image = "rbxthumb://type=Asset&id=" .. tostring(entry.id) .. "&w=150&h=150",
+				ScaleType = Enum.ScaleType.Fit,
+			}, thumb)
+
+			local fav = make("TextButton", {
+				Text = entry.fav and "★" or "☆",
+				Font = fonts.Bold,
+				TextSize = 15,
+				TextColor3 = entry.fav and theme.Accent or theme.Muted,
+				BackgroundColor3 = theme.Card,
+				AutoButtonColor = false,
+				Position = UDim2.fromOffset(136, 7),
+				Size = UDim2.fromOffset(26, 26),
+				BorderSizePixel = 0,
+				ZIndex = 3,
+			}, frame)
+			addCorner(fav, 6)
+
+			make("TextLabel", {
+				Text = entry.name,
+				Font = fonts.Medium,
+				TextSize = 10,
+				TextColor3 = theme.Text,
+				TextWrapped = true,
+				TextTruncate = Enum.TextTruncate.AtEnd,
+				TextYAlignment = Enum.TextYAlignment.Top,
+				TextXAlignment = Enum.TextXAlignment.Left,
+				BackgroundTransparency = 1,
+				Position = UDim2.fromOffset(7, 66),
+				Size = UDim2.fromOffset(156, 30),
+			}, frame)
+
+			make("TextLabel", {
+				Text = "ID " .. tostring(entry.id),
+				Font = fonts.Mono,
+				TextSize = 8,
+				TextColor3 = theme.Muted,
+				TextXAlignment = Enum.TextXAlignment.Left,
+				BackgroundTransparency = 1,
+				Position = UDim2.fromOffset(7, 98),
+				Size = UDim2.fromOffset(156, 12),
+				TextTruncate = Enum.TextTruncate.AtEnd,
+			}, frame)
+
+			local equip = make("TextButton", {
+				Text = entry.worn and "Remove" or "Equip",
+				Font = fonts.Bold,
+				TextSize = 10,
+				TextColor3 = entry.worn and theme.Text or Color3.fromRGB(12, 12, 14),
+				BackgroundColor3 = entry.worn and theme.CardHover or theme.Accent,
+				AutoButtonColor = false,
+				Position = UDim2.fromOffset(7, 114),
+				Size = UDim2.fromOffset(156, 30),
+				BorderSizePixel = 0,
+				ZIndex = 3,
+			}, frame)
+			addCorner(equip, 7)
+			addStroke(equip, entry.worn and theme.Stroke or theme.Accent, 1, entry.worn and 0.2 or 0.5)
+
+			local adjust = make("TextButton", {
+				Text = "Adjust",
+				Font = fonts.Bold,
+				TextSize = 9,
+				TextColor3 = theme.Text,
+				BackgroundColor3 = theme.Card,
+				AutoButtonColor = false,
+				Position = UDim2.fromOffset(7, 150),
+				Size = UDim2.fromOffset(75, 28),
+				BorderSizePixel = 0,
+				ZIndex = 3,
+			}, frame)
+			addCorner(adjust, 6)
+			addStroke(adjust, theme.Stroke, 1, 0.2)
+
+			local remove = make("TextButton", {
+				Text = "Delete",
+				Font = fonts.Bold,
+				TextSize = 9,
+				TextColor3 = theme.Danger,
+				BackgroundColor3 = theme.Card,
+				AutoButtonColor = false,
+				Position = UDim2.fromOffset(88, 150),
+				Size = UDim2.fromOffset(75, 28),
+				BorderSizePixel = 0,
+				ZIndex = 3,
+			}, frame)
+			addCorner(remove, 6)
+			addStroke(remove, theme.Stroke, 1, 0.2)
+
+			frame.InputBegan:Connect(function(input)
+				if input.UserInputType == Enum.UserInputType.MouseButton1
+					or input.UserInputType == Enum.UserInputType.Touch then
+					selectedId = entry.id
+				end
+			end)
+
+			equip.Activated:Connect(function()
+				equip.Text = "Wait..."
+				Effects.toggleAccessory(entry.id, function(ok, message)
+					showNotification(ok and "Accessories" or "Accessory Failed", message or "", ok and 3 or 5)
+					rebuildCards()
+				end)
+			end)
+
+			fav.Activated:Connect(function()
+				Effects.setAccessoryFavorite(entry.id, not entry.fav)
+				rebuildCards()
+				showNotification("Accessories", (not entry.fav) and "Added to Favorites" or "Removed from Favorites", 3)
+			end)
+
+			adjust.Activated:Connect(function()
+				selectedId = entry.id
+				openAdjust(entry.id)
+			end)
+
+			remove.Activated:Connect(function()
+				local ok, message = Effects.removeAccessory(entry.id)
+				if adjustId == entry.id then
+					closeAdjust()
+				end
+				if selectedId == entry.id then
+					selectedId = nil
+				end
+				if ok then
+					showNotification("Accessories", message, 3)
+				end
+				rebuildCards()
+			end)
+
+			return { frame = frame, stroke = stroke, fav = fav, equip = equip }
+		end
+
+		rebuildCards = function()
+			for _, record in pairs(cards) do
+				if record.frame and record.frame.Parent then
+					record.frame:Destroy()
+				end
+			end
+			cards = {}
+			for _, entry in ipairs(Effects.getAccessoryCatalog()) do
+				cards[entry.id] = buildCard(entry)
+			end
+			applyFilter()
+		end
+
+		local function submitAccessory()
+			local input = idBox.Text
+			if tostring(input):match("^%s*$") then
+				showNotification("Accessories", "Enter an Asset ID or item link first.", 4)
+				return
+			end
+			addButton.Text = "..."
+			Effects.addAccessory(input, function(ok, message, id)
+				addButton.Text = "Add"
+				showNotification(ok and "Accessories" or "Accessory Failed", message or "", ok and 4 or 5)
+				if ok then
+					idBox.Text = ""
+					rebuildCards()
+					if id then
+						selectedId = id
+					end
+				end
+			end)
+		end
+
+		addButton.Activated:Connect(submitAccessory)
+
+		idBox.FocusLost:Connect(function(enterPressed)
+			if enterPressed then
+				submitAccessory()
+			end
+		end)
+
+		searchBox:GetPropertyChangedSignal("Text"):Connect(function()
+			searchText = tostring(searchBox.Text):lower()
+			applyFilter()
+		end)
+		allButton.Activated:Connect(function()
+			filterMode = "all"
+			applyFilter()
+		end)
+		favButton.Activated:Connect(function()
+			filterMode = "fav"
+			applyFilter()
+		end)
+		refreshButton.Activated:Connect(function()
+			Effects.refreshCatalogAccessories()
+			rebuildCards()
+			showNotification("Accessories", "Accessory preview refreshed.", 3)
+		end)
+		defaultsButton.Activated:Connect(function()
+			local added = Effects.restoreDefaultAccessories()
+			rebuildCards()
+			showNotification("Accessories", added > 0 and ("Restored " .. added .. " default items.") or "All default items already exist.", 4)
+		end)
+		removeAllButton.Activated:Connect(function()
+			local removed = Effects.clearWornAccessories()
+			rebuildCards()
+			showNotification("Accessories", removed > 0 and ("Removed " .. removed .. " worn accessories.") or "No catalog accessories worn.", 3)
+		end)
+
+		rebuildCards()
+	end
+
+	addSection(characterTab, "Accessory Visibility")
 	local function accessoryOptions()
 		local names = { "All Accessories" }
 		for _, name in ipairs(Effects.getAccessoryNames()) do
