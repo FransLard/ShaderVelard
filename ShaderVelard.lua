@@ -17,7 +17,7 @@ local Players = game:GetService("Players")
 local lp = Players.LocalPlayer
 local pg = lp:WaitForChild("PlayerGui")
 
--- ==== GUI UTAMA ====
+
 local gui = Instance.new("ScreenGui")
 gui.Name = "ShaderVelardLoader"
 gui.ResetOnSpawn = false
@@ -28,14 +28,14 @@ gui.Parent = pg
 local overlay = Instance.new("Frame")
 overlay.Size = UDim2.new(1, 0, 1, 0)
 overlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-overlay.BackgroundTransparency = 0.3
+overlay.BackgroundTransparency = 0.35
 overlay.BorderSizePixel = 0
 overlay.Parent = gui
 
 local box = Instance.new("Frame")
 box.AnchorPoint = Vector2.new(0.5, 0.5)
 box.Position = UDim2.new(0.5, 0, 0.5, 0)
-box.Size = UDim2.new(0, 500, 0, 170) -- Sedikit dilebarkan agar muat teksnya
+box.Size = UDim2.new(0, 460, 0, 160)
 box.BackgroundColor3 = Color3.fromRGB(14, 14, 14)
 box.BorderSizePixel = 0
 box.Parent = overlay
@@ -48,60 +48,32 @@ stroke.Transparency = 0.2
 stroke.Parent = box
 
 
-local crownArt = [[
-  ".X.....X.....X.",
-		".X.....X.....X.",
-		".XX...XXX...XX.",
-		".XXX.XXXXX.XXX.",
-		".XXXXXXXXXXXXX.",
-		".XXXXXXXXXXXXX.",
-		".XoXXoXXoXXoXX.",
-		".XXXXXXXXXXXXX.",
-		".XXXXXXXXXXXXX.",
-		".XXXXXXXXXXXXX.",
-		"..XXXXXXXXXXX..",
-	}
-]]
-
-local asciiLabel = Instance.new("TextLabel")
-asciiLabel.Size = UDim2.new(0, 160, 0, 120)
-asciiLabel.Position = UDim2.new(0, 20, 0, 20)
-asciiLabel.BackgroundTransparency = 1
-asciiLabel.Text = crownArt
-asciiLabel.TextColor3 = Color3.fromRGB(245, 245, 245)
-asciiLabel.Font = Enum.Font.Code -- Font monospace wajib untuk ASCII
-asciiLabel.TextSize = 11
-asciiLabel.TextXAlignment = Enum.TextXAlignment.Left
-asciiLabel.TextYAlignment = Enum.TextYAlignment.Top
-asciiLabel.Parent = box
-
-
 local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, -190, 0, 35)
-title.Position = UDim2.new(0, 180, 0, 35)
+title.Size = UDim2.new(1, -40, 0, 30)
+title.Position = UDim2.new(0, 20, 0, 25)
 title.BackgroundTransparency = 1
 title.Text = "WELCOME TO"
 title.TextColor3 = Color3.fromRGB(160, 160, 160)
 title.Font = Enum.Font.GothamBold
 title.TextSize = 14
-title.TextXAlignment = Enum.TextXAlignment.Left
+title.TextXAlignment = Enum.TextXAlignment.Center
 title.Parent = box
 
 local titleBig = Instance.new("TextLabel")
-titleBig.Size = UDim2.new(1, -190, 0, 40)
-titleBig.Position = UDim2.new(0, 180, 0, 55)
+titleBig.Size = UDim2.new(1, -40, 0, 50)
+titleBig.Position = UDim2.new(0, 20, 0, 50)
 titleBig.BackgroundTransparency = 1
-titleBig.Text = "VELARD TOOLS"
-titleBig.TextColor3 = Color3.fromRGB(255, 255, 255)
-titleBig.Font = Enum.Font.GothamBlack
-titleBig.TextSize = 28
-titleBig.TextXAlignment = Enum.TextXAlignment.Left
-titleBig.Parent = box
+titleBig.Text = "VELARD SHADER"
 
+titleBig.TextColor3 = Color3.fromRGB(255, 140, 0) 
+titleBig.Font = Enum.Font.GothamBlack
+titleBig.TextSize = 34
+titleBig.TextXAlignment = Enum.TextXAlignment.Center
+titleBig.Parent = box
 
 local barBg = Instance.new("Frame")
 barBg.Size = UDim2.new(1, -40, 0, 6)
-barBg.Position = UDim2.new(0, 20, 0, 135)
+barBg.Position = UDim2.new(0, 20, 0, 120)
 barBg.BackgroundColor3 = Color3.fromRGB(38, 38, 38)
 barBg.BorderSizePixel = 0
 barBg.ClipsDescendants = true
@@ -110,17 +82,17 @@ Instance.new("UICorner", barBg).CornerRadius = UDim.new(1, 0)
 
 local barFill = Instance.new("Frame")
 barFill.Size = UDim2.new(0, 0, 1, 0)
-barFill.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
+barFill.BackgroundColor3 = Color3.fromRGB(240, 240, 240) -- Tetap putih
 barFill.BorderSizePixel = 0
 barFill.Parent = barBg
 Instance.new("UICorner", barFill).CornerRadius = UDim.new(1, 0)
 
 local pct = Instance.new("TextLabel")
 pct.Size = UDim2.new(0, 100, 0, 16)
-pct.Position = UDim2.new(1, -110, 0, 145)
+pct.Position = UDim2.new(1, -120, 0, 130)
 pct.BackgroundTransparency = 1
 pct.Text = "0%"
-pct.TextColor3 = Color3.fromRGB(200, 200, 200)
+pct.TextColor3 = Color3.fromRGB(200, 200, 200) -- Tetap putih/abu
 pct.Font = Enum.Font.GothamMedium
 pct.TextSize = 12
 pct.TextXAlignment = Enum.TextXAlignment.Right
@@ -128,10 +100,10 @@ pct.Parent = box
 
 local status = Instance.new("TextLabel")
 status.Size = UDim2.new(0, 200, 0, 16)
-status.Position = UDim2.new(0, 20, 0, 145)
+status.Position = UDim2.new(0, 20, 0, 130)
 status.BackgroundTransparency = 1
 status.Text = "Memuat..."
-status.TextColor3 = Color3.fromRGB(160, 160, 160)
+status.TextColor3 = Color3.fromRGB(160, 160, 160) -- Tetap abu-abu
 status.Font = Enum.Font.Gotham
 status.TextSize = 12
 status.TextXAlignment = Enum.TextXAlignment.Left
@@ -166,7 +138,6 @@ local fi = TweenInfo.new(0.25)
 TweenService:Create(overlay, fi, { BackgroundTransparency = 1 }):Play()
 TweenService:Create(box, fi, { BackgroundTransparency = 1 }):Play()
 TweenService:Create(stroke, fi, { Transparency = 1 }):Play()
-TweenService:Create(asciiLabel, fi, { TextTransparency = 1 }):Play()
 TweenService:Create(title, fi, { TextTransparency = 1 }):Play()
 TweenService:Create(titleBig, fi, { TextTransparency = 1 }):Play()
 TweenService:Create(barBg, fi, { BackgroundTransparency = 1 }):Play()
