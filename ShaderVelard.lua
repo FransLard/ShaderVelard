@@ -21,7 +21,7 @@ local MENU_OPTIONS = {
         number    = 1,
         name      = "Shader Velard",
         tag       = "(All)",
-        desc      = "All in one — all features combined",
+        desc      = "All features combined",
         available = true,
     },
     {
