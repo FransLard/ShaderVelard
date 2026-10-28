@@ -19,23 +19,17 @@ local pg           = lp:WaitForChild("PlayerGui")
 local MENU_OPTIONS = {
     {
         number    = 1,
-        name      = "Shader Velard",
-        tag       = " (All)",
-        desc      = "All in one — all features combined",
+        name      = "Shader Velard (All)",
         available = true,
     },
     {
         number    = 2,
         name      = "Lite Shader",
-        tag       = "",
-        desc      = "Lightweight version for performance",
         available = false,
     },
     {
         number    = 3,
         name      = "Visual Accessories",
-        tag       = "",
-        desc      = "Collection of visual accessories & effects",
         available = false,
     },
 }
@@ -75,7 +69,7 @@ title.Position               = UDim2.new(0, 20, 0, 25)
 title.BackgroundTransparency = 1
 title.Text                   = "WELCOME TO"
 title.TextColor3             = Color3.fromRGB(160, 160, 160)
-title.Font                   = Enum.Font.SourceSansBold
+title.Font                   = Enum.Font.GothamBold
 title.TextSize               = 14
 title.TextXAlignment         = Enum.TextXAlignment.Center
 title.Parent                 = box
@@ -86,7 +80,7 @@ titleBig.Position               = UDim2.new(0, 20, 0, 50)
 titleBig.BackgroundTransparency = 1
 titleBig.Text                   = "VELARD TOOLS"
 titleBig.TextColor3             = Color3.fromRGB(255, 255, 255)
-titleBig.Font                   = Enum.Font.SourceSansBold
+titleBig.Font                   = Enum.Font.GothamBlack
 titleBig.TextSize               = 34
 titleBig.TextXAlignment         = Enum.TextXAlignment.Center
 titleBig.Parent                 = box
@@ -113,7 +107,7 @@ pct.Position               = UDim2.new(1, -120, 0, 130)
 pct.BackgroundTransparency = 1
 pct.Text                   = "0%"
 pct.TextColor3             = Color3.fromRGB(200, 200, 200)
-pct.Font                   = Enum.Font.SourceSans
+pct.Font                   = Enum.Font.GothamMedium
 pct.TextSize               = 12
 pct.TextXAlignment         = Enum.TextXAlignment.Right
 pct.Parent                 = box
@@ -124,7 +118,7 @@ status.Position               = UDim2.new(0, 20, 0, 130)
 status.BackgroundTransparency = 1
 status.Text                   = "Loading..."
 status.TextColor3             = Color3.fromRGB(160, 160, 160)
-status.Font                   = Enum.Font.SourceSans
+status.Font                   = Enum.Font.Gotham
 status.TextSize               = 12
 status.TextXAlignment         = Enum.TextXAlignment.Left
 status.Parent                 = box
@@ -163,7 +157,7 @@ overlay:Destroy()
 local menu = Instance.new("Frame")
 menu.AnchorPoint            = Vector2.new(0.5, 0.5)
 menu.Position               = UDim2.new(0.5, 0, 0.5, 0)
-menu.Size                   = UDim2.new(0, 420, 0, 400)
+menu.Size                   = UDim2.new(0, 420, 0, 320)
 menu.BackgroundColor3       = Color3.fromRGB(14, 14, 14)
 menu.BorderSizePixel        = 0
 menu.BackgroundTransparency = 1
@@ -182,7 +176,7 @@ menuTitle.Position               = UDim2.new(0, 20, 0, 22)
 menuTitle.BackgroundTransparency = 1
 menuTitle.Text                   = "VELARD TOOLS"
 menuTitle.TextColor3             = Color3.fromRGB(255, 255, 255)
-menuTitle.Font                   = Enum.Font.SourceSansBold
+menuTitle.Font                   = Enum.Font.GothamBlack
 menuTitle.TextSize               = 20
 menuTitle.TextXAlignment         = Enum.TextXAlignment.Left
 menuTitle.TextTransparency       = 1
@@ -194,7 +188,7 @@ menuSub.Position               = UDim2.new(0, 20, 0, 50)
 menuSub.BackgroundTransparency = 1
 menuSub.Text                   = "Select a script to execute:"
 menuSub.TextColor3             = Color3.fromRGB(150, 150, 150)
-menuSub.Font                   = Enum.Font.SourceSans
+menuSub.Font                   = Enum.Font.Gotham
 menuSub.TextSize               = 12
 menuSub.TextXAlignment         = Enum.TextXAlignment.Left
 menuSub.TextTransparency       = 1
@@ -209,13 +203,13 @@ divider.BackgroundTransparency = 1
 divider.Parent           = menu
 
 local optionsContainer = Instance.new("Frame")
-optionsContainer.Size                   = UDim2.new(1, -40, 0, 240)
+optionsContainer.Size                   = UDim2.new(1, -40, 0, 160)
 optionsContainer.Position               = UDim2.new(0, 20, 0, 92)
 optionsContainer.BackgroundTransparency = 1
 optionsContainer.Parent                 = menu
 
 local list = Instance.new("UIListLayout")
-list.Padding   = UDim.new(0, 8)
+list.Padding   = UDim.new(0, 10)
 list.SortOrder = Enum.SortOrder.LayoutOrder
 list.Parent    = optionsContainer
 
@@ -225,7 +219,7 @@ footer.Position               = UDim2.new(0, 20, 1, -34)
 footer.BackgroundTransparency = 1
 footer.Text                   = "Click a number to execute the script"
 footer.TextColor3             = Color3.fromRGB(100, 100, 100)
-footer.Font                   = Enum.Font.SourceSans
+footer.Font                   = Enum.Font.Gotham
 footer.TextSize               = 11
 footer.TextXAlignment         = Enum.TextXAlignment.Center
 footer.TextTransparency       = 1
@@ -254,7 +248,7 @@ local function showMaintenanceNotif()
     nTitle.BackgroundTransparency = 1
     nTitle.Text                   = "UNDER MAINTENANCE"
     nTitle.TextColor3             = Color3.fromRGB(255, 255, 255)
-    nTitle.Font                   = Enum.Font.SourceSansBold
+    nTitle.Font                   = Enum.Font.GothamBold
     nTitle.TextSize               = 13
     nTitle.TextXAlignment         = Enum.TextXAlignment.Left
     nTitle.TextTransparency       = 1
@@ -266,7 +260,7 @@ local function showMaintenanceNotif()
     nDesc.BackgroundTransparency = 1
     nDesc.Text                   = "This feature is currently under maintenance."
     nDesc.TextColor3             = Color3.fromRGB(160, 160, 160)
-    nDesc.Font                   = Enum.Font.SourceSans
+    nDesc.Font                   = Enum.Font.Gotham
     nDesc.TextSize               = 11
     nDesc.TextXAlignment         = Enum.TextXAlignment.Left
     nDesc.TextTransparency       = 1
@@ -326,7 +320,7 @@ local function createOptionButton(opt)
     local isAvailable = opt.available
 
     local btn = Instance.new("TextButton")
-    btn.Size                   = UDim2.new(1, 0, 0, 66)
+    btn.Size                   = UDim2.new(1, 0, 0, 50)
     btn.BackgroundColor3       = isAvailable and Color3.fromRGB(22, 22, 22) or Color3.fromRGB(16, 16, 16)
     btn.BorderSizePixel        = 0
     btn.AutoButtonColor        = false
@@ -344,8 +338,8 @@ local function createOptionButton(opt)
     s.Parent       = btn
 
     local numBox = Instance.new("Frame")
-    numBox.Size                   = UDim2.new(0, 40, 0, 40)
-    numBox.Position               = UDim2.new(0, 14, 0.5, -20)
+    numBox.Size                   = UDim2.new(0, 34, 0, 34)
+    numBox.Position               = UDim2.new(0, 14, 0.5, -17)
     numBox.BackgroundColor3       = isAvailable and Color3.fromRGB(240, 240, 240) or Color3.fromRGB(30, 30, 30)
     numBox.BorderSizePixel        = 0
     numBox.BackgroundTransparency = 1
@@ -357,34 +351,22 @@ local function createOptionButton(opt)
     numLbl.BackgroundTransparency = 1
     numLbl.Text                   = tostring(opt.number)
     numLbl.TextColor3             = isAvailable and Color3.fromRGB(14, 14, 14) or Color3.fromRGB(120, 120, 120)
-    numLbl.Font                   = Enum.Font.SourceSansBold
-    numLbl.TextSize               = 18
+    numLbl.Font                   = Enum.Font.GothamBlack
+    numLbl.TextSize               = 16
     numLbl.TextTransparency       = 1
     numLbl.Parent                 = numBox
 
     local nameLbl = Instance.new("TextLabel")
-    nameLbl.Size                   = UDim2.new(1, -80, 0, 22)
-    nameLbl.Position               = UDim2.new(0, 68, 0, 12)
+    nameLbl.Size                   = UDim2.new(1, -80, 1, 0)
+    nameLbl.Position               = UDim2.new(0, 60, 0, 0)
     nameLbl.BackgroundTransparency = 1
-    nameLbl.Text                   = opt.name .. opt.tag
+    nameLbl.Text                   = opt.name
     nameLbl.TextColor3             = isAvailable and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(150, 150, 150)
-    nameLbl.Font                   = Enum.Font.SourceSansBold
+    nameLbl.Font                   = Enum.Font.GothamBold
     nameLbl.TextSize               = 15
     nameLbl.TextXAlignment         = Enum.TextXAlignment.Left
     nameLbl.TextTransparency       = 1
     nameLbl.Parent                 = btn
-
-    local descLbl = Instance.new("TextLabel")
-    descLbl.Size                   = UDim2.new(1, -80, 0, 16)
-    descLbl.Position               = UDim2.new(0, 68, 0, 36)
-    descLbl.BackgroundTransparency = 1
-    descLbl.Text                   = isAvailable and opt.desc or "Under maintenance"
-    descLbl.TextColor3             = isAvailable and Color3.fromRGB(140, 140, 140) or Color3.fromRGB(100, 100, 100)
-    descLbl.Font                   = Enum.Font.SourceSans
-    descLbl.TextSize               = 11
-    descLbl.TextXAlignment         = Enum.TextXAlignment.Left
-    descLbl.TextTransparency       = 1
-    descLbl.Parent                 = btn
 
     if not isAvailable then
         local badge = Instance.new("TextLabel")
@@ -395,7 +377,7 @@ local function createOptionButton(opt)
         badge.BorderSizePixel        = 0
         badge.Text                   = "MAINTENANCE"
         badge.TextColor3             = Color3.fromRGB(200, 200, 200)
-        badge.Font                   = Enum.Font.SourceSansBold
+        badge.Font                   = Enum.Font.GothamBold
         badge.TextSize               = 9
         badge.TextTransparency       = 1
         badge.BackgroundTransparency = 1
