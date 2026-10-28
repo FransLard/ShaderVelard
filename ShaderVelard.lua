@@ -388,16 +388,16 @@ local function createOptionButton(opt)
 
     if opt.tag and opt.tag ~= "" then
         local tagLbl = Instance.new("TextLabel")
-        tagLbl.Size                   = UDim2.new(0, 40, 0, 16)
-        tagLbl.Position               = UDim2.new(0, 160, 0, 15)
-        tagLbl.BackgroundColor3       = Color3.fromRGB(240, 240, 240)
+        tagLbl.Size                   = UDim2.new(0, 42, 0, 16)
+        tagLbl.Position               = UDim2.new(0, 175, 0, 15) 
+        tagLbl.BackgroundColor3       = Color3.fromRGB(240, 240, 240) 
         tagLbl.BorderSizePixel        = 0
         tagLbl.Text                   = opt.tag
-        tagLbl.TextColor3             = Color3.fromRGB(14, 14, 14)
+        tagLbl.TextColor3             = Color3.fromRGB(14, 14, 14) 
         tagLbl.Font                   = Enum.Font.GothamBold
         tagLbl.TextSize               = 10
         tagLbl.TextTransparency       = 1
-        tagLbl.BackgroundTransparency = 1
+        tagLbl.BackgroundTransparency = 1 
         tagLbl.Parent                 = btn
         Instance.new("UICorner", tagLbl).CornerRadius = UDim.new(0, 4)
     end
