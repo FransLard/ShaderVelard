@@ -303,7 +303,7 @@ local function fadeOutMenuAndDestroy()
             TweenService:Create(el, ft, { BackgroundTransparency = 1 }):Play()
             for _, c in ipairs(el:GetChildren()) do
                 if c:IsA("TextLabel") then
-                    TweenService:Create(c, ft, { TextTransparency = 1, BackgroundTransparency = 1 }):Play()
+                    TweenService:Create(c, ft, { TextTransparency = 1 }):Play()
                 elseif c:IsA("UIStroke") then
                     TweenService:Create(c, ft, { Transparency = 1 }):Play()
                 elseif c:IsA("Frame") then
@@ -467,7 +467,7 @@ task.spawn(function()
             TweenService:Create(el, ft, { BackgroundTransparency = 0 }):Play()
             for _, c in ipairs(el:GetChildren()) do
                 if c:IsA("TextLabel") then
-                    TweenService:Create(c, ft, { TextTransparency = 0, BackgroundTransparency = 0 }):Play()
+                    TweenService:Create(c, ft, { TextTransparency = 0 }):Play()
                 elseif c:IsA("UIStroke") then
                     TweenService:Create(c, ft, { Transparency = 0 }):Play()
                 elseif c:IsA("Frame") then
