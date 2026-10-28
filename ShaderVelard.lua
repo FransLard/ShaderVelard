@@ -11,9 +11,6 @@ __     _______ _        _    ____  ____
 
 --]]
 
-
-
-
 local TweenService = game:GetService("TweenService")
 local Players      = game:GetService("Players")
 local lp           = Players.LocalPlayer
@@ -24,21 +21,21 @@ local MENU_OPTIONS = {
         number    = 1,
         name      = "Shader Velard",
         tag       = "(All)",
-        desc      = "All in one — semua fitur digabung",
+        desc      = "All in one — all features combined",
         available = true,
     },
     {
         number    = 2,
         name      = "Lite Shader",
         tag       = "",
-        desc      = "Versi ringan untuk performa",
+        desc      = "Lightweight version for performance",
         available = false,
     },
     {
         number    = 3,
-        name      = "Aksesoris Visual",
+        name      = "Visual Accessories",
         tag       = "",
-        desc      = "Kumpulan aksesoris & efek visual",
+        desc      = "Collection of visual accessories & effects",
         available = false,
     },
 }
@@ -125,7 +122,7 @@ local status = Instance.new("TextLabel")
 status.Size                   = UDim2.new(0, 200, 0, 16)
 status.Position               = UDim2.new(0, 20, 0, 130)
 status.BackgroundTransparency = 1
-status.Text                   = "loading..."
+status.Text                   = "Loading..."
 status.TextColor3             = Color3.fromRGB(160, 160, 160)
 status.Font                   = Enum.Font.Gotham
 status.TextSize               = 12
@@ -141,7 +138,7 @@ task.spawn(function()
         local p = math.clamp(math.floor(((tick() - t0) / DURATION) * 100), 0, 100)
         pct.Text = p .. "%"
         if p >= 100 then
-            status.Text = "Menyiapkan menu..."
+            status.Text = "Preparing menu..."
             break
         end
         task.wait(0.03)
@@ -195,7 +192,7 @@ local menuSub = Instance.new("TextLabel")
 menuSub.Size                   = UDim2.new(1, -40, 0, 16)
 menuSub.Position               = UDim2.new(0, 20, 0, 50)
 menuSub.BackgroundTransparency = 1
-menuSub.Text                   = "Pilih script yang ingin dijalankan:"
+menuSub.Text                   = "Select a script to execute:"
 menuSub.TextColor3             = Color3.fromRGB(150, 150, 150)
 menuSub.Font                   = Enum.Font.Gotham
 menuSub.TextSize               = 12
@@ -226,7 +223,7 @@ local footer = Instance.new("TextLabel")
 footer.Size                   = UDim2.new(1, -40, 0, 16)
 footer.Position               = UDim2.new(0, 20, 1, -34)
 footer.BackgroundTransparency = 1
-footer.Text                   = "Tekan angka untuk menjalankan script"
+footer.Text                   = "Click a number to execute the script"
 footer.TextColor3             = Color3.fromRGB(100, 100, 100)
 footer.Font                   = Enum.Font.Gotham
 footer.TextSize               = 11
