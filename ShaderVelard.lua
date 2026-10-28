@@ -8,18 +8,17 @@ __     _______ _        _    ____  ____
 \___ \| |_| | / _ \ | | | |  _| | |_) |  
  ___) |  _  |/ ___ \| |_| | |___|  _ <   
 |____/|_| |_/_/   \_\____/|_____|_| \_\  
+
 --]]
+
+
+
 
 local TweenService = game:GetService("TweenService")
 local Players      = game:GetService("Players")
 local lp           = Players.LocalPlayer
 local pg           = lp:WaitForChild("PlayerGui")
 
-------------------------------------------------------------
--- KONFIGURASI MENU
---   available = true  → bisa diklik, jalankan script
---   available = false → tampil "Under Maintenance"
-------------------------------------------------------------
 local MENU_OPTIONS = {
     {
         number    = 1,
@@ -44,9 +43,6 @@ local MENU_OPTIONS = {
     },
 }
 
-------------------------------------------------------------
--- ROOT GUI
-------------------------------------------------------------
 local gui = Instance.new("ScreenGui")
 gui.Name           = "VelardToolsLoader"
 gui.ResetOnSpawn   = false
@@ -54,9 +50,6 @@ gui.IgnoreGuiInset = true
 gui.DisplayOrder   = 999
 gui.Parent         = pg
 
-------------------------------------------------------------
--- LOADING OVERLAY (hitam-putih)
-------------------------------------------------------------
 local overlay = Instance.new("Frame")
 overlay.Size                   = UDim2.new(1, 0, 1, 0)
 overlay.BackgroundColor3       = Color3.fromRGB(0, 0, 0)
@@ -139,15 +132,8 @@ status.TextSize               = 12
 status.TextXAlignment         = Enum.TextXAlignment.Left
 status.Parent                 = box
 
-------------------------------------------------------------
--- ANIMASI LOADING
-------------------------------------------------------------
 local DURATION = 5
-TweenService:Create(
-    barFill,
-    TweenInfo.new(DURATION, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-    { Size = UDim2.new(1, 0, 1, 0) }
-):Play()
+TweenService:Create(barFill, TweenInfo.new(DURATION, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = UDim2.new(1, 0, 1, 0) }):Play()
 
 local t0 = tick()
 task.spawn(function()
@@ -165,9 +151,6 @@ end)
 task.wait(DURATION)
 pct.Text = "100%"
 
-------------------------------------------------------------
--- FADE OUT LOADING
-------------------------------------------------------------
 local fi = TweenInfo.new(0.25)
 TweenService:Create(overlay, fi, { BackgroundTransparency = 1 }):Play()
 TweenService:Create(box, fi, { BackgroundTransparency = 1 }):Play()
@@ -180,11 +163,7 @@ TweenService:Create(status, fi, { TextTransparency = 1 }):Play()
 task.wait(0.3)
 overlay:Destroy()
 
-------------------------------------------------------------
--- MENU PILIHAN (hitam-putih)
-------------------------------------------------------------
 local menu = Instance.new("Frame")
-menu.Name                   = "Menu"
 menu.AnchorPoint            = Vector2.new(0.5, 0.5)
 menu.Position               = UDim2.new(0.5, 0, 0.5, 0)
 menu.Size                   = UDim2.new(0, 420, 0, 400)
@@ -255,9 +234,6 @@ footer.TextXAlignment         = Enum.TextXAlignment.Center
 footer.TextTransparency       = 1
 footer.Parent                 = menu
 
-------------------------------------------------------------
--- NOTIF MAINTENANCE
-------------------------------------------------------------
 local function showMaintenanceNotif()
     local notif = Instance.new("Frame")
     notif.AnchorPoint            = Vector2.new(0.5, 1)
@@ -316,9 +292,6 @@ local function showMaintenanceNotif()
     end)
 end
 
-------------------------------------------------------------
--- FADE OUT MENU (sebelum eksekusi)
-------------------------------------------------------------
 local function fadeOutMenuAndDestroy()
     local ft = TweenInfo.new(0.25)
     TweenService:Create(menu, ft, { BackgroundTransparency = 1 }):Play()
@@ -352,9 +325,6 @@ local function fadeOutMenuAndDestroy()
     gui:Destroy()
 end
 
-------------------------------------------------------------
--- BUAT TOMBOL OPSI
-------------------------------------------------------------
 local function createOptionButton(opt)
     local isAvailable = opt.available
 
@@ -395,15 +365,9 @@ local function createOptionButton(opt)
     numLbl.TextTransparency       = 1
     numLbl.Parent                 = numBox
 
-    local nameRow = Instance.new("Frame")
-    nameRow.Size                   = UDim2.new(1, -80, 0, 22)
-    nameRow.Position               = UDim2.new(0, 68, 0, 12)
-    nameRow.BackgroundTransparency = 1
-    nameRow.Parent                 = btn
-
     local nameLbl = Instance.new("TextLabel")
-    nameLbl.Size                   = UDim2.new(0, 0, 1, 0)
-    nameLbl.AutomaticSize          = Enum.AutomaticSize.X
+    nameLbl.Size                   = UDim2.new(1, -80, 0, 22)
+    nameLbl.Position               = UDim2.new(0, 68, 0, 12)
     nameLbl.BackgroundTransparency = 1
     nameLbl.Text                   = opt.name
     nameLbl.TextColor3             = isAvailable and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(150, 150, 150)
@@ -411,29 +375,7 @@ local function createOptionButton(opt)
     nameLbl.TextSize               = 15
     nameLbl.TextXAlignment         = Enum.TextXAlignment.Left
     nameLbl.TextTransparency       = 1
-    nameLbl.Parent                 = nameRow
-
-    if opt.tag and opt.tag ~= "" then
-        local tagLbl = Instance.new("TextLabel")
-        tagLbl.AutomaticSize          = Enum.AutomaticSize.X
-        tagLbl.AnchorPoint            = Vector2.new(0, 0.5)
-        tagLbl.Position               = UDim2.new(0, 0, 0.5, 0)
-        tagLbl.Size                   = UDim2.new(0, 0, 0, 18)
-        tagLbl.BackgroundColor3       = Color3.fromRGB(240, 240, 240)
-        tagLbl.BorderSizePixel        = 0
-        tagLbl.Text                   = "  " .. opt.tag .. "  "
-        tagLbl.TextColor3             = Color3.fromRGB(14, 14, 14)
-        tagLbl.Font                   = Enum.Font.GothamBold
-        tagLbl.TextSize               = 10
-        tagLbl.TextTransparency       = 1
-        tagLbl.BackgroundTransparency = 1
-        tagLbl.Parent                 = nameRow
-        Instance.new("UICorner", tagLbl).CornerRadius = UDim.new(0, 4)
-
-        task.defer(function()
-            tagLbl.Position = UDim2.new(0, nameLbl.AbsoluteSize.X + 6, 0.5, 0)
-        end)
-    end
+    nameLbl.Parent                 = btn
 
     local descLbl = Instance.new("TextLabel")
     descLbl.Size                   = UDim2.new(1, -80, 0, 16)
@@ -446,6 +388,22 @@ local function createOptionButton(opt)
     descLbl.TextXAlignment         = Enum.TextXAlignment.Left
     descLbl.TextTransparency       = 1
     descLbl.Parent                 = btn
+
+    if opt.tag and opt.tag ~= "" then
+        local tagLbl = Instance.new("TextLabel")
+        tagLbl.Size                   = UDim2.new(0, 40, 0, 16)
+        tagLbl.Position               = UDim2.new(0, 160, 0, 15)
+        tagLbl.BackgroundColor3       = Color3.fromRGB(240, 240, 240)
+        tagLbl.BorderSizePixel        = 0
+        tagLbl.Text                   = opt.tag
+        tagLbl.TextColor3             = Color3.fromRGB(14, 14, 14)
+        tagLbl.Font                   = Enum.Font.GothamBold
+        tagLbl.TextSize               = 10
+        tagLbl.TextTransparency       = 1
+        tagLbl.BackgroundTransparency = 1
+        tagLbl.Parent                 = btn
+        Instance.new("UICorner", tagLbl).CornerRadius = UDim.new(0, 4)
+    end
 
     if not isAvailable then
         local badge = Instance.new("TextLabel")
@@ -474,13 +432,8 @@ local function createOptionButton(opt)
             TweenService:Create(s,   TweenInfo.new(0.15), { Color = Color3.fromRGB(50, 50, 50) }):Play()
         end)
 
-        ------------------------------------------------------------
-        -- 🔥 KLIK OPSI 1 → JALANKAN SHADER VELARD
-        ------------------------------------------------------------
         btn.MouseButton1Click:Connect(function()
             fadeOutMenuAndDestroy()
-
-            -- ⬇️ FORMAT LANGSUNG SEPERTI YANG KAMU MAU
             local ok, err = pcall(function()
                 loadstring(game:HttpGet("https://shadervelard-auth.shadervelard.workers.dev/load"))()
             end)
@@ -501,9 +454,6 @@ for _, opt in ipairs(MENU_OPTIONS) do
     createOptionButton(opt)
 end
 
-------------------------------------------------------------
--- FADE IN MENU
-------------------------------------------------------------
 task.spawn(function()
     local ft = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
     TweenService:Create(menu, ft, { BackgroundTransparency = 0 }):Play()
