@@ -162,7 +162,7 @@ menuStroke.Parent       = menu
 
 local menuTitle = Instance.new("TextLabel")
 menuTitle.Size                   = UDim2.new(1, -80, 0, 28)
-menuTitle.Position               = UDim2.new(0, 48, 0, 22)
+menuTitle.Position               = UDim2.new(0, 20, 0, 22)
 menuTitle.BackgroundTransparency = 1
 menuTitle.Text                   = "VELARD TOOLS"
 menuTitle.TextColor3             = Color3.fromRGB(255, 255, 255)
@@ -217,8 +217,9 @@ footer.Parent                 = menu
 
 local closeBtn = Instance.new("TextButton")
 closeBtn.Name                   = "CloseButton"
+closeBtn.AnchorPoint            = Vector2.new(1, 0)
 closeBtn.Size                   = UDim2.new(0, 26, 0, 26)
-closeBtn.Position               = UDim2.new(0, 14, 0, 22)
+closeBtn.Position               = UDim2.new(1, -14, 0, 22)
 closeBtn.BackgroundColor3       = Color3.fromRGB(30, 30, 30)
 closeBtn.BorderSizePixel        = 0
 closeBtn.AutoButtonColor        = false
