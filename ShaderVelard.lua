@@ -160,9 +160,21 @@ menuStroke.Thickness    = 1
 menuStroke.Transparency = 1
 menuStroke.Parent       = menu
 
+local menuBrand = Instance.new("TextLabel")
+menuBrand.Size                   = UDim2.new(1, -60, 0, 16)
+menuBrand.Position               = UDim2.new(0, 20, 0, 10)
+menuBrand.BackgroundTransparency = 1
+menuBrand.Text                   = "SHADERVELARD"
+menuBrand.TextColor3             = Color3.fromRGB(120, 120, 120)
+menuBrand.Font                   = Enum.Font.GothamBold
+menuBrand.TextSize               = 10
+menuBrand.TextXAlignment         = Enum.TextXAlignment.Left
+menuBrand.TextTransparency       = 1
+menuBrand.Parent                 = menu
+
 local menuTitle = Instance.new("TextLabel")
 menuTitle.Size                   = UDim2.new(1, -80, 0, 28)
-menuTitle.Position               = UDim2.new(0, 20, 0, 22)
+menuTitle.Position               = UDim2.new(0, 20, 0, 28)
 menuTitle.BackgroundTransparency = 1
 menuTitle.Text                   = "VELARD TOOLS"
 menuTitle.TextColor3             = Color3.fromRGB(255, 255, 255)
@@ -174,7 +186,7 @@ menuTitle.Parent                 = menu
 
 local menuSub = Instance.new("TextLabel")
 menuSub.Size                   = UDim2.new(1, -40, 0, 16)
-menuSub.Position               = UDim2.new(0, 20, 0, 50)
+menuSub.Position               = UDim2.new(0, 20, 0, 58)
 menuSub.BackgroundTransparency = 1
 menuSub.Text                   = "Select a script to execute:"
 menuSub.TextColor3             = Color3.fromRGB(150, 150, 150)
@@ -186,7 +198,7 @@ menuSub.Parent                 = menu
 
 local divider = Instance.new("Frame")
 divider.Size                   = UDim2.new(1, -40, 0, 1)
-divider.Position               = UDim2.new(0, 20, 0, 74)
+divider.Position               = UDim2.new(0, 20, 0, 82)
 divider.BackgroundColor3       = Color3.fromRGB(45, 45, 45)
 divider.BorderSizePixel        = 0
 divider.BackgroundTransparency = 1
@@ -194,7 +206,7 @@ divider.Parent                 = menu
 
 local optionsContainer = Instance.new("Frame")
 optionsContainer.Size                   = UDim2.new(1, -40, 0, 160)
-optionsContainer.Position               = UDim2.new(0, 20, 0, 92)
+optionsContainer.Position               = UDim2.new(0, 20, 0, 100)
 optionsContainer.BackgroundTransparency = 1
 optionsContainer.Parent                 = menu
 
@@ -215,20 +227,33 @@ footer.TextXAlignment         = Enum.TextXAlignment.Center
 footer.TextTransparency       = 1
 footer.Parent                 = menu
 
+local dragHandle = Instance.new("TextButton")
+dragHandle.Name                   = "DragHandle"
+dragHandle.Size                   = UDim2.new(1, -60, 0, 60)
+dragHandle.Position               = UDim2.new(0, 0, 0, 0)
+dragHandle.BackgroundTransparency = 1
+dragHandle.Text                   = ""
+dragHandle.AutoButtonColor        = false
+dragHandle.Active                 = true
+dragHandle.ZIndex                 = 1
+dragHandle.Parent                 = menu
+
 local closeBtn = Instance.new("TextButton")
 closeBtn.Name                   = "CloseButton"
 closeBtn.AnchorPoint            = Vector2.new(1, 0)
-closeBtn.Size                   = UDim2.new(0, 26, 0, 26)
-closeBtn.Position               = UDim2.new(1, -14, 0, 22)
+closeBtn.Size                   = UDim2.new(0, 28, 0, 28)
+closeBtn.Position               = UDim2.new(1, -14, 0, 14)
 closeBtn.BackgroundColor3       = Color3.fromRGB(30, 30, 30)
 closeBtn.BorderSizePixel        = 0
 closeBtn.AutoButtonColor        = false
+closeBtn.Active                 = true
 closeBtn.Text                   = "X"
 closeBtn.TextColor3             = Color3.fromRGB(220, 220, 220)
 closeBtn.Font                   = Enum.Font.GothamBold
-closeBtn.TextSize               = 13
+closeBtn.TextSize               = 14
 closeBtn.TextTransparency       = 1
 closeBtn.BackgroundTransparency = 1
+closeBtn.ZIndex                 = 10
 closeBtn.Parent                 = menu
 Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 6)
 
@@ -236,16 +261,8 @@ local closeStroke = Instance.new("UIStroke")
 closeStroke.Color        = Color3.fromRGB(60, 60, 60)
 closeStroke.Thickness    = 1
 closeStroke.Transparency = 1
+closeStroke.ZIndex       = 10
 closeStroke.Parent       = closeBtn
-
-local dragHandle = Instance.new("TextButton")
-dragHandle.Name                   = "DragHandle"
-dragHandle.Size                   = UDim2.new(1, 0, 0, 70)
-dragHandle.Position               = UDim2.new(0, 0, 0, 0)
-dragHandle.BackgroundTransparency = 1
-dragHandle.Text                   = ""
-dragHandle.AutoButtonColor        = false
-dragHandle.Parent                 = menu
 
 local function showMaintenanceNotif()
     local notif = Instance.new("Frame")
@@ -305,10 +322,14 @@ local function showMaintenanceNotif()
     end)
 end
 
+local closing = false
 local function fadeOutMenuAndDestroy()
+    if closing then return end
+    closing = true
     local ft = TweenInfo.new(0.25)
     TweenService:Create(menu, ft, { BackgroundTransparency = 1 }):Play()
     TweenService:Create(menuStroke, ft, { Transparency = 1 }):Play()
+    TweenService:Create(menuBrand, ft, { TextTransparency = 1 }):Play()
     TweenService:Create(menuTitle, ft, { TextTransparency = 1 }):Play()
     TweenService:Create(menuSub, ft, { TextTransparency = 1 }):Play()
     TweenService:Create(divider, ft, { BackgroundTransparency = 1 }):Play()
@@ -341,14 +362,16 @@ local function fadeOutMenuAndDestroy()
 end
 
 closeBtn.MouseEnter:Connect(function()
+    if closing then return end
     TweenService:Create(closeBtn, TweenInfo.new(0.15), { BackgroundColor3 = Color3.fromRGB(200, 50, 50) }):Play()
     TweenService:Create(closeStroke, TweenInfo.new(0.15), { Color = Color3.fromRGB(255, 80, 80) }):Play()
 end)
 closeBtn.MouseLeave:Connect(function()
+    if closing then return end
     TweenService:Create(closeBtn, TweenInfo.new(0.15), { BackgroundColor3 = Color3.fromRGB(30, 30, 30) }):Play()
     TweenService:Create(closeStroke, TweenInfo.new(0.15), { Color = Color3.fromRGB(60, 60, 60) }):Play()
 end)
-closeBtn.MouseButton1Click:Connect(function()
+closeBtn.Activated:Connect(function()
     fadeOutMenuAndDestroy()
 end)
 
@@ -359,6 +382,7 @@ local startPos  = nil
 dragHandle.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1
     or input.UserInputType == Enum.UserInputType.Touch then
+        if closing then return end
         dragging  = true
         dragStart = input.Position
         startPos  = menu.Position
@@ -371,6 +395,7 @@ dragHandle.InputBegan:Connect(function(input)
 end)
 
 UserInputService.InputChanged:Connect(function(input)
+    if closing then return end
     if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement
     or input.UserInputType == Enum.UserInputType.Touch) then
         local delta = input.Position - dragStart
@@ -485,6 +510,7 @@ task.spawn(function()
     local ft = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
     TweenService:Create(menu, ft, { BackgroundTransparency = 0 }):Play()
     TweenService:Create(menuStroke, ft, { Transparency = 0.2 }):Play()
+    TweenService:Create(menuBrand, ft, { TextTransparency = 0 }):Play()
     TweenService:Create(menuTitle, ft, { TextTransparency = 0 }):Play()
     TweenService:Create(menuSub, ft, { TextTransparency = 0 }):Play()
     TweenService:Create(divider, ft, { BackgroundTransparency = 0 }):Play()
